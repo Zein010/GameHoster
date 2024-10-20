@@ -3,6 +3,8 @@ import TerminalService from "./TerminalService.js";
 import PrismaService from "./PrismaService.js";
 const app = express();
 app.get("/", (req, res) => {
+  console.log("Test")
+  res.json({ mes: "Server is running" })
 });
 app.get("/CreateServer", async (req, res) => {
   const gameVersion = await PrismaService.GetGameVersion(1)
