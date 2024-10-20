@@ -1,4 +1,4 @@
-import { exec, execSync } from "child_process"
+import { exec, execSync, spawn } from "child_process"
 import fs from "fs"
 import PrismaService from "./PrismaService.js";
 import path from "path";
@@ -37,8 +37,17 @@ const DownloadServerData = (url, pathName) => {
 const RunGameServer = async (path, username, gameVersion, addToRunningServers) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", path);
     try {
-
         const res = execSync(script)
+        exec(`su ${username} & ${script}`, (error, stdout, stderr) => {
+            if (error) {
+                console.log({ error })
+            }
+            if (stderr) {
+                console.log({ stderr })
+            }
+            console.log(stdout)
+        })
+
         if (addToRunningServers) {
             await PrismaService.AddRunningServer(path, username, gameVersion.id);
         }
