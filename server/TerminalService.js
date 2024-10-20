@@ -32,7 +32,7 @@ const DownloadServerData = (url, pathName) => {
         console.log({ res })
 
     } catch (error) {
-        console.log{ error }
+        console.log(error)
     }
 }
 const OwnFile = async (name, username) => {
