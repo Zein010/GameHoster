@@ -41,8 +41,8 @@ const DownloadServerData = (url, pathName) => {
 const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunningServers) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
-        console.log({ script: `su ${username} && cd ${path} && ${script}` })
-        const res = execSync(`su ${username} && cd ${path} && ${script}`)
+        console.log({ script: `sudo -u ${username} bash -c " cd ${path} && ${script}"` })
+        const res = execSync(`sudo -u ${username} bash -c " cd ${path} && ${script}"`)
         console.log({ res })
         if (addToRunningServers) {
             await PrismaService.AddRunningServer(path, username, gameVersion.id);
