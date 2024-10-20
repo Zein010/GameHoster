@@ -4,7 +4,7 @@ import PrismaService from "./PrismaService.js";
 const app = express();
 app.get("/", (req, res) => {
   console.log("Test")
-  res.json({ mes: "Server is running" })
+  res.json({ msg: "Server is running" })
 });
 app.get("/CreateServer", async (req, res) => {
   const gameVersion = await PrismaService.GetGameVersion(1)
@@ -13,7 +13,9 @@ app.get("/CreateServer", async (req, res) => {
   const username = `${gameVersion.game.dirName}-${rand}`;
   await TerminalService.CreateNewDirectory({ name: dirName })
   await TerminalService.CreateUser(username);
+  await TerminalService.DownloadServerData(gameVersion.downloadLink, dirName);
   await TerminalService.OwnFile(dirName, username)
+  res.json({ msg: "Game server create successfully" });
 })
 app.listen(3000, () => {
   console.log("Server started on port 3000");

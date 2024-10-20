@@ -1,6 +1,7 @@
 import { exec, execSync } from "child_process"
 import fs from "fs"
 import PrismaService from "./PrismaService.js";
+import path from "path";
 const CreateNewDirectory = (config) => {
     const PathArr = config.name.split("/");
     var currPath = "";
@@ -28,7 +29,7 @@ const DeleteUser = () => {
 const DownloadServerData = (url, pathName) => {
 
     const res = execSync(`wget ${url} -p ${pathName}`)
-    console.log(res);
+    console.log({ res })
 }
 const OwnFile = async (name, username) => {
     execSync(`chown -R ${username}:${username} ${name} `)
