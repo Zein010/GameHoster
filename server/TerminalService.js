@@ -41,7 +41,7 @@ const DownloadServerData = (url, pathName) => {
 const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunningServers) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
-        exec(`su ${username} & cd ${path} & ${script}`, (error, stdout, stderr) => {
+        exec(`su ${username} && cd ${path} && ${script}`, (error, stdout, stderr) => {
             if (error) {
                 console.log({ error })
             }
