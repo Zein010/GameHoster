@@ -23,8 +23,8 @@ const seed = async () => {
     console.log("Created Minecraft Version")
     await prisma.getFilesSetup.upsert({
       where: { id: 1 },
-      create: { id: 1, gameVersionId: 1, fileName: "eula.text", content: "eula=true" },
-      update: { gameVersionId: 1, fileName: "eula.text", content: "eula=true" },
+      create: { id: 1, gameVersionId: 1, fileName: "eula.txt", content: "eula=true" },
+      update: { gameVersionId: 1, fileName: "eula.txt", content: "eula=true" },
     });
     console.log("Created minecraft file requirements")
   } catch (error) {
