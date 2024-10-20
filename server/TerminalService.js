@@ -31,10 +31,7 @@ const DownloadServerData = (url, pathName) => {
     try {
 
         execSync(`wget -P ${pathName} ${url}`)
-        fs.readdir(pathName, (err, files) => {
-
-            console.log({ files });
-        });
+        const file = fs.readdirSync(pathName)[0];
         return pathName + "/" + file
     } catch (error) {
         console.log(error)
