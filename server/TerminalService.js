@@ -32,16 +32,16 @@ const DownloadServerData = (url, pathName) => {
 
         execSync(`wget -P ${pathName} ${url}`)
         const file = fs.readdirSync(pathName)[0];
-        return pathName + "/" + file
+        return file
     } catch (error) {
         console.log(error)
     }
 }
 
-const RunGameServer = async (path, username, gameVersion, addToRunningServers) => {
-    const script = gameVersion.runScript.replaceAll("[{fileName}]", path);
+const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunningServers) => {
+    const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
-        exec(`su ${username} & ls`, (error, stdout, stderr) => {
+        exec(`su ${username} & cd ${path} & ${script}`, (error, stdout, stderr) => {
             if (error) {
                 console.log({ error })
             }
