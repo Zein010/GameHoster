@@ -22,7 +22,8 @@ model User {
 model Game {
   id          Int           @id @default(autoincrement())
   name        String
-  GameVersion GameVersion[]
+  dirName     String
+  gameVersion GameVersion[]
 }
 
 model GameVersion {
@@ -31,4 +32,29 @@ model GameVersion {
   game         Game   @relation(fields: [gameId], references: [id])
   version      String
   downloadLink String
+}
+
+model SysUser {
+  id         Int          @id @default(autoincrement())
+  username   String       @unique @db.VarChar(100)
+  userAccess UserAccess[]
+}
+
+model TerminalError {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  msg       String   @db.LongText
+}
+
+model UserAccess {
+  id        Int     @id @default(autoincrement())
+  path      String
+  sysUserID Int
+  sysUser   SysUser @relation(fields: [sysUserID], references: [id])
+}
+
+model DownloadedFile {
+  id   Int    @id @default(autoincrement())
+  path String
+  file String
 }
