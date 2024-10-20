@@ -13,5 +13,8 @@ const GetGameVersion = async (id) => {
 const GetGameVersions = async (gameId) => {
     return await prisma.gameVersion.findMany({ where: { gameId: +gameId } })
 }
-const PrismaService = { StoreUser, SetUserAccess, GetGameVersion, GetGameVersions }
+const AddRunningServer = async (path, username, gameVersionId) => {
+    return await prisma.runningServers.create({ data: { path, gameVersion: { connect: { id: gameVersionId } }, sysUser: { connect: { username } } } })
+}
+const PrismaService = { StoreUser, SetUserAccess, GetGameVersion, GetGameVersions, AddRunningServer }
 export default PrismaService;

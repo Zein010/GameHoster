@@ -23,16 +23,28 @@ const CreateUser = async (username) => {
         return false;
     }
 }
-const DeleteUser = () => {
+const DeleteUser = (username) => {
 
 }
 const DownloadServerData = (url, pathName) => {
     try {
-        const res = execSync(`wget -P ${pathName} ${url}`)
-        console.log({ res })
-
+        execSync(`wget -P ${pathName} ${url}`)
     } catch (error) {
         console.log(error)
+    }
+}
+
+const RunGameServer = async (path, username, gameVersion, addToRunningServers) => {
+    const script = gameVersion.runScript.replaceAll("[{fileName}]", path);
+    try {
+
+        const res = execSync(script)
+        if (addToRunningServers) {
+            await PrismaService.AddRunningServer(path, username, gameVersion.id);
+        }
+        console.log({ res })
+    } catch (error) {
+        console.log({ error })
     }
 }
 const OwnFile = async (name, username) => {
@@ -41,5 +53,5 @@ const OwnFile = async (name, username) => {
     await PrismaService.SetUserAccess(username, name)
 }
 
-const TerminalService = { CreateNewDirectory, CreateUser, OwnFile, DeleteUser, DownloadServerData }
+const TerminalService = { CreateNewDirectory, CreateUser, OwnFile, DeleteUser, DownloadServerData, RunGameServer }
 export default TerminalService
