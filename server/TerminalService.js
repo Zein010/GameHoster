@@ -28,7 +28,7 @@ const DeleteUser = () => {
 }
 const DownloadServerData = (url, pathName) => {
     try {
-        const res = execSync(`wget -p ${pathName} ${url}`)
+        const res = execSync(`wget -P ${pathName} ${url}`)
         console.log({ res })
 
     } catch (error) {
