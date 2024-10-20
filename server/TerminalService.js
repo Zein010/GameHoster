@@ -42,7 +42,7 @@ const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunni
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
         const res = execSync(`su ${username} && ls`)
-        console.log(res);
+        console.log({ res });
         if (addToRunningServers) {
             await PrismaService.AddRunningServer(path, username, gameVersion.id);
         }
