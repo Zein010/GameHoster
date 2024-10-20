@@ -27,13 +27,14 @@ const DeleteUser = (username) => {
 
 }
 const DownloadServerData = (url, pathName) => {
+    let file = "";
     try {
+
         execSync(`wget -P ${pathName} ${url}`)
         fs.readdir(pathName, (err, files) => {
-            files.forEach(file => {
-                console.log(file);
-            });
+            file = files[0]
         });
+        return pathName + "/" + file
     } catch (error) {
         console.log(error)
     }
