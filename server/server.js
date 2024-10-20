@@ -14,6 +14,7 @@ app.get("/CreateServer", async (req, res) => {
   await TerminalService.CreateNewDirectory({ name: dirName })
   await TerminalService.CreateUser(username);
   const scriptFile = await TerminalService.DownloadServerData(gameVersion.downloadLink, dirName);
+  await TerminalService.SetupReqFuiredFiles(dirName, gameVersion.id)
   await TerminalService.OwnFile(dirName, username)
   await TerminalService.RunGameServer(dirName, scriptFile, username, gameVersion, true)
   res.json({ msg: "Game server create successfully" });

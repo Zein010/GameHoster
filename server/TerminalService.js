@@ -37,7 +37,13 @@ const DownloadServerData = (url, pathName) => {
         console.log(error)
     }
 }
+const SetupRequiredFiles = async (path, gameVersionId) => {
+    const files = await PrismaService.GetGameVersionFiles(gameVersionId)
+    files.forEach(file => {
+        fs.appendFileSync(path + "/" + file.fileName, file.content);
+    })
 
+}
 const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunningServers) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
