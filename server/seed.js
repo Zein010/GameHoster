@@ -17,8 +17,8 @@ const seed = async () => {
     console.log("Created Minecraft Server")
     await prisma.gameVersion.upsert({
       where: { id: 1 },
-      create: { id: 1, gameId: 1, version: "1.21.1", downloadLink: "https://piston-data.mojang.com/v1/objects/59353fb40c36d304f2035d51e7d6e6baa98dc05c/server.jar", runScript: "java -Xmx1024M -Xms1024M [{fileName}] -jar" },
-      update: { gameId: 1, version: "1.21.1", downloadLink: "https://piston-data.mojang.com/v1/objects/59353fb40c36d304f2035d51e7d6e6baa98dc05c/server.jar", runScript: "java -Xmx1024M -Xms1024M [{fileName}] -jar" },
+      create: { id: 1, gameId: 1, version: "1.21.1", downloadLink: "https://piston-data.mojang.com/v1/objects/59353fb40c36d304f2035d51e7d6e6baa98dc05c/server.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
+      update: { gameId: 1, version: "1.21.1", downloadLink: "https://piston-data.mojang.com/v1/objects/59353fb40c36d304f2035d51e7d6e6baa98dc05c/server.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
     });
     console.log("Created Minecraft Version")
   } catch (error) {
