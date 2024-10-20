@@ -39,6 +39,7 @@ const DownloadServerData = (url, pathName) => {
 }
 
 const RunGameServer = async (path, username, gameVersion, addToRunningServers) => {
+    console.log({ path })
     const script = gameVersion.runScript.replaceAll("[{fileName}]", path);
     try {
         const res = execSync(script)
