@@ -28,7 +28,7 @@ const DeleteUser = () => {
 }
 const DownloadServerData = (url, pathName) => {
 
-    const res = execSync(`wget ${url} -p ${pathName}`)
+    const res = execSync(`wget -p ${pathName} ${url}`)
     console.log({ res })
 }
 const OwnFile = async (name, username) => {
