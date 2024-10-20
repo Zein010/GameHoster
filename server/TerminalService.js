@@ -63,5 +63,5 @@ const OwnFile = async (name, username) => {
     await PrismaService.SetUserAccess(username, name)
 }
 
-const TerminalService = { CreateNewDirectory, CreateUser, OwnFile, DeleteUser, DownloadServerData, RunGameServer }
+const TerminalService = { CreateNewDirectory, CreateUser, OwnFile, DeleteUser, DownloadServerData, RunGameServer, SetupRequiredFiles }
 export default TerminalService
