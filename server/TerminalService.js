@@ -70,9 +70,9 @@ const RunGameServer = async (path, scriptFile, username, gameVersion) => {
     }
 }
 const StartCreatedServer = (path, scriptFile, username, gameVersion, serverId) => {
-    const script = gameVersion.runScript.replaceAll("[{fileName}]", path + '/' + scriptFile);
+    const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
-        const ls = spawn('sudo', ['-u', username, 'bash -c', `"${script}"`], {
+        const ls = spawn('sudo', ['-u', username, 'bash -c', `cd ${path} && ${script}`], {
             detached: true,  // Run the process as a separate process
             stdio: ['ignore', 'pipe', 'pipe'],
             shell: true
