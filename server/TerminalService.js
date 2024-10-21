@@ -71,17 +71,15 @@ const RunGameServer = async (path, scriptFile, username, gameVersion) => {
 }
 const StartCreatedServer = (path, scriptFile, username, gameVersion, serverId) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
-    const absolutePath = path.resolve(__dirname, path);
-    console.log(absolutePath);
-    const command = `cd ${absolutePath} && ${script}`;
     try {
-        const ls = spawn('sudo', ['-u', username, `bash`, '-c', `${command}`], {
+        const ls = spawn('sudo', ['-u', username, 'bash', '-c', `ls`], {
             detached: true,  // Run the process as a separate process
             stdio: ['ignore', 'pipe', 'pipe'],
             shell: true
         });
 
         ls.stdout.on('data', (data) => {
+            console.log(`stdout ${data}\n`);
             fs.appendFileSync(path + "/UILogs/out", data, "utf-8");
         });
 
