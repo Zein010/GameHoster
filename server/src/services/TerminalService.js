@@ -109,7 +109,6 @@ const StartCreatedServer = (serverDetails) => {
             console.log({ psData });
             // PrismaService.SetRunningServerPID(serverId, 0);
         });
-        ls.unref()
         return ls.pid;
     }
     catch (error) {
