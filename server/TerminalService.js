@@ -44,16 +44,17 @@ const SetupRequiredFiles = async (path, files) => {
 
 }
 const SetupServerAfterStart = async (path, data) => {
+    console.log(data);
     var content = "";
     for (var j = 0; j < data.length; j++) {
 
-        for (var i = 0; i < data[j].replace.length; i++) {
+        for (var i = 0; i < data[j].toReplace.length; i++) {
 
-            content = await fs.readFile(path + "/" + replaceData.fileName);
-            data[j].replace[i].data.forEach(toReplace => {
-                content = content.replaceAll(toReplace.search, toReplace.replace)
+            content = await fs.readFile(path + "/" + data[j].toReplace[i].fileName);
+            data[j].toReplace[i].data.forEach(toReplace => {
+                content = content.replaceAll(toReplace.search, toReplace.replaceWith)
             })
-            await fs.writeFile(path + "/" + replaceData.fileName, content, 'utf-8');
+            await fs.writeFile(path + "/" + data[j].toReplace[i].fileName, content, 'utf-8');
         }
     }
 
@@ -62,9 +63,7 @@ const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunni
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
         console.log({ script: `sudo -u ${username} bash -c " cd ${path} && ${script}"` })
-        spawn(`sudo -u ${username} bash -c " cd ${path} && ${script}"`, () => {
-
-        })
+        execSync(`sudo -u ${username} bash -c " cd ${path} && ${script}"`)
         if (addToRunningServers) {
             await PrismaService.AddRunningServer(path, username, gameVersion.id);
         }

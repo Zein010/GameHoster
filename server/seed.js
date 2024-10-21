@@ -26,18 +26,18 @@ const seed = async () => {
       where: { id: 1 },
       create: {
         id: 1, gameVersionId: 1, actions: {
-          replace: [
-            { fileName: "eula.txt", data: [{ search: "eula=false", replace: "eula=true" }] },
-            { fileName: "server.properties", data: [{ search: "online-mode=true", replace: "online-mode=false" }] }
+          toReplace: [
+            { fileName: "eula.txt", data: [{ search: "eula=false", replaceWith: "eula=true" }] },
+            { fileName: "server.properties", data: [{ search: "online-mode=true", replaceWith: "online-mode=false" }] }
           ]
         },
       },
       update: {
         gameVersionId: 1,
         actions: {
-          replace: [
-            { fileName: "eula.txt", data: [{ search: "eula=false", replace: "eula=true" }] },
-            { fileName: "server.properties", data: [{ search: "online-mode=true", replace: "online-mode=false" }] }
+          toReplace: [
+            { fileName: "eula.txt", data: [{ search: "eula=false", replaceWith: "eula=true" }] },
+            { fileName: "server.properties", data: [{ search: "online-mode=true", replaceWith: "online-mode=false" }] }
           ]
         },
       }
