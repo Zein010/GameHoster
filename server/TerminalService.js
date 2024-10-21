@@ -77,7 +77,7 @@ const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunni
 }
 const RunGameServerAsync = (path, scriptFile, username, gameVersion) => {
     try {
-        const ls = spawn('ls');
+        const ls = spawn(`cd ${path} && ls`);
 
         ls.stdout.on('data', (data) => {
             console.log(`stdout: ${data}`);
