@@ -66,7 +66,7 @@ const RunGameServer = (serverDetails) => {
     } catch (error) {
     }
 }
-const StartCreatedServer = (serverDetails) => {
+const StartCreatedServer = (serverDetails, pidSetter) => {
     const path = serverDetails.path
     const scriptFile = serverDetails.scriptFile
     const username = serverDetails.sysUser.username
@@ -92,7 +92,7 @@ const StartCreatedServer = (serverDetails) => {
                         const PID = matches[0];
                         if (grepData) {
                             pidSet = true;
-                            GameService.SetRunningServerPID(serverDetails.id, parseInt(PID))
+                            pidSetter(parseInt(PID))
                         }
                     }
                 }
@@ -114,7 +114,6 @@ const StartCreatedServer = (serverDetails) => {
         });
 
         ls.unref();
-        console.log({ PID });
         return 0
     }
     catch (error) {
