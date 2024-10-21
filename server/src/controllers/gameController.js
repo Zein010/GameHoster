@@ -53,13 +53,13 @@ const CreateServer = async (req, res) => {
     await TerminalService.CreateUser(username);
     await sysUserService.StoreSysUser(username);
     const scriptFile = TerminalService.DownloadServerData(gameVersion.downloadLink, dirName);
-    const runningServer = await PrismaService.AddRunningServer(dirName, username, gameVersion.id, scriptFile)
+    const serverDetails = await PrismaService.AddRunningServer(dirName, username, gameVersion.id, scriptFile)
     await TerminalService.SetupRequiredFiles(dirName, gameVersion.getFilesSetup)
-    await TerminalService.RunGameServer(runningServer)
+    await TerminalService.RunGameServer(serverDetails)
     await TerminalService.SetupServerAfterStart(dirName, gameVersion.changeFileAfterSetup);
     await TerminalService.OwnFile(dirName, username)
-    const PID = TerminalService.StartCreatedServer(runningServer)
-    await PrismaService.SetRunningServerPID(runningServer.id, PID)
+    const PID = TerminalService.StartCreatedServer(serverDetails)
+    await PrismaService.SetRunningServerPID(serverDetails.id, PID)
     res.json({ msg: "Game server created successfully" });
 }
 const GameController = { GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer };
