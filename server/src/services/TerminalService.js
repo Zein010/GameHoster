@@ -58,8 +58,9 @@ const SetupServerAfterStart = async (path, data) => {
     }
 
 }
-const RunGameServer = async (serverDetails) => {
+const RunGameServer = (serverDetails) => {
     const script = serverDetails.gameVersion.runScript.replaceAll("[{fileName}]", serverDetails.scriptFile);
+    console.log({ script });
     try {
         execSync(`sudo -u ${serverDetails.sysUser.username} bash -c " cd ${serverDetails.path} && ${script}"`)
         fs.mkdirSync(serverDetails.path + "/UILogs");
