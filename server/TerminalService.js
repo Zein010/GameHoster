@@ -100,6 +100,7 @@ const StartCreatedServer = (path, scriptFile, username, gameVersion, serverId) =
             fs.appendFileSync(path + "/UILogs/err", `Error with process: ${error.message}`, "utf-8");
             // PrismaService.SetRunningServerPID(serverId, 0);
         });
+        ls.unref()
         return ls.pid;
     }
     catch (error) {
