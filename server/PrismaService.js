@@ -13,8 +13,8 @@ const GetGameVersion = async (id) => {
 const GetGameVersions = async (gameId) => {
     return await prisma.gameVersion.findMany({ where: { gameId: +gameId } })
 }
-const AddRunningServer = async (path, username, gameVersionId) => {
-    return await prisma.runningServers.create({ data: { path, gameVersion: { connect: { id: gameVersionId } }, sysUser: { connect: { username } } } })
+const AddRunningServer = async (path, username, gameVersionId, scriptFile) => {
+    return await prisma.runningServers.create({ data: { path, scriptFile, gameVersion: { connect: { id: gameVersionId } }, sysUser: { connect: { username } } } })
 }
 const GetGameVersionFiles = async (gameVersionId) => {
     return await prisma.getFilesSetup.findMany({ where: { gameVersionId } })

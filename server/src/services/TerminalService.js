@@ -1,6 +1,6 @@
 import { exec, execSync, spawn, fork } from "child_process"
 import fs from "fs"
-import PrismaService from "./PrismaService.js";
+import PrismaService from "../../PrismaService.js";
 import path from "path";
 const CreateNewDirectory = (config) => {
     const PathArr = config.name.split("/");

@@ -1,12 +1,14 @@
 import express from "express";
-import PrismaService from "../../PrismaService";
+import GameController from "../controllers/gameController.js";
 const router = express.Router();
 
-router.Get("/", authenticateToken, itemsController.add);
+router.get("/", GameController.GetAll);
 
-router.patch("/:id", authenticateToken, itemsController.edit);
+router.get("/Version/:id", GameController.GetVersion);
+router.get("/Servers/:versionId", GameController.GetServers);
+router.get("/Server/:id", GameController.GetServer);
+router.get("/:gameId/Versions", GameController.GetVersions);
+router.get("/:id", GameController.Get);
 
-router.get("/:id", authenticateToken, itemsController.getById);
-router.get("/", authenticateToken, itemsController.search);
 
 export default router;

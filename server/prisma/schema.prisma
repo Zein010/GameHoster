@@ -69,6 +69,7 @@ model RunningServers {
   gameVersionId Int
   gameVersion   GameVersion @relation(fields: [gameVersionId], references: [id])
   path          String
+  scriptFile    String      @default("")
   sysUserId     Int
   pid           Int         @default(0)
   sysUser       SysUser     @relation(fields: [sysUserId], references: [id])
