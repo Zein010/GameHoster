@@ -8,10 +8,10 @@ const SetUserAccess = async (username, path) => {
     return await prisma.userAccess.create({ data: { sysUser: { connect: { username: username } }, path } })
 }
 const GetGameVersion = async (id) => {
-    return await prisma.gameVersion.findUnique({ where: { id }, include: { game: true } })
+    return await prisma.gameVersion.findUnique({ where: { id }, include: { game: true, changeFileAfterSetup: true, getFilesSetup: true } })
 }
 const GetGameVersions = async (gameId) => {
-    return await prisma.gameVersion.findMany({ where: { gameId: +gameId }, include: { changeFileAfterSetup: true, getFilesSetup: true } })
+    return await prisma.gameVersion.findMany({ where: { gameId: +gameId } })
 }
 const AddRunningServer = async (path, username, gameVersionId) => {
     return await prisma.runningServers.create({ data: { path, gameVersion: { connect: { id: gameVersionId } }, sysUser: { connect: { username } } } })
