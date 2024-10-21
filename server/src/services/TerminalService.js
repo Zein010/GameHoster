@@ -1,7 +1,6 @@
-import { exec, execSync, spawn, fork } from "child_process"
+import { execSync, spawn, fork } from "child_process"
 import fs from "fs"
 import PrismaService from "../../PrismaService.js";
-import path from "path";
 import GameService from "./gameService.js";
 const CreateNewDirectory = (config) => {
     const PathArr = config.name.split("/");
@@ -86,10 +85,16 @@ const StartCreatedServer = (serverDetails) => {
 
                 const grepData = execSync(`ps -u ${serverDetails.sysUser.username} | grep -E 'java'`, { encoding: "utf-8" });
                 console.log({ grepData })
-                const PID = grepData.match(/^\d+/)[0];
                 if (grepData) {
-                    pidSet = true;
-                    GameService.SetRunningServerPID(serverDetails.id, parseInt(PID))
+                    const matches = grepData.match(/\s*(\d+)/);
+                    if (matches) {
+
+                        const PID = matches[0];
+                        if (grepData) {
+                            pidSet = true;
+                            GameService.SetRunningServerPID(serverDetails.id, parseInt(PID))
+                        }
+                    }
                 }
             }
         });
