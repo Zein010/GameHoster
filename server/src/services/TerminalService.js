@@ -100,20 +100,18 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
         });
         ls.stderr.on('data', (data) => {
             fs.appendFileSync(path + "/UILogs/err", data, "utf-8");
-
         });
 
         ls.on('exit', (code) => {
             fs.appendFileSync(path + "/UILogs/exit", `Process exited with code ${code}\n`, "utf-8");
-
         });
 
         ls.on('error', (error) => {
             fs.appendFileSync(path + "/UILogs/err", `Error with process: ${error.message}`, "utf-8");
-
         });
 
         ls.unref();
+        console.log("Unrefed")
         return 0
     }
     catch (error) {
