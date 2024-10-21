@@ -41,7 +41,6 @@ const DownloadServerData = (url, pathName) => {
         const file = fs.readdirSync(pathName)[0];
         return file
     } catch (error) {
-        console.log(error)
     }
 }
 const SetupRequiredFiles = async (path, files) => {
@@ -78,9 +77,7 @@ const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunni
 }
 const RunGameServerAsync = (path, scriptFile, username, gameVersion) => {
     try {
-        const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
-
-        const ls = spawn(`ls `)
+        const ls = spawn('ls', ['-lh', '/usr']);
 
         ls.stdout.on('data', (data) => {
             console.log(`stdout: ${data}`);
