@@ -71,6 +71,7 @@ const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunni
         console.log({ error })
     }
 }
+
 const OwnFile = async (name, username) => {
     execSync(`chown -R ${username}:${username} ${name} `)
     execSync(`chmod -R 755  ${name} `)
