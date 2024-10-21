@@ -72,7 +72,7 @@ const RunGameServer = async (path, scriptFile, username, gameVersion) => {
     } catch (error) {
     }
 }
-const StartCreatedServer = (path, scriptFile, username, gameVersion) => {
+const StartCreatedServer = (path, scriptFile, username, gameVersion, serverId) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
         const ls = exec(`sudo su ${username} bash -c " cd ${path} && ${script}"`);
@@ -82,16 +82,18 @@ const StartCreatedServer = (path, scriptFile, username, gameVersion) => {
 
         ls.stderr.on('data', (data) => {
             fs.appendFileSync(path + "/UILogs/err", data, "utf-8");
+            PrismaService.SetRunningServerPID(serverId, 0);
         });
 
         ls.on('exit', (code) => {
             fs.appendFileSync(path + "/UILogs/exit", `Process exited with code ${code}\n`, "utf-8");
+            PrismaService.SetRunningServerPID(serverId, 0);
         });
 
         ls.on('error', (error) => {
             fs.appendFileSync(path + "/UILogs/err", `Error with process: ${error.message}`, "utf-8");
+            PrismaService.SetRunningServerPID(serverId, 0);
         });
-        return ls.pid
     }
     catch (error) {
         return 0;
