@@ -32,7 +32,7 @@ const DeleteUser = (username) => {
 const DownloadServerData = (url, pathName) => {
     try {
 
-        execSync(`wget -P ${pathName} ${url}`)
+        execSync(`wget -q -P ${pathName} ${url}`)
         const file = fs.readdirSync(pathName)[0];
         return file
     } catch (error) {
