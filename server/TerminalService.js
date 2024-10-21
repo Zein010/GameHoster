@@ -62,11 +62,8 @@ const SetupServerAfterStart = async (path, data) => {
 const RunGameServer = async (path, scriptFile, username, gameVersion) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
-        execSync(`sudo su ${username} bash -c " cd ${path} && ${script}"`)
+        execSync(`sudo -u ${username} bash -c " cd ${path} && ${script}"`)
         fs.mkdirSync(path + "/UILogs");
-        fs.appendFileSync(path + "/UILogs/out", "", "utf-8");
-        fs.appendFileSync(path + "/UILogs/err", "", "utf-8");
-        fs.appendFileSync(path + "/UILogs/close", "", "utf-8");
 
         return true;
     } catch (error) {
@@ -75,7 +72,7 @@ const RunGameServer = async (path, scriptFile, username, gameVersion) => {
 const StartCreatedServer = (path, scriptFile, username, gameVersion, serverId) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
-        const ls = spawn('sudo', ['su', username, '-c', `cd ${path} && ${script}`], {
+        const ls = spawn('sudo', ['-u', username, 'ls', `cd ${path} && ${script}`], {
             detached: true,  // Run the process as a separate process
             stdio: ['ignore', 'pipe', 'pipe'],
             shell: true
