@@ -50,7 +50,7 @@ const SetupServerAfterStart = async (path, data) => {
         for (var i = 0; i < data[j].actions.toReplace.length; i++) {
 
             console.log(path + "/" + data[j].actions.toReplace[i].fileName)
-            content = fs.readFileSync(path + "/" + data[j].actions.toReplace[i].fileName);
+            content = fs.readFileSync(path + "/" + data[j].actions.toReplace[i].fileName, { encoding: "utf-8" });
             data[j].actions.toReplace[i].data.forEach(toReplace => {
                 content = content.replaceAll(toReplace.search, toReplace.replaceWith)
             })
