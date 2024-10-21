@@ -81,8 +81,8 @@ const StartCreatedServer = (serverDetails) => {
 
         ls.stdout.on('data', (data) => {
             fs.appendFileSync(path + "/UILogs/out", data, "utf-8");
-            const data = execSync(`ps -u ${serverDetails.sysUser.username}`);
-            console.log({ data });
+            const psData = execSync(`ps -u ${serverDetails.sysUser.username}`);
+            console.log({psData });
         });
 
         ls.stderr.on('data', (data) => {
