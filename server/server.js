@@ -1,6 +1,7 @@
 import express from "express"
 import TerminalService from "./TerminalService.js";
 import PrismaService from "./PrismaService.js";
+import { Prisma } from "@prisma/client";
 const app = express();
 app.get("/", (req, res) => {
   console.log("Test")
@@ -19,9 +20,11 @@ app.get("/CreateServer", async (req, res) => {
   console.log(gameVersion);
   await TerminalService.SetupRequiredFiles(dirName, gameVersion.getFilesSetup)
   await TerminalService.OwnFile(dirName, username)
-  // await TerminalService.RunGameServer(dirName, scriptFile, username, gameVersion, true)
-  // await TerminalService.SetupServerAfterStart(dirName, gameVersion.changeFileAfterSetup);
-  await TerminalService.RunGameServerAsync(dirName, scriptFile, username, gameVersion)
+  await TerminalService.RunGameServer(dirName, scriptFile, username, gameVersion)
+  const runningServer = await PrismaService.AddRunningServer(dirName, username, gameVersion.id)
+  await TerminalService.SetupServerAfterStart(dirName, gameVersion.changeFileAfterSetup);
+  const PID = TerminalService.StartCreatedServer(dirName, scriptFile, username, gameVersion)
+  await PrismaService.SetRunningServerPID(runningServer.id, PID)
   res.json({ msg: "Game server created successfully" });
 })
 app.listen(3000, () => {

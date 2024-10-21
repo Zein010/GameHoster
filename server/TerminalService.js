@@ -64,36 +64,24 @@ const SetupServerAfterStart = async (path, data) => {
     }
 
 }
-const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunningServers) => {
+const RunGameServer = async (path, scriptFile, username, gameVersion) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
         execSync(`sudo su ${username} bash -c " cd ${path} && ${script}"`)
-        if (addToRunningServers) {
-            await PrismaService.AddRunningServer(path, username, gameVersion.id);
-        }
+        return true;
     } catch (error) {
         console.log({ error })
     }
 }
-const RunGameServerAsync = (path, scriptFile, username, gameVersion) => {
+const StartCreatedServer = (path, scriptFile, username, gameVersion) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
         const ls = exec(`sudo su ${username} bash -c " cd ${path} && ${script}"`);
-        console.log(ls.pid);
-        ls.stdout.on('data', (data) => {
-            console.log(`stdout: ${data}`);
-        });
-
-        ls.stderr.on('data', (data) => {
-            console.error(`stderr: ${data}`);
-        });
-
-        ls.on('close', (code) => {
-            console.log(`child process exited with code ${code}`);
-        });
+        return ls.pid
     }
     catch (error) {
         console.log({ error })
+        return 0;
     }
 }
 const OwnFile = async (name, username) => {
@@ -102,5 +90,5 @@ const OwnFile = async (name, username) => {
     await PrismaService.SetUserAccess(username, name)
 }
 
-const TerminalService = { CreateNewDirectory, CreateUser, OwnFile, DeleteUser, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, RunGameServerAsync }
+const TerminalService = { CreateNewDirectory, CreateUser, OwnFile, DeleteUser, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService
