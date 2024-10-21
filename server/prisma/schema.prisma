@@ -27,21 +27,22 @@ model Game {
 }
 
 model GameVersion {
-  id             Int              @id @default(autoincrement())
-  gameId         Int
-  game           Game             @relation(fields: [gameId], references: [id])
-  version        String
-  downloadLink   String
-  runScript      String           @default("") @db.Text
-  RunningServers RunningServers[]
-  GetFilesSetup  GetFilesSetup[]
+  id                   Int                    @id @default(autoincrement())
+  gameId               Int
+  game                 Game                   @relation(fields: [gameId], references: [id])
+  version              String
+  downloadLink         String
+  runScript            String                 @default("") @db.Text
+  runningServers       RunningServers[]
+  getFilesSetup        GetFilesSetup[]
+  changeFileAfterSetup ChangeFileAfterSetup[]
 }
 
 model SysUser {
   id             Int              @id @default(autoincrement())
   username       String           @unique @db.VarChar(100)
   userAccess     UserAccess[]
-  RunningServers RunningServers[]
+  runningServers RunningServers[]
 }
 
 model TerminalError {
@@ -78,4 +79,11 @@ model GetFilesSetup {
   gameVersion   GameVersion @relation(fields: [gameVersionId], references: [id])
   fileName      String      @db.Text
   content       String      @db.Text
+}
+
+model ChangeFileAfterSetup {
+  id            Int         @id @default(autoincrement())
+  gameVersionId Int
+  gameVersion   GameVersion @relation(fields: [gameVersionId], references: [id])
+  actions       Json
 }

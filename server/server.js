@@ -14,7 +14,8 @@ app.get("/CreateServer", async (req, res) => {
   await TerminalService.CreateNewDirectory({ name: dirName })
   await TerminalService.CreateUser(username);
   const scriptFile = await TerminalService.DownloadServerData(gameVersion.downloadLink, dirName);
-  await TerminalService.SetupRequiredFiles(dirName, gameVersion.id)
+  const files = await PrismaService.GetGameVersionFiles(gameVersionId)
+  await TerminalService.SetupRequiredFiles(dirName, files)
   await TerminalService.OwnFile(dirName, username)
   await TerminalService.RunGameServer(dirName, scriptFile, username, gameVersion, true)
   res.json({ msg: "Game server create successfully" });

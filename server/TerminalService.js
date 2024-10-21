@@ -37,19 +37,23 @@ const DownloadServerData = (url, pathName) => {
         console.log(error)
     }
 }
-const SetupRequiredFiles = async (path, gameVersionId) => {
-    const files = await PrismaService.GetGameVersionFiles(gameVersionId)
+const SetupRequiredFiles = async (path, files) => {
     files.forEach(file => {
         fs.appendFileSync(path + "/" + file.fileName, file.content);
     })
+
+}
+const SetupServerAfterStart = async () => {
+
 
 }
 const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunningServers) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
         console.log({ script: `sudo -u ${username} bash -c " cd ${path} && ${script}"` })
-        const res = execSync(`sudo -u ${username} bash -c " cd ${path} && ${script}"`)
-        console.log({ res })
+        spawn(`sudo -u ${username} bash -c " cd ${path} && ${script}"`, () => {
+
+        })
         if (addToRunningServers) {
             await PrismaService.AddRunningServer(path, username, gameVersion.id);
         }
