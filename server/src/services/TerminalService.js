@@ -60,12 +60,14 @@ const SetupServerAfterStart = async (path, data) => {
 }
 const RunGameServer = async (serverDetails) => {
     const script = serverDetails.gameVersion.runScript.replaceAll("[{fileName}]", serverDetails.scriptFile);
+    console.log(script);
     try {
         execSync(`sudo -u ${serverDetails.username} bash -c " cd ${serverDetails.path} && ${script}"`)
         fs.mkdirSync(serverDetails.path + "/UILogs");
 
         return true;
     } catch (error) {
+        console.log({ error })
     }
 }
 const StartCreatedServer = (serverDetails) => {
