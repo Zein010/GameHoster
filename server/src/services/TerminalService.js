@@ -58,15 +58,12 @@ const SetupServerAfterStart = async (path, data) => {
 }
 const RunGameServer = (serverDetails) => {
     const script = serverDetails.gameVersion.runScript.replaceAll("[{fileName}]", serverDetails.scriptFile);
-    console.log({ script });
     try {
-        console.log(`sudo -u ${serverDetails.sysUser.username} bash -c " cd ${serverDetails.path} && ${script}"`);
         execSync(`sudo -u ${serverDetails.sysUser.username} bash -c " cd ${serverDetails.path} && ${script}"`)
         fs.mkdirSync(serverDetails.path + "/UILogs");
 
         return true;
     } catch (error) {
-        console.log({ error })
     }
 }
 const StartCreatedServer = (serverDetails) => {
@@ -83,24 +80,20 @@ const StartCreatedServer = (serverDetails) => {
         });
 
         ls.stdout.on('data', (data) => {
-            console.log(`stdout ${data}\n`);
             fs.appendFileSync(path + "/UILogs/out", data, "utf-8");
         });
 
         ls.stderr.on('data', (data) => {
-            console.log(`strerr ${data}\n`);
             fs.appendFileSync(path + "/UILogs/err", data, "utf-8");
             // PrismaService.SetRunningServerPID(serverId, 0);
         });
 
         ls.on('exit', (code) => {
-            console.log(`Exit ${code}\n`);
             fs.appendFileSync(path + "/UILogs/exit", `Process exited with code ${code}\n`, "utf-8");
             // PrismaService.SetRunningServerPID(serverId, 0);
         });
 
         ls.on('error', (error) => {
-            console.log(`Error ${error.message}\n`);
             fs.appendFileSync(path + "/UILogs/err", `Error with process: ${error.message}`, "utf-8");
             // PrismaService.SetRunningServerPID(serverId, 0);
         });
@@ -108,7 +101,6 @@ const StartCreatedServer = (serverDetails) => {
         return ls.pid;
     }
     catch (error) {
-        console.log({ error })
         return 0;
     }
 }
