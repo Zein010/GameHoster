@@ -50,11 +50,12 @@ const SetupServerAfterStart = async (path, data) => {
 
         for (var i = 0; i < data[j].actions.toReplace.length; i++) {
 
-            content = await fs.readFile(path + "/" + data[j].actions.toReplace[i].fileName);
+            console.log(path + "/" + data[j].actions.toReplace[i].fileName)
+            content = fs.readFileSync(path + "/" + data[j].actions.toReplace[i].fileName);
             data[j].toReplace[i].data.forEach(toReplace => {
                 content = content.replaceAll(toReplace.search, toReplace.replaceWith)
             })
-            await fs.writeFile(path + "/" + data[j].actions.toReplace[i].fileName, content, 'utf-8');
+            fs.writeFileSync(path + "/" + data[j].actions.toReplace[i].fileName, content, 'utf-8');
         }
     }
 
