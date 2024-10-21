@@ -24,7 +24,14 @@ const CreateUser = async (username) => {
     }
 }
 const DeleteUser = (username) => {
+    try {
 
+        const res = execSync(`userdel ${username}`)
+        console.log({ res });
+    } catch (error) {
+
+        console.log({ error })
+    }
 }
 const DownloadServerData = (url, pathName) => {
     let file = "";
@@ -49,7 +56,6 @@ const SetupServerAfterStart = async (path, data) => {
 
         for (var i = 0; i < data[j].actions.toReplace.length; i++) {
 
-            console.log(path + "/" + data[j].actions.toReplace[i].fileName)
             content = fs.readFileSync(path + "/" + data[j].actions.toReplace[i].fileName, { encoding: "utf-8" });
             data[j].actions.toReplace[i].data.forEach(toReplace => {
                 content = content.replaceAll(toReplace.search, toReplace.replaceWith)
@@ -62,7 +68,6 @@ const SetupServerAfterStart = async (path, data) => {
 const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunningServers) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
-        console.log({ script: `sudo -u ${username} bash -c " cd ${path} && ${script}"` })
         execSync(`sudo -u ${username} bash -c " cd ${path} && ${script}"`)
         if (addToRunningServers) {
             await PrismaService.AddRunningServer(path, username, gameVersion.id);
@@ -71,12 +76,28 @@ const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunni
         console.log({ error })
     }
 }
+const RunGameServerAsync = (path, scriptFile, username, gameVersion) => {
+    const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
+    const ls = spawn(`sudo -u ${username} bash -c " cd ${path} && ${script}"`)
 
+    ls.stdout.on('data', (data) => {
+        console.log(`stdout: ${data}`);
+    });
+
+    ls.stderr.on('data', (data) => {
+        console.error(`stderr: ${data}`);
+    });
+
+    ls.on('close', (code) => {
+        console.log(`child process exited with code ${code}`);
+    });
+
+}
 const OwnFile = async (name, username) => {
     execSync(`chown -R ${username}:${username} ${name} `)
     execSync(`chmod -R 755  ${name} `)
     await PrismaService.SetUserAccess(username, name)
 }
 
-const TerminalService = { CreateNewDirectory, CreateUser, OwnFile, DeleteUser, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart }
+const TerminalService = { CreateNewDirectory, CreateUser, OwnFile, DeleteUser, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, RunGameServerAsync }
 export default TerminalService
