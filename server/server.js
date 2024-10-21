@@ -19,8 +19,8 @@ app.get("/CreateServer", async (req, res) => {
   console.log(gameVersion);
   await TerminalService.SetupRequiredFiles(dirName, gameVersion.getFilesSetup)
   await TerminalService.OwnFile(dirName, username)
-  await TerminalService.RunGameServer(dirName, scriptFile, username, gameVersion, true)
-  await TerminalService.SetupServerAfterStart(dirName, gameVersion.changeFileAfterSetup);
+  // await TerminalService.RunGameServer(dirName, scriptFile, username, gameVersion, true)
+  // await TerminalService.SetupServerAfterStart(dirName, gameVersion.changeFileAfterSetup);
   await TerminalService.RunGameServerAsync(dirName, scriptFile, username, gameVersion)
   res.json({ msg: "Game server created successfully" });
 })
