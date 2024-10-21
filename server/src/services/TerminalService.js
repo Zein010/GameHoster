@@ -81,6 +81,8 @@ const StartCreatedServer = (serverDetails) => {
 
         ls.stdout.on('data', (data) => {
             fs.appendFileSync(path + "/UILogs/out", data, "utf-8");
+            const data = execSync(`ps -u ${serverDetails.sysUser.username}`);
+            console.log({ data });
         });
 
         ls.stderr.on('data', (data) => {
@@ -104,6 +106,7 @@ const StartCreatedServer = (serverDetails) => {
         return 0;
     }
 }
+
 const OwnFile = async (name, username) => {
     execSync(`chown -R ${username}:${username} ${name} `)
     execSync(`chmod -R 755  ${name} `)
