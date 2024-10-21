@@ -25,16 +25,11 @@ const CreateUser = async (username) => {
 }
 const DeleteUser = (username) => {
     try {
-
         const res = execSync(`userdel ${username}`)
-        console.log({ res });
     } catch (error) {
-
-        console.log({ error })
     }
 }
 const DownloadServerData = (url, pathName) => {
-    let file = "";
     try {
 
         execSync(`wget -P ${pathName} ${url}`)
@@ -70,7 +65,6 @@ const RunGameServer = async (path, scriptFile, username, gameVersion) => {
         execSync(`sudo su ${username} bash -c " cd ${path} && ${script}"`)
         return true;
     } catch (error) {
-        console.log({ error })
     }
 }
 const StartCreatedServer = (path, scriptFile, username, gameVersion) => {
@@ -80,7 +74,6 @@ const StartCreatedServer = (path, scriptFile, username, gameVersion) => {
         return ls.pid
     }
     catch (error) {
-        console.log({ error })
         return 0;
     }
 }
