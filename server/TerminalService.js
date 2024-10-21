@@ -1,4 +1,4 @@
-import { exec, execSync, spawn } from "child_process"
+import { exec, execSync, spawn, fork } from "child_process"
 import fs from "fs"
 import PrismaService from "./PrismaService.js";
 import path from "path";
@@ -77,8 +77,7 @@ const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunni
 }
 const RunGameServerAsync = (path, scriptFile, username, gameVersion) => {
     try {
-        const ls = spawn(`cd ${path} && ls`);
-
+        const ls = exec(`sudo su ${username} bash -c " cd ${path} && ${script}"`);
         ls.stdout.on('data', (data) => {
             console.log(`stdout: ${data}`);
         });
