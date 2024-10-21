@@ -44,7 +44,7 @@ const StartServer = async (req, res) => {
 }
 const CreateServer = async (req, res) => {
     const { versionId } = req.params
-    const gameVersion = await GameService.GetVersion(versionId)
+    const gameVersion = await GameService.GetVersion(parseInt(versionId))
     const rand = parseInt((Math.random() * 100) % 100);
     const dirName = `GameServer/${gameVersion.game.dirName}-${rand}`;
     const username = `${gameVersion.game.dirName}-${rand}`;
