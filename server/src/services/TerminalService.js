@@ -129,7 +129,7 @@ const OwnFile = async (name, username) => {
 const DeleteDir = (path) => {
     try {
 
-        fs.rmdirSync(path);
+        fs.rmSync(path, { recursive: true, force: true });
     } catch (error) {
         console.log({ error })
     }
