@@ -23,6 +23,7 @@ const Delete = async (req, res) => {
     }
     TerminalService.DeleteUser(sysUser.username);
     sysUserService.DeleteUser(sysUser.id);
+    res.json({ msg: "Deleted Successfully" });
 }
 const GameController = { GetAll, Get, Delete };
 export default GameController
