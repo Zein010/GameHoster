@@ -104,6 +104,7 @@ const StartCreatedServer = (serverDetails) => {
         return PID
     }
     catch (error) {
+        console.log({ error })
         return 0;
     }
 }
