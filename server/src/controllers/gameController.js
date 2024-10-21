@@ -40,6 +40,7 @@ const StartServer = async (req, res) => {
         throw new Error("can't find server")
     const PID = TerminalService.StartCreatedServer(server)
     await GameService.SetRunningServerPID(runningServer.id, PID)
+    res.json({ "msg": "Server started successfully" });
 
 }
 const CreateServer = async (req, res) => {
