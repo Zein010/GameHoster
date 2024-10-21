@@ -41,6 +41,9 @@ model GameVersion {
 model SysUser {
   id             Int              @id @default(autoincrement())
   username       String           @unique @db.VarChar(100)
+  createdAt      DateTime         @default(now())
+  deletedAt      DateTime?
+  deleted        Boolean          @default(false)
   userAccess     UserAccess[]
   runningServers RunningServers[]
 }
@@ -67,6 +70,9 @@ model DownloadedFile {
 model RunningServers {
   id            Int         @id @default(autoincrement())
   gameVersionId Int
+  createdAt     DateTime    @default(now())
+  deletedAt     DateTime?
+  deleted       Boolean     @default(false)
   gameVersion   GameVersion @relation(fields: [gameVersionId], references: [id])
   path          String
   scriptFile    String      @default("")

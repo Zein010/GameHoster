@@ -1,6 +1,6 @@
 import GameService from "../services/gameService.js";
 import TerminalService from "../services/TerminalService.js";
-import sysUserService from "../services/userServices.js";
+import sysUserService from "../services/sysUserService.js";
 
 
 const GetAll = async (req, res) => {

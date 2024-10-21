@@ -125,6 +125,9 @@ const OwnFile = async (name, username) => {
     execSync(`chmod -R 755  ${name} `)
     await PrismaService.SetUserAccess(username, name)
 }
+const DeleteDir = (path) => {
+    fs.rmdirSync(path);
+}
 
-const TerminalService = { CreateNewDirectory, CreateUser, OwnFile, DeleteUser, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
+const TerminalService = { CreateNewDirectory, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService
