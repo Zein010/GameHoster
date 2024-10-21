@@ -7,12 +7,12 @@ const GetAll = async (req, res) => {
     res.json({ data })
 }
 const Get = async (req, res) => {
-    const { id } = res.params
+    const { id } = req.params
     const data = await sysUserService.Get(parseInt(id));
     res.json({ data })
 }
 const Delete = async (req, res) => {
-    const { id } = res.params
+    const { id } = req.params
     const sysUser = await sysUserService.Get(parseInt(id));
     for (let i = 0; i < sysUser.runningServers.length; i++) {
 
