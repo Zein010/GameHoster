@@ -89,16 +89,24 @@ const StartCreatedServer = (serverDetails) => {
         });
         ls.stderr.on('data', (data) => {
             fs.appendFileSync(path + "/UILogs/err", data, "utf-8");
+            const psData = execSync(`ps -u ${serverDetails.sysUser.username}`, { encoding: "utf-8" });
+            console.log({ psData });
             // PrismaService.SetRunningServerPID(serverId, 0);
         });
 
         ls.on('exit', (code) => {
             fs.appendFileSync(path + "/UILogs/exit", `Process exited with code ${code}\n`, "utf-8");
+
+            const psData = execSync(`ps -u ${serverDetails.sysUser.username}`, { encoding: "utf-8" });
+            console.log({ psData });
             // PrismaService.SetRunningServerPID(serverId, 0);
         });
 
         ls.on('error', (error) => {
             fs.appendFileSync(path + "/UILogs/err", `Error with process: ${error.message}`, "utf-8");
+
+            const psData = execSync(`ps -u ${serverDetails.sysUser.username}`, { encoding: "utf-8" });
+            console.log({ psData });
             // PrismaService.SetRunningServerPID(serverId, 0);
         });
         ls.unref()
