@@ -7,7 +7,7 @@ const StoreSysUser = async (username) => {
     return await prisma.sysUser.create({ data: { username } })
 }
 const GetAll = async () => {
-    return await prisma.sysUser.findMany();
+    return await prisma.sysUser.findMany({ where: { deleted: false } });
 }
 const Get = async (id) => {
     return await prisma.sysUser.findUnique({ where: { id }, include: { userAccess: true, runningServers: true } })
