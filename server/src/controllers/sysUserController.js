@@ -14,6 +14,8 @@ const Get = async (req, res) => {
 const Delete = async (req, res) => {
     const { id } = req.params
     const sysUser = await sysUserService.Get(parseInt(id));
+    if (!sysUser)
+        return res.status(400).json({ msg: "SysUser not found" })
     for (let i = 0; i < sysUser.runningServers.length; i++) {
 
         TerminalService.DeleteDir(sysUser.runningServers[i].path)
