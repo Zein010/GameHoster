@@ -9,8 +9,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/RunningServers", async (req, res) => {
-  const res = await PrismaService.GetRunningServers();
-  res.json({ res });
+  const resx = await PrismaService.GetRunningServers();
+  res.json({ resx });
 })
 app.get("/CreateServer", async (req, res) => {
   const gameVersion = await PrismaService.GetGameVersion(1)
