@@ -1,9 +1,7 @@
 import express from "express"
 import TerminalService from "./TerminalService.js";
 import PrismaService from "./PrismaService.js";
-import { config } from "dotenv";
 const app = express();
-config();
 app.get("/", (req, res) => {
   console.log("Test")
   res.json({ msg: "Server is running" })
