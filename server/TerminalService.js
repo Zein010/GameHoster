@@ -102,6 +102,7 @@ const StartCreatedServer = (path, scriptFile, username, gameVersion, serverId) =
         return ls.pid;
     }
     catch (error) {
+        console.log({ error })
         return 0;
     }
 }
