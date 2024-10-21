@@ -78,7 +78,7 @@ const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunni
 }
 const RunGameServerAsync = (path, scriptFile, username, gameVersion) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
-    const ls = spawn(`ls`)
+    const ls = spawn(`sudo -u ${username} bash -c " cd ${path} && ls"`)
 
     ls.stdout.on('data', (data) => {
         console.log(`stdout: ${data}`);
