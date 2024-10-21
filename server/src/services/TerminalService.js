@@ -98,7 +98,9 @@ const StartCreatedServer = (serverDetails) => {
         });
 
         const grepData = execSync(`ps -u ${serverDetails.sysUser.username}`, { encoding: "utf-8" });
-        return grepData.match(/^\d+/)[0];
+        const PID = grepData.match(/^\d+/)[0];
+        console.log({ PID });
+        return PID
     }
     catch (error) {
         return 0;
