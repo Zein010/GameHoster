@@ -78,20 +78,25 @@ const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunni
 }
 const RunGameServerAsync = (path, scriptFile, username, gameVersion) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
-    const ls = spawn(`sudo -u ${username} bash -c " cd ${path} && ls"`)
+    try {
 
-    ls.stdout.on('data', (data) => {
-        console.log(`stdout: ${data}`);
-    });
+        const ls = spawn(`sudo -u ${username} bash -c " cd ${path} && ls"`)
 
-    ls.stderr.on('data', (data) => {
-        console.error(`stderr: ${data}`);
-    });
+        ls.stdout.on('data', (data) => {
+            console.log(`stdout: ${data}`);
+        });
 
-    ls.on('close', (code) => {
-        console.log(`child process exited with code ${code}`);
-    });
+        ls.stderr.on('data', (data) => {
+            console.error(`stderr: ${data}`);
+        });
 
+        ls.on('close', (code) => {
+            console.log(`child process exited with code ${code}`);
+        });
+    }
+    catch (error) {
+        console.log({ error })
+    }
 }
 const OwnFile = async (name, username) => {
     execSync(`chown -R ${username}:${username} ${name} `)
