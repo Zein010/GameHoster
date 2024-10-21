@@ -13,7 +13,7 @@ const GetVersions = async (id) => {
     return await prisma.gameVersion.findMany({ where: { gameId: id }, include: { game: true } })
 }
 const GetVersion = async (id) => {
-    return await prisma.gameVersion.findUnique({ where: { id }, include: { game: true, getFilesSetup: true } })
+    return await prisma.gameVersion.findUnique({ where: { id }, include: { game: true, getFilesSetup: true, changeFileAfterSetup: true } })
 }
 const GetServers = async (gameVersionId) => {
     return await prisma.runningServers.findMany({ where: { gameVersionId } });
