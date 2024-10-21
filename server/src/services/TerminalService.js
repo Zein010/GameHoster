@@ -26,6 +26,7 @@ const DeleteUser = (username) => {
     try {
         const res = execSync(`userdel ${username}`)
     } catch (error) {
+        console.log({ error })
     }
 }
 const DownloadServerData = (url, pathName) => {
@@ -126,7 +127,12 @@ const OwnFile = async (name, username) => {
     await PrismaService.SetUserAccess(username, name)
 }
 const DeleteDir = (path) => {
-    fs.rmdirSync(path);
+    try {
+
+        fs.rmdirSync(path);
+    } catch (error) {
+        console.log({ error })
+    }
 }
 
 const TerminalService = { CreateNewDirectory, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
