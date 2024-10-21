@@ -2,6 +2,7 @@ import { exec, execSync, spawn, fork } from "child_process"
 import fs from "fs"
 import PrismaService from "../../PrismaService.js";
 import path from "path";
+import GameService from "./gameService.js";
 const CreateNewDirectory = (config) => {
     const PathArr = config.name.split("/");
     var currPath = "";
@@ -73,6 +74,7 @@ const StartCreatedServer = (serverDetails) => {
     const gameVersion = serverDetails.gameVersion
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
+        var pidSet = false;
         const ls = spawn(`cd`, [`${path}`, '&& su', username, '-c', `"${script}"`], {
             detached: true,  // Run the process as a separate process
             stdio: ['ignore', 'pipe', 'pipe'],
@@ -80,7 +82,16 @@ const StartCreatedServer = (serverDetails) => {
         });
         ls.stdout.on('data', (data) => {
             fs.appendFileSync(path + "/UILogs/out", data, "utf-8");
+            if (!pidSet) {
 
+                const grepData = execSync(`ps -u ${serverDetails.sysUser.username} | grep -E 'java'`, { encoding: "utf-8" });
+                console.log({ grepData })
+                const PID = grepData.match(/^\d+/)[0];
+                if (grepData) {
+                    pidSet = true;
+                    GameService.SetRunningServerPID(serverDetails.id, parseInt(PID))
+                }
+            }
         });
         ls.stderr.on('data', (data) => {
             fs.appendFileSync(path + "/UILogs/err", data, "utf-8");
@@ -97,11 +108,9 @@ const StartCreatedServer = (serverDetails) => {
 
         });
 
-        const grepData = execSync(`ps -u ${serverDetails.sysUser.username} | grep -E 'java'`, { encoding: "utf-8" });
-        const PID = grepData.match(/^\d+/)[0];
         ls.unref();
         console.log({ PID });
-        return PID
+        return 0
     }
     catch (error) {
         console.log({ error })
