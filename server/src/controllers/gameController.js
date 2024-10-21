@@ -59,7 +59,7 @@ const CreateServer = async (req, res) => {
     await TerminalService.RunGameServer(serverDetails)
     await TerminalService.SetupServerAfterStart(dirName, gameVersion.changeFileAfterSetup);
     const PID = TerminalService.StartCreatedServer(serverDetails)
-    await PrismaService.SetRunningServerPID(serverDetails.id, PID)
+    await GameService.SetRunningServerPID(serverDetails.id, PID)
     res.json({ msg: "Game server created successfully" });
 }
 const GameController = { GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer };
