@@ -3,6 +3,7 @@ const prisma = new PrismaClient();
 
 const seed = async () => {
   try {
+    await prisma.getFilesSetup.deleteMany({ where: { gameVersionId: 1 } });
     await prisma.user.upsert({
       where: { id: 1 },
       create: { id: 1, username: "Zyxn010", password: "123123aA@" },
@@ -21,10 +22,25 @@ const seed = async () => {
       update: { gameId: 1, version: "1.21.1", downloadLink: "https://piston-data.mojang.com/v1/objects/59353fb40c36d304f2035d51e7d6e6baa98dc05c/server.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
     });
     console.log("Created Minecraft Version")
-    await prisma.getFilesSetup.upsert({
+    await prisma.changeFileAfterSetup.upsert({
       where: { id: 1 },
-      create: { id: 1, gameVersionId: 1, fileName: "eula.txt", content: "eula=true" },
-      update: { gameVersionId: 1, fileName: "eula.txt", content: "eula=true" },
+      create: {
+        id: 1, gameVersionId: 1, actions: {
+          replace: [
+            { fileName: "eula.txt", data: [{ search: "eula=false", replace: "eula=true" }] },
+            { fileName: "server.properties", data: [{ search: "online-mode=true", replace: "online-mode=false" }] }
+          ]
+        },
+      },
+      update: {
+        gameVersionId: 1,
+        actions: {
+          replace: [
+            { fileName: "eula.txt", data: [{ search: "eula=false", replace: "eula=true" }] },
+            { fileName: "server.properties", data: [{ search: "online-mode=true", replace: "online-mode=false" }] }
+          ]
+        },
+      }
     });
     console.log("Created minecraft file requirements")
   } catch (error) {

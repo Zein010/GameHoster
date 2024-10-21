@@ -43,8 +43,19 @@ const SetupRequiredFiles = async (path, files) => {
     })
 
 }
-const SetupServerAfterStart = async () => {
+const SetupServerAfterStart = async (path, data) => {
+    var content = "";
+    for (var j = 0; j < data.length; j++) {
 
+        for (var i = 0; i < data[j].replace.length; i++) {
+
+            content = await fs.readFile(path + "/" + replaceData.fileName);
+            data[j].replace[i].data.forEach(toReplace => {
+                content = content.replaceAll(toReplace.search, toReplace.replace)
+            })
+            await fs.writeFile(path + "/" + replaceData.fileName, content, 'utf-8');
+        }
+    }
 
 }
 const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunningServers) => {
@@ -67,5 +78,5 @@ const OwnFile = async (name, username) => {
     await PrismaService.SetUserAccess(username, name)
 }
 
-const TerminalService = { CreateNewDirectory, CreateUser, OwnFile, DeleteUser, DownloadServerData, RunGameServer, SetupRequiredFiles }
+const TerminalService = { CreateNewDirectory, CreateUser, OwnFile, DeleteUser, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart }
 export default TerminalService
