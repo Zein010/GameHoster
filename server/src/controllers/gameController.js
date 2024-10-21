@@ -53,7 +53,7 @@ const CreateServer = async (req, res) => {
     await TerminalService.CreateUser(username);
     await sysUserService.StoreSysUser(username);
     const scriptFile = TerminalService.DownloadServerData(gameVersion.downloadLink, dirName);
-    const serverDetails = await PrismaService.AddRunningServer(dirName, username, gameVersion.id, scriptFile)
+    const serverDetails = await GameService.AddRunningServer(dirName, username, gameVersion.id, scriptFile)
     await TerminalService.SetupRequiredFiles(dirName, gameVersion.getFilesSetup)
     await TerminalService.RunGameServer(serverDetails)
     await TerminalService.SetupServerAfterStart(dirName, gameVersion.changeFileAfterSetup);
