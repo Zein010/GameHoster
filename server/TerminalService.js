@@ -68,7 +68,7 @@ const SetupServerAfterStart = async (path, data) => {
 const RunGameServer = async (path, scriptFile, username, gameVersion, addToRunningServers) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
-        execSync(`sudo -u ${username} bash -c " cd ${path} && ${script}"`)
+        execSync(`sudo su ${username} bash -c " cd ${path} && ${script}"`)
         if (addToRunningServers) {
             await PrismaService.AddRunningServer(path, username, gameVersion.id);
         }
@@ -80,7 +80,7 @@ const RunGameServerAsync = (path, scriptFile, username, gameVersion) => {
     try {
         const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
 
-        const ls = spawn(`sudo -u ${username} bash -c " cd ${path} && ls"`)
+        const ls = spawn(`sudo `, ['-u', username, 'bash', '-c', `cd ${path} && ls`])
 
         ls.stdout.on('data', (data) => {
             console.log(`stdout: ${data}`);
