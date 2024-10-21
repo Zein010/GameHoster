@@ -44,7 +44,6 @@ const SetupRequiredFiles = async (path, files) => {
 
 }
 const SetupServerAfterStart = async (path, data) => {
-    console.log(data);
     var content = "";
     for (var j = 0; j < data.length; j++) {
 
@@ -52,7 +51,7 @@ const SetupServerAfterStart = async (path, data) => {
 
             console.log(path + "/" + data[j].actions.toReplace[i].fileName)
             content = fs.readFileSync(path + "/" + data[j].actions.toReplace[i].fileName);
-            data[j].toReplace[i].data.forEach(toReplace => {
+            data[j].actions.toReplace[i].data.forEach(toReplace => {
                 content = content.replaceAll(toReplace.search, toReplace.replaceWith)
             })
             fs.writeFileSync(path + "/" + data[j].actions.toReplace[i].fileName, content, 'utf-8');
