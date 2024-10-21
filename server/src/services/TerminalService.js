@@ -78,6 +78,8 @@ const StartCreatedServer = (serverDetails) => {
             stdio: ['ignore', 'pipe', 'pipe'],
             shell: true
         });
+        const xData = execSync(`ps -u ${serverDetails.sysUser.username}`, { encoding: "utf-8" });
+        console.log({ xData });
 
         ls.stdout.on('data', (data) => {
             fs.appendFileSync(path + "/UILogs/out", data, "utf-8");
