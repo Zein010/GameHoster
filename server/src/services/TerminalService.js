@@ -18,7 +18,6 @@ const CreateUser = async (username) => {
     try {
         res = execSync(`groupadd  ${username}`)
         res = execSync(`useradd -g ${username} ${username}`)
-        await PrismaService.StoreUser(username)
     } catch (Error) {
         return false;
     }
@@ -59,17 +58,21 @@ const SetupServerAfterStart = async (path, data) => {
     }
 
 }
-const RunGameServer = async (path, scriptFile, username, gameVersion) => {
-    const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
+const RunGameServer = async (serverDetails) => {
+    const script = serverDetails.gameVersion.runScript.replaceAll("[{fileName}]", serverDetails.scriptFile);
     try {
-        execSync(`sudo -u ${username} bash -c " cd ${path} && ${script}"`)
-        fs.mkdirSync(path + "/UILogs");
+        execSync(`sudo -u ${serverDetails.username} bash -c " cd ${serverDetails.path} && ${script}"`)
+        fs.mkdirSync(serverDetails.path + "/UILogs");
 
         return true;
     } catch (error) {
     }
 }
-const StartCreatedServer = (path, scriptFile, username, gameVersion, serverId) => {
+const StartCreatedServer = (serverDetails) => {
+    const path = serverDetails.path
+    const scriptFile = serverDetails.scriptFile
+    const username = serverDetails.sysUser.username
+    const gameVersion = serverDetails.gameVersion
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
         const ls = spawn(`cd`, [`${path}`, '&& su', username, '-c', `"${script}"`], {

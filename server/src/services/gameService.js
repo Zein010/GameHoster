@@ -19,8 +19,11 @@ const GetServers = async (gameVersionId) => {
     return await prisma.runningServers.findMany({ where: { gameVersionId } });
 }
 const GetServer = async (serverId) => {
-    return await prisma.runningServers.findUnique({ where: { id: serverId } });
+    return await prisma.runningServers.findUnique({ where: { id: serverId }, include: { sysUser: true, gameVersion: true } });
+}
+const SetRunningServerPID = async (id, pid) => {
+    return await prisma.runningServers.update({ where: { id }, data: { pid } });
 }
 
-const GameService = { GetAll, Get, GetVersion, GetServers, GetServer, GetVersions };
+const GameService = { GetAll, Get, GetVersion, GetServers, GetServer, GetVersions, SetRunningServerPID };
 export default GameService

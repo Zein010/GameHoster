@@ -4,6 +4,8 @@ const router = express.Router();
 
 router.get("/", GameController.GetAll);
 
+router.get("/StartServer/:versionId", GameController.StartServer);
+router.get("/CreateServer/:id", GameController.CreateServer);
 router.get("/Version/:id", GameController.GetVersion);
 router.get("/Servers/:versionId", GameController.GetServers);
 router.get("/Server/:id", GameController.GetServer);
