@@ -79,6 +79,7 @@ const RunGameServerAsync = (path, scriptFile, username, gameVersion) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
         const ls = exec(`sudo su ${username} bash -c " cd ${path} && ${script}"`);
+        console.log(ls.pid);
         ls.stdout.on('data', (data) => {
             console.log(`stdout: ${data}`);
         });
