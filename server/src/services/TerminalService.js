@@ -84,9 +84,9 @@ const StartCreatedServer = (serverDetails) => {
         ls.stdout.on('data', (data) => {
             fs.appendFileSync(path + "/UILogs/out", data, "utf-8");
 
+            const psData = execSync(`ps -u ${serverDetails.sysUser.username}`, { encoding: "utf-8" });
+            console.log({ psData });s
         });
-        const psData = execSync(`ps -u ${serverDetails.sysUser.username}`, { encoding: "utf-8" });
-        console.log({ psData });
         ls.stderr.on('data', (data) => {
             fs.appendFileSync(path + "/UILogs/err", data, "utf-8");
             // PrismaService.SetRunningServerPID(serverId, 0);
