@@ -22,5 +22,8 @@ const GetGameVersionFiles = async (gameVersionId) => {
 const SetRunningServerPID = async (id, pid) => {
     return await prisma.runningServers.update({ where: { id }, data: { pid } });
 }
-const PrismaService = { StoreUser, SetUserAccess, GetGameVersion, GetGameVersions, AddRunningServer, GetGameVersionFiles, SetRunningServerPID }
+const GetRunningServers = async () => {
+    return await prisma.runningServers.findMany();
+}
+const PrismaService = { StoreUser, SetUserAccess, GetGameVersion, GetGameVersions, AddRunningServer, GetGameVersionFiles, SetRunningServerPID, GetRunningServers }
 export default PrismaService;

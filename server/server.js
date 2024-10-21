@@ -8,7 +8,10 @@ app.get("/", (req, res) => {
   res.json({ msg: "Server is running" })
 });
 
-
+app.get("/RunningServers", async (req, res) => {
+  const res = await PrismaService.GetRunningServers();
+  res.json({ res });
+})
 app.get("/CreateServer", async (req, res) => {
   const gameVersion = await PrismaService.GetGameVersion(1)
   const rand = parseInt((Math.random() * 100) % 100);
