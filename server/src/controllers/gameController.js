@@ -52,7 +52,15 @@ const CreateServer = async (req, res) => {
     await TerminalService.CreateNewDirectory({ name: dirName })
     await TerminalService.CreateUser(username);
     await sysUserService.StoreSysUser(username);
-    const scriptFile = TerminalService.DownloadServerData(gameVersion.downloadLink, dirName);
+    var scriptFile = "";
+    if (gameVersion.cacheFile) {
+        TerminalService.CopyFile(gameVersion.cacheFile, dirName + '/' + gameVersion.scriptFile);
+        scriptFile = gameVersion.scriptFile
+    } else {
+        scriptFile = TerminalService.DownloadServerData(gameVersion.downloadLink, dirName);
+        TerminalService.CacheFile(dirName + "/" + scriptFile, `${gameVersion.game.name}/${gameVersion.id}`, scriptFile);
+        GameService.SetGameVersionCache(gameVersion.id, `DownloadCache/${gameVersion.game.name}/${gameVersion.id}/${scriptFile}`, scriptFile)
+    }
     const serverDetails = await GameService.AddRunningServer(dirName, username, gameVersion.id, scriptFile)
     await TerminalService.SetupRequiredFiles(dirName, gameVersion.getFilesSetup)
     await TerminalService.OwnFile(dirName, username)

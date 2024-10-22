@@ -32,6 +32,8 @@ model GameVersion {
   game                 Game                   @relation(fields: [gameId], references: [id])
   version              String
   downloadLink         String
+  cacheFile            String?
+  scriptFile           String?
   runScript            String                 @default("") @db.Text
   runningServers       RunningServers[]
   getFilesSetup        GetFilesSetup[]

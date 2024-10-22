@@ -16,15 +16,15 @@ const CreateNewDirectory = (config) => {
 const CreateUser = async (username) => {
     var res = null;
     try {
-        res = execSync(`groupadd  ${username}`)
-        res = execSync(`useradd -g ${username} ${username}`)
+        res = execSync(`sudo groupadd  ${username}`)
+        res = execSync(`sudo useradd -g ${username} ${username}`)
     } catch (Error) {
         return false;
     }
 }
 const DeleteUser = (username) => {
     try {
-        const res = execSync(`userdel ${username}`)
+        const res = execSync(`sudo userdel ${username}`)
     } catch (error) {
         console.log({ error })
     }
@@ -37,6 +37,11 @@ const DownloadServerData = (url, pathName) => {
         return file
     } catch (error) {
     }
+}
+const CopyFile = (fromFile, to) => {
+
+    fs.copyFileSync(fromFile, to);
+
 }
 const SetupRequiredFiles = async (path, files) => {
     files.forEach(file => {
@@ -60,6 +65,7 @@ const SetupServerAfterStart = async (path, data) => {
 const RunGameServer = (serverDetails) => {
     const script = serverDetails.gameVersion.runScript.replaceAll("[{fileName}]", serverDetails.scriptFile);
     try {
+        console.log(`sudo -u ${serverDetails.sysUser.username} bash -c " cd ${serverDetails.path} && ${script}"`);
         execSync(`sudo -u ${serverDetails.sysUser.username} bash -c " cd ${serverDetails.path} && ${script}"`)
         fs.mkdirSync(serverDetails.path + "/UILogs");
 
@@ -84,7 +90,7 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
             fs.appendFileSync(path + "/UILogs/out", data, "utf-8");
             if (!pidSet) {
 
-                const grepData = execSync(`ps -u ${serverDetails.sysUser.username} | grep -E 'java'`, { encoding: "utf-8" });
+                const grepData = execSync(`sudo ps -u ${serverDetails.sysUser.username} | grep -E 'java'`, { encoding: "utf-8" });
                 console.log({ grepData })
                 if (grepData) {
                     const matches = grepData.match(/\s*(\d+)/);
@@ -120,20 +126,23 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
         return 0;
     }
 }
+const CacheFile = (file, sub, scriptFileName) => {
+    CreateNewDirectory({ name: `DownloadCache/${sub}` });
+    fs.copyFileSync(file, `DownloadCache/${sub}/${scriptFileName}`);
 
+}
 const OwnFile = async (name, username) => {
-    execSync(`chown -R ${username}:${username} ${name} `)
-    execSync(`chmod -R 755  ${name} `)
+    execSync(`sudo chown -R ${username}:${username} ${name} `)
+    execSync(`sudo chmod -R 755  ${name} `)
     await PrismaService.SetUserAccess(username, name)
 }
 const DeleteDir = (path) => {
     try {
-
-        fs.rmSync(path, { recursive: true, force: true });
+        execSync(`sudo rm ${path} -r`)
     } catch (error) {
         console.log({ error })
     }
 }
 
-const TerminalService = { CreateNewDirectory, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
+const TerminalService = { CreateNewDirectory, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService
