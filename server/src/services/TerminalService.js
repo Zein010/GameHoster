@@ -1,4 +1,4 @@
-import { execSync, spawn, fork } from "child_process"
+import { execSync, spawn, fork, exec } from "child_process"
 import fs from "fs"
 import PrismaService from "../../PrismaService.js";
 import GameService from "./gameService.js";
@@ -41,7 +41,6 @@ const DownloadServerData = (url, pathName) => {
 const CopyFile = (fromFile, to) => {
 
     fs.copyFileSync(fromFile, to);
-
 }
 const SetupRequiredFiles = async (path, files) => {
     files.forEach(file => {
@@ -132,8 +131,8 @@ const CacheFile = (file, sub, scriptFileName) => {
 
 }
 const OwnFile = async (name, username) => {
-    execSync(`sudo chown -R ${username}:${username} ${name} `)
-    execSync(`sudo chmod -R 755  ${name} `)
+    execSync(`chown -R ${username}:${username} ${name} `, { encoding: "utf-8" })
+    execSync(`chmod -R 755  ${name} `, { encoding: "utf-8" })
     await PrismaService.SetUserAccess(username, name)
 }
 const DeleteDir = (path) => {
