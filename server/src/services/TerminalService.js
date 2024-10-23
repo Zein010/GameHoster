@@ -93,18 +93,18 @@ const SetupServerConfigForRestart = (path, data, config) => {
             content = content.replaceAll(replaceOrAppend.search, replaceOrAppend.replaceWith)
         })
 
-        fs.writeFileSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, content, 'utf-8');
+        fs.writeFileSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, content, { encoding: 'utf-8', flag: 'w' });
     }
 }
 const SetupServerAfterStart = async (path, data, config) => {
     var content = "";
-    var resx = ""; for (var j = 0; j < data.length; j++) {
+    for (var j = 0; j < data.length; j++) {
         for (var i = 0; i < data[j].actions.toReplace.length; i++) {
             content = fs.readFileSync(path + "/" + data[j].actions.toReplace[i].fileName, { encoding: "utf-8" });
             data[j].actions.toReplace[i].data.forEach(toReplace => {
                 content = content.replaceAll(toReplace.search, toReplace.replaceWith)
             })
-            fs.writeFileSync(path + "/" + data[j].actions.toReplace[i].fileName, content, 'utf-8');
+            fs.writeFileSync(path + "/" + data[j].actions.toReplace[i].fileName, content, { encoding: 'utf-8', flag: 'w' });
         }
         for (var i = 0; i < data[j].actions.matchReplaceOrAppend.length; i++) {
             content = fs.readFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, { encoding: "utf-8" });
@@ -129,7 +129,6 @@ const SetupServerAfterStart = async (path, data, config) => {
                 }
                 content = content.replaceAll(replaceOrAppend.search, replaceOrAppend.replaceWith)
             })
-            console.log(content);
             fs.writeFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, content, { encoding: 'utf-8', flag: 'w' });
         }
 

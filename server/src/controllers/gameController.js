@@ -43,7 +43,7 @@ const StartServer = async (req, res) => {
     TerminalService.SetupServerConfigForRestart(server.path, server.gameVersion.changeFileAfterSetup, config);
     const PID = TerminalService.StartCreatedServer(server, (pid) => { GameService.SetRunningServerPID(server.id, pid) })
     await GameService.SetRunningServerPID(server.id, PID)
-    res.json({ "msg": "Server started successfully" });
+    res.json({ "msg": "Server started successfully", config });
 
 }
 const CreateServer = async (req, res) => {
@@ -74,7 +74,7 @@ const CreateServer = async (req, res) => {
     await TerminalService.SetupServerAfterStart(dirName, gameVersion.changeFileAfterSetup, config);
     TerminalService.StartCreatedServer(serverDetails, (pid) => { GameService.SetRunningServerPID(serverDetails.id, pid) })
     await
-        res.json({ msg: "Game server created successfully" });
+        res.json({ msg: "Game server created successfully", config });
 }
 const GameController = { GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer };
 export default GameController
