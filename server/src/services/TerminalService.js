@@ -72,7 +72,6 @@ const CheckPortOpen = async (port) => {
     });
 }
 const SetupServerConfigForRestart = (path, data, config) => {
-    console.log({ config })
 
     for (var i = 0; i < data[j].actions.afterRestartMatchReplaceOrAppend.length; i++) {
         content = fs.readFileSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, { encoding: "utf-8" });
@@ -93,7 +92,6 @@ const SetupServerConfigForRestart = (path, data, config) => {
             content = content.replaceAll(replaceOrAppend.search, replaceOrAppend.replaceWith)
         })
         fs.truncateSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, 0);
-        console.log({ content })
         fs.writeFileSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, content, { encoding: 'utf-8', flag: 'w' });
     }
 }
@@ -109,8 +107,6 @@ const SetupServerAfterStart = async (path, data, config) => {
         }
         for (var i = 0; i < data[j].actions.matchReplaceOrAppend.length; i++) {
             content = fs.readFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, { encoding: "utf-8" });
-            console.log({ content })
-            console.log(data[j].actions.matchReplaceOrAppend[i].data[0]);
             data[j].actions.matchReplaceOrAppend[i].data.forEach(replaceOrAppend => {
                 Object.keys(config).forEach(key => {
                     replaceOrAppend.replace = replaceOrAppend.replace.replaceAll(`[${key}]`, config[key]);
@@ -130,7 +126,6 @@ const SetupServerAfterStart = async (path, data, config) => {
                 }
                 content = content.replaceAll(replaceOrAppend.search, replaceOrAppend.replaceWith)
             })
-            console.log({ content })
             fs.truncateSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, 0);
             fs.writeFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, content, { encoding: 'utf-8', flag: 'w' });
         }
