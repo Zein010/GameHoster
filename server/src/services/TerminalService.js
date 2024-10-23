@@ -1,7 +1,7 @@
 import { execSync, spawn, fork, exec } from "child_process"
 import fs from "fs"
 import PrismaService from "../../PrismaService.js";
-import GameService from "./gameService.js";
+import net from "net"
 const CreateNewDirectory = (config) => {
     const PathArr = config.name.split("/");
     var currPath = "";
@@ -48,7 +48,30 @@ const SetupRequiredFiles = async (path, files) => {
     })
 
 }
-const SetupServerAfterStart = async (path, data) => {
+const CheckPortOpen = async (port) => {
+    return new Promise((resolve, reject) => {
+        const server = net.createServer();
+
+        // If the server starts listening, the port is not in use
+        server.once('listening', () => {
+            server.close();
+            resolve(true); // Port is not in use
+        });
+
+        // If there's an error, the port is likely in use
+        server.once('error', (err) => {
+            if (err.code === 'EADDRINUSE') {
+                resolve(false); // Port is in use
+            } else {
+                reject(false); // Other error
+            }
+        });
+
+        // Try to listen on the specified port
+        server.listen(port, '127.0.0.1');
+    });
+}
+const SetupServerAfterStart = async (path, data, config) => {
     var content = "";
     for (var j = 0; j < data.length; j++) {
         for (var i = 0; i < data[j].actions.toReplace.length; i++) {
@@ -58,18 +81,26 @@ const SetupServerAfterStart = async (path, data) => {
             })
             fs.writeFileSync(path + "/" + data[j].actions.toReplace[i].fileName, content, 'utf-8');
         }
+
+        for (var i = 0; i < data[j].actions.matchReplaceOrCreate.length; i++) {
+            content = fs.readFileSync(path + "/" + data[j].actions.toReplace[i].fileName, { encoding: "utf-8" });
+            data[j].actions.toReplace[i].data.forEach(toReplace => {
+                content = content.matchAll(toReplace.match, toReplace.replaceWith)
+            })
+            fs.writeFileSync(path + "/" + data[j].actions.toReplace[i].fileName, content, 'utf-8');
+        }
     }
 
 }
 const RunGameServer = (serverDetails) => {
     const script = serverDetails.gameVersion.runScript.replaceAll("[{fileName}]", serverDetails.scriptFile);
     try {
-        console.log(`sudo -u ${serverDetails.sysUser.username} bash -c " cd ${serverDetails.path} && ${script}"`);
         execSync(`sudo -u ${serverDetails.sysUser.username} bash -c " cd ${serverDetails.path} && ${script}"`)
         fs.mkdirSync(serverDetails.path + "/UILogs");
-
         return true;
     } catch (error) {
+        console.log({ error })
+        return false;
     }
 }
 const StartCreatedServer = (serverDetails, pidSetter) => {
@@ -143,5 +174,5 @@ const DeleteDir = (path) => {
     }
 }
 
-const TerminalService = { CreateNewDirectory, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
+const TerminalService = { CreateNewDirectory, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService
