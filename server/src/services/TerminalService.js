@@ -98,7 +98,6 @@ const SetupServerConfigForRestart = (path, data, config) => {
 }
 const SetupServerAfterStart = async (path, data, config) => {
     var content = "";
-    console.log({ config })
     for (var j = 0; j < data.length; j++) {
         for (var i = 0; i < data[j].actions.toReplace.length; i++) {
             content = fs.readFileSync(path + "/" + data[j].actions.toReplace[i].fileName, { encoding: "utf-8" });
@@ -111,12 +110,10 @@ const SetupServerAfterStart = async (path, data, config) => {
         for (var i = 0; i < data[j].actions.matchReplaceOrAppend.length; i++) {
             content = fs.readFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, { encoding: "utf-8" });
             data[j].actions.matchReplaceOrAppend[i].data.forEach(replaceOrAppend => {
-                console.log({ replaceOrAppend })
                 Object.keys(config).forEach(key => {
                     replaceOrAppend.replace = replaceOrAppend.replace.replaceAll(`[${key}]`, config[key]);
                 })
                 replaceOrAppend.match = new RegExp(replaceOrAppend.match)
-                console.log(replaceOrAppend.match)
                 if (replaceOrAppend.match.test(content)) {
                     // If match found, replace the matched line
                     content = content.replace(replaceOrAppend.match,);
@@ -129,6 +126,7 @@ const SetupServerAfterStart = async (path, data, config) => {
 
             fs.writeFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, content, 'utf-8');
         }
+
 
     }
 
