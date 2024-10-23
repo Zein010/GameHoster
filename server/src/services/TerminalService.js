@@ -71,6 +71,27 @@ const CheckPortOpen = async (port) => {
         server.listen(port, '127.0.0.1');
     });
 }
+const SetupServerConfigForRestart = (path, data, config) => {
+    for (var i = 0; i < data[j].actions.afterRestartMatchReplaceOrAppend.length; i++) {
+        content = fs.readFileSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, { encoding: "utf-8" });
+        data[j].actions.afterRestartMatchReplaceOrAppend[i].data.forEach(replaceOrAppend => {
+            Object.keys(config).forEach(key => {
+                replaceOrAppend.replace = replaceOrAppend.replace.replaceAll(`[${key}]`, config[key]);
+            })
+
+            if (replaceOrAppend.match.test(content)) {
+                // If match found, replace the matched line
+                content = content.replace(replaceOrAppend.match,);
+            } else {
+                // If no match, append the replace string as a new line
+                content += `\n${replaceOrAppend.replace}`;
+            }
+            content = content.replaceAll(replaceOrAppend.search, replaceOrAppend.replaceWith)
+        })
+
+        fs.writeFileSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, content, 'utf-8');
+    }
+}
 const SetupServerAfterStart = async (path, data, config) => {
     var content = "";
     for (var j = 0; j < data.length; j++) {
@@ -84,19 +105,23 @@ const SetupServerAfterStart = async (path, data, config) => {
         for (var i = 0; i < data[j].actions.matchReplaceOrAppend.length; i++) {
             content = fs.readFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, { encoding: "utf-8" });
             data[j].actions.matchReplaceOrAppend[i].data.forEach(replaceOrAppend => {
-
+                Object.keys(config).forEach(key => {
+                    replaceOrAppend.replace = replaceOrAppend.replace.replaceAll(`[${key}]`, config[key]);
+                })
 
                 if (replaceOrAppend.match.test(content)) {
                     // If match found, replace the matched line
-                    content = content.replace(replaceOrAppend.match, replaceOrAppend.replace);
+                    content = content.replace(replaceOrAppend.match,);
                 } else {
                     // If no match, append the replace string as a new line
                     content += `\n${replaceOrAppend.replace}`;
                 }
                 content = content.replaceAll(replaceOrAppend.search, replaceOrAppend.replaceWith)
             })
+
             fs.writeFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, content, 'utf-8');
         }
+        console.log({ config })
 
     }
 
@@ -183,5 +208,5 @@ const DeleteDir = (path) => {
     }
 }
 
-const TerminalService = { CreateNewDirectory, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
+const TerminalService = { CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService

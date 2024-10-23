@@ -37,6 +37,14 @@ const seed = async () => {
               ]
             }
 
+          ], afterRestartMatchReplaceOrAppend: [
+            {
+              fileName: "server.properties", data: [
+                { match: "/server-port\s*=\s*\d+/", replace: "server-port=[port]" },
+                { match: "/level-seed\s*=\s*\d+/", replace: "level-seed=[seed]" }
+              ]
+            }
+
           ]
         },
       },
@@ -46,6 +54,22 @@ const seed = async () => {
           toReplace: [
             { fileName: "eula.txt", data: [{ search: "eula=false", replaceWith: "eula=true" }] },
             { fileName: "server.properties", data: [{ search: "online-mode=true", replaceWith: "online-mode=false" }] }
+          ], matchReplaceOrAppend: [
+            {
+              fileName: "server.properties", data: [
+                { match: "/server-port\s*=\s*\d+/", replace: "server-port=[port]" },
+                { match: "/level-seed\s*=\s*\d+/", replace: "level-seed=[seed]" }
+              ]
+            }
+
+          ], afterRestartMatchReplaceOrAppend: [
+            {
+              fileName: "server.properties", data: [
+                { match: "/server-port\s*=\s*\d+/", replace: "server-port=[port]" },
+                { match: "/level-seed\s*=\s*\d+/", replace: "level-seed=[seed]" }
+              ]
+            }
+
           ]
         },
       }
