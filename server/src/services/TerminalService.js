@@ -120,7 +120,7 @@ const SetupServerAfterStart = async (path, data, config) => {
                     console.log(replaceOrAppend.match)
                     console.log("Matched")
                     // If match found, replace the matched line
-                    content = content.replace(replaceOrAppend.match,);
+                    content = content.replace(replaceOrAppend.match, replaceOrAppend.replace);
                 } else {
                     console.log(replaceOrAppend.match)
                     console.log("Not Matched")
