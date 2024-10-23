@@ -81,14 +81,23 @@ const SetupServerAfterStart = async (path, data, config) => {
             })
             fs.writeFileSync(path + "/" + data[j].actions.toReplace[i].fileName, content, 'utf-8');
         }
+        for (var i = 0; i < data[j].actions.matchReplaceOrAppend.length; i++) {
+            content = fs.readFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, { encoding: "utf-8" });
+            data[j].actions.matchReplaceOrAppend[i].data.forEach(replaceOrAppend => {
 
-        for (var i = 0; i < data[j].actions.matchReplaceOrCreate.length; i++) {
-            content = fs.readFileSync(path + "/" + data[j].actions.toReplace[i].fileName, { encoding: "utf-8" });
-            data[j].actions.toReplace[i].data.forEach(toReplace => {
-                content = content.matchAll(toReplace.match, toReplace.replaceWith)
+
+                if (replaceOrAppend.match.test(content)) {
+                    // If match found, replace the matched line
+                    content = content.replace(replaceOrAppend.match, replaceOrAppend.replace);
+                } else {
+                    // If no match, append the replace string as a new line
+                    content += `\n${replaceOrAppend.replace}`;
+                }
+                content = content.replaceAll(replaceOrAppend.search, replaceOrAppend.replaceWith)
             })
-            fs.writeFileSync(path + "/" + data[j].actions.toReplace[i].fileName, content, 'utf-8');
+            fs.writeFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, content, 'utf-8');
         }
+
     }
 
 }
