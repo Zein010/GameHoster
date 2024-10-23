@@ -98,7 +98,7 @@ const SetupServerConfigForRestart = (path, data, config) => {
 }
 const SetupServerAfterStart = async (path, data, config) => {
     var content = "";
-    for (var j = 0; j < data.length; j++) {
+    var rexs = ""; for (var j = 0; j < data.length; j++) {
         for (var i = 0; i < data[j].actions.toReplace.length; i++) {
             content = fs.readFileSync(path + "/" + data[j].actions.toReplace[i].fileName, { encoding: "utf-8" });
             data[j].actions.toReplace[i].data.forEach(toReplace => {
@@ -116,16 +116,22 @@ const SetupServerAfterStart = async (path, data, config) => {
                 })
                 replaceOrAppend.match = new RegExp(replaceOrAppend.match)
                 if (replaceOrAppend.match.test(content)) {
+                    console.log(replaceOrAppend.match)
+                    console.log("Matched")
                     // If match found, replace the matched line
                     content = content.replace(replaceOrAppend.match,);
                 } else {
+                    console.log(replaceOrAppend.match)
+                    console.log("Not Matched")
+
                     // If no match, append the replace string as a new line
                     content += `\n${replaceOrAppend.replace}`;
                 }
                 content = content.replaceAll(replaceOrAppend.search, replaceOrAppend.replaceWith)
             })
-
-            fs.writeFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, content, 'utf-8');
+            console.log(content);
+            resx = fs.writeFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, content, 'utf-8');
+            console.log({ resx })
         }
 
 
