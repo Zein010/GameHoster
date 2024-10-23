@@ -81,6 +81,7 @@ const SetupServerConfigForRestart = (path, data, config) => {
                 replaceOrAppend.replace = replaceOrAppend.replace.replaceAll(`[${key}]`, config[key]);
             })
 
+            console.log(replaceOrAppend.match)
             if (replaceOrAppend.match.test(content)) {
                 // If match found, replace the matched line
                 content = content.replace(replaceOrAppend.match,);
