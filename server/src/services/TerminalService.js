@@ -98,7 +98,7 @@ const SetupServerConfigForRestart = (path, data, config) => {
 }
 const SetupServerAfterStart = async (path, data, config) => {
     var content = "";
-    var rexs = ""; for (var j = 0; j < data.length; j++) {
+    var resx = ""; for (var j = 0; j < data.length; j++) {
         for (var i = 0; i < data[j].actions.toReplace.length; i++) {
             content = fs.readFileSync(path + "/" + data[j].actions.toReplace[i].fileName, { encoding: "utf-8" });
             data[j].actions.toReplace[i].data.forEach(toReplace => {
