@@ -32,15 +32,15 @@ const seed = async () => {
           ], matchReplaceOrAppend: [
             {
               fileName: "server.properties", data: [
-                { match: /server-port\s*=\s*\d+/, replace: "server-port=[port]" },
-                { match: /level-seed\s*=\s*\d+/, replace: "level-seed=[seed]" }
+                { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
+                { match: "level-seed\\s*=\\s*\\d+", replace: "level-seed=[seed]" }
               ]
             }
 
           ], afterRestartMatchReplaceOrAppend: [
             {
               fileName: "server.properties", data: [
-                { match: /server-port\s*=\s*\d+/, replace: "server-port=[port]" },
+                { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
               ]
             }
 
@@ -56,15 +56,15 @@ const seed = async () => {
           ], matchReplaceOrAppend: [
             {
               fileName: "server.properties", data: [
-                { match: /server-port\s*=\s*\d+/, replace: "server-port=[port]" },
-                { match: /level-seed\s*=\s*\d+/, replace: "level-seed=[seed]" }
+                { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
+                { match: "level-seed\\s*=\\s*\\d+", replace: "level-seed=[seed]" }
               ]
             }
 
           ], afterRestartMatchReplaceOrAppend: [
             {
               fileName: "server.properties", data: [
-                { match: /server-port\s*=\s*\d+/, replace: "server-port=[port]" },
+                { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
               ]
             }
 
