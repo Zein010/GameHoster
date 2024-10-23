@@ -112,6 +112,7 @@ const SetupServerAfterStart = async (path, data, config) => {
                 Object.keys(config).forEach(key => {
                     replaceOrAppend.replace = replaceOrAppend.replace.replaceAll(`[${key}]`, config[key]);
                 })
+                console.log(replaceOrAppend.match)
 
                 if (replaceOrAppend.match.test(content)) {
                     // If match found, replace the matched line
