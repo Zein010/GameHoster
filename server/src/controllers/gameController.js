@@ -1,6 +1,7 @@
 import GameService from "../services/gameService.js";
 import TerminalService from "../services/TerminalService.js";
 import sysUserService from "../services/sysUserService.js";
+import { GetServerStartOptions } from "../utils.js";
 
 
 const GetAll = async (req, res) => {
@@ -49,7 +50,8 @@ const CreateServer = async (req, res) => {
     const rand = parseInt((Math.random() * 10000) % 10000);
     const dirName = `GameServer/${gameVersion.game.dirName}-${rand}`;
     const username = `${gameVersion.game.dirName}-${rand}`;
-    await TerminalService.CreateNewDirectory({ name: dirName })
+
+    TerminalService.CreateNewDirectory({ name: dirName })
     await TerminalService.CreateUser(username);
     await sysUserService.StoreSysUser(username);
     var scriptFile = "";
@@ -62,11 +64,12 @@ const CreateServer = async (req, res) => {
         GameService.SetGameVersionCache(gameVersion.id, `DownloadCache/${gameVersion.game.name}/${gameVersion.id}/${scriptFile}`, scriptFile)
     }
     const serverDetails = await GameService.AddRunningServer(dirName, username, gameVersion.id, scriptFile)
+    const config = GetServerStartOptions(gameVersion)
     await TerminalService.SetupRequiredFiles(dirName, gameVersion.getFilesSetup)
     await TerminalService.OwnFile(dirName, username)
 
-    await TerminalService.RunGameServer(serverDetails)
-    await TerminalService.SetupServerAfterStart(dirName, gameVersion.changeFileAfterSetup);
+    TerminalService.RunGameServer(serverDetails)
+    await TerminalService.SetupServerAfterStart(dirName, gameVersion.changeFileAfterSetup, config);
     TerminalService.StartCreatedServer(serverDetails, (pid) => { GameService.SetRunningServerPID(serverDetails.id, pid) })
     await
         res.json({ msg: "Game server created successfully" });
