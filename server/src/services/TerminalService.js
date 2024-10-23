@@ -72,6 +72,8 @@ const CheckPortOpen = async (port) => {
     });
 }
 const SetupServerConfigForRestart = (path, data, config) => {
+    console.log({ config })
+
     for (var i = 0; i < data[j].actions.afterRestartMatchReplaceOrAppend.length; i++) {
         content = fs.readFileSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, { encoding: "utf-8" });
         data[j].actions.afterRestartMatchReplaceOrAppend[i].data.forEach(replaceOrAppend => {
@@ -94,6 +96,7 @@ const SetupServerConfigForRestart = (path, data, config) => {
 }
 const SetupServerAfterStart = async (path, data, config) => {
     var content = "";
+    console.log({ config })
     for (var j = 0; j < data.length; j++) {
         for (var i = 0; i < data[j].actions.toReplace.length; i++) {
             content = fs.readFileSync(path + "/" + data[j].actions.toReplace[i].fileName, { encoding: "utf-8" });
@@ -121,7 +124,6 @@ const SetupServerAfterStart = async (path, data, config) => {
 
             fs.writeFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, content, 'utf-8');
         }
-        console.log({ config })
 
     }
 
