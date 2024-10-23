@@ -109,6 +109,7 @@ const SetupServerAfterStart = async (path, data, config) => {
         for (var i = 0; i < data[j].actions.matchReplaceOrAppend.length; i++) {
             content = fs.readFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, { encoding: "utf-8" });
             data[j].actions.matchReplaceOrAppend[i].data.forEach(replaceOrAppend => {
+                console.log({ replaceOrAppend })
                 Object.keys(config).forEach(key => {
                     replaceOrAppend.replace = replaceOrAppend.replace.replaceAll(`[${key}]`, config[key]);
                 })
