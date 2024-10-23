@@ -130,8 +130,7 @@ const SetupServerAfterStart = async (path, data, config) => {
                 content = content.replaceAll(replaceOrAppend.search, replaceOrAppend.replaceWith)
             })
             console.log(content);
-            resx = fs.writeFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, content, 'utf-8');
-            console.log({ resx })
+            fs.writeFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, content, { encoding: 'utf-8', flag: 'w' });
         }
 
 
