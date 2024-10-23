@@ -64,12 +64,12 @@ const SetupServerAfterStart = async (path, data) => {
 const RunGameServer = (serverDetails) => {
     const script = serverDetails.gameVersion.runScript.replaceAll("[{fileName}]", serverDetails.scriptFile);
     try {
-        console.log(`sudo -u ${serverDetails.sysUser.username} bash -c " cd ${serverDetails.path} && ${script}"`);
-        execSync(`sudo -u ${serverDetails.sysUser.username} bash -c " cd ${serverDetails.path} && ${script}"`)
+        const res = execSync(`sudo -u ${serverDetails.sysUser.username} bash -c " cd ${serverDetails.path} && ${script}"`, { encoding: "utf-8" })
+        console.log({ res })
         fs.mkdirSync(serverDetails.path + "/UILogs");
-
         return true;
     } catch (error) {
+        console.log({ error })
     }
 }
 const StartCreatedServer = (serverDetails, pidSetter) => {
