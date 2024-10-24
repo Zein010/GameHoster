@@ -88,7 +88,7 @@ const CheckServerRunning = async (req, res) => {
     const status = await TerminalService.CheckUserHasProcess(server.sysUser.username, server.gameVersion.searchScript, async (pid) => { await GameService.SetRunningServerPID(server.id, pid) });
     res.json({ status });
 }
-const StopServer = async (id) => {
+const StopServer = async (req, res) => {
     const { serverId } = req.params
 
     const server = await GameService.GetServer(Number(serverId));
