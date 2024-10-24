@@ -76,5 +76,11 @@ const CreateServer = async (req, res) => {
     await
         res.json({ msg: "Game server created successfully", config });
 }
-const GameController = { GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer };
+const CheckServerRunning = (req, res) => {
+    const { serverId } = req.params
+    const server = GameService.GetServer(serverId);
+    const status = TerminalService.CheckUserHasProcess(server.sysUser.username);
+    res.json({ status });
+}
+const GameController = { GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning };
 export default GameController

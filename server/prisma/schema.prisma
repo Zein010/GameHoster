@@ -35,6 +35,7 @@ model GameVersion {
   cacheFile            String?
   scriptFile           String?
   runScript            String                 @default("") @db.Text
+  searchScript         String?
   runningServers       RunningServers[]
   getFilesSetup        GetFilesSetup[]
   changeFileAfterSetup ChangeFileAfterSetup[]
