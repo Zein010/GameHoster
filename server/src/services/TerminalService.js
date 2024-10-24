@@ -219,6 +219,7 @@ const CheckUserHasProcess = (username, script) => {
     try {
 
         const grepData = execSync(`sudo ps -u ${username} | grep -E '${script}'`, { encoding: "utf-8" });
+        console.log({ grepData })
         if (grepData) {
             const matches = grepData.match(/\s*(\d+)/);
             if (matches) {
