@@ -37,9 +37,11 @@ const SetGameVersionCache = async (id, cacheFile, scriptFile) => {
 const AppendToServerConfig = async (id, config) => {
     const server = await prisma.runningServers.findUnique({ where: { id } })
 
-    if (!server.config.data) {
-        server.config.startData = [];
+    if (!server.config) {
+        server.config = {}
     }
+    if (!server.config.startData)
+        server.config.startData = [];
     server.config.startData.push(config)
     await prisma.runningServers.update({ where: { id }, data: { config: server.config } })
 
