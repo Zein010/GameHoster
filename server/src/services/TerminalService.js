@@ -234,7 +234,7 @@ const CheckUserHasProcess = async (username, script, updateProcess = async (pid)
         return false;
     }
 }
-const StopUserProcesses = (username) => {
+const StopUserProcesses = (username, script) => {
     try {
 
         const grepData = execSync(`sudo ps -u ${username} | grep -E '${script}'`, { encoding: "utf-8" });
