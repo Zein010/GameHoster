@@ -230,6 +230,7 @@ const CheckUserHasProcess = async (username, script, updateProcess = async (pid)
         }
         return false;
     } catch (error) {
+        console.log({ error })
         return false;
     }
 }
