@@ -39,8 +39,9 @@ const StartServer = async (req, res) => {
     const server = await GameService.GetServer(parseInt(id))
     if (!server)
         return res.status(400).json({ msg: "Invalid server id" });
-    const config = GetServerStartOptions(server.gameVersion)
+    const config = GetServerStartOptions(server.gameVersion, "restart")
     TerminalService.SetupServerConfigForRestart(server.path, server.gameVersion.changeFileAfterSetup, config);
+    GameService.AppendToServerConfig(server.id, config);
     const PID = TerminalService.StartCreatedServer(server, (pid) => { GameService.SetRunningServerPID(server.id, pid) })
     await GameService.SetRunningServerPID(server.id, PID)
     res.json({ "msg": "Server started successfully", config });
@@ -66,7 +67,8 @@ const CreateServer = async (req, res) => {
         GameService.SetGameVersionCache(gameVersion.id, `DownloadCache/${gameVersion.game.name}/${gameVersion.id}/${scriptFile}`, scriptFile)
     }
     const serverDetails = await GameService.AddRunningServer(dirName, username, gameVersion.id, scriptFile)
-    const config = GetServerStartOptions(gameVersion)
+    const config = GetServerStartOptions(gameVersion, "start")
+    GameService.AppendToServerConfig(serverDetails.id, config);
     await TerminalService.SetupRequiredFiles(dirName, gameVersion.getFilesSetup)
     await TerminalService.OwnFile(dirName, username)
 

@@ -1,12 +1,14 @@
 import TerminalService from "./services/TerminalService.js";
 
-export const GetServerStartOptions = (gameVersion, predefSettings = {}) => {
+export const GetServerStartOptions = (gameVersion, type, predefSettings = {}) => {
     const config = {};
     var port = getFreePort();
 
     if (gameVersion.game.name == "Minecraft") {
+
         config.port = port
-        config.seed = predefSettings.seed || generateJavaSeed()
+        if (type == "start")
+            config.seed = predefSettings.seed || generateJavaSeed()
     }
     return config;
 }

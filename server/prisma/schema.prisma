@@ -81,6 +81,7 @@ model RunningServers {
   scriptFile    String      @default("")
   sysUserId     Int
   pid           Int         @default(0)
+  config        Json?
   sysUser       SysUser     @relation(fields: [sysUserId], references: [id])
 }
 

@@ -34,5 +34,15 @@ const AddRunningServer = async (path, username, gameVersionId, scriptFile) => {
 const SetGameVersionCache = async (id, cacheFile, scriptFile) => {
     await prisma.gameVersion.update({ where: { id }, data: { cacheFile, scriptFile } });
 }
-const GameService = { GetAll, Get, GetVersion, GetServers, GetServer, GetVersions, SetRunningServerPID, AddRunningServer, DeleteServer, SetGameVersionCache };
+const AppendToServerConfig = async (id, config) => {
+    const server = await prisma.runningServers.findUnique({ where: { id } })
+
+    if (!server.config.data) {
+        server.config.startData = [];
+    }
+    server.config.startData.push(config)
+    await prisma.runningServers.update({ where: { id }, data: { config: server.config } })
+
+}
+const GameService = { GetAll, Get, GetVersion, GetServers, GetServer, GetVersions, SetRunningServerPID, AddRunningServer, DeleteServer, SetGameVersionCache, AppendToServerConfig };
 export default GameService
