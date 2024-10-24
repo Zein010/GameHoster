@@ -85,7 +85,7 @@ const SetupServerConfigForRestart = (path, data, config) => {
                 console.log(replaceOrAppend.match)
                 if (replaceOrAppend.match.test(content)) {
                     // If match found, replace the matched line
-                    content = content.replace(replaceOrAppend.match,);
+                    content = content.replace(replaceOrAppend.match, replaceOrAppend.replace);
                 } else {
                     // If no match, append the replace string as a new line
                     content += `\n${replaceOrAppend.replace}`;
