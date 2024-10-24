@@ -19,7 +19,7 @@ const GetServers = async (gameVersionId) => {
     return await prisma.runningServers.findMany({ where: { gameVersionId, deleted: false } });
 }
 const GetServer = async (serverId) => {
-    return await prisma.runningServers.findUnique({ where: { id: serverId, deleted: false }, include: { sysUser: true, gameVersion: { include: { getFilesSetup: true, changeFileAfterSetup: true } } } });
+    return await prisma.runningServers.findUnique({ where: { id: serverId, deleted: false }, include: { sysUser: true, gameVersion: { include: { game: true, getFilesSetup: true, changeFileAfterSetup: true } } } });
 }
 const SetRunningServerPID = async (id, pid) => {
     return await prisma.runningServers.update({ where: { id }, data: { pid } });
