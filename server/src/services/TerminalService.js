@@ -73,26 +73,28 @@ const CheckPortOpen = async (port) => {
 }
 const SetupServerConfigForRestart = (path, data, config) => {
 
-    for (var i = 0; i < data[j].actions.afterRestartMatchReplaceOrAppend.length; i++) {
-        content = fs.readFileSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, { encoding: "utf-8" });
-        data[j].actions.afterRestartMatchReplaceOrAppend[i].data.forEach(replaceOrAppend => {
-            Object.keys(config).forEach(key => {
-                replaceOrAppend.replace = replaceOrAppend.replace.replaceAll(`[${key}]`, config[key]);
-            })
+    for (var j = 0; j < data.length; j++) {
+        for (var i = 0; i < data[j].actions.afterRestartMatchReplaceOrAppend.length; i++) {
+            content = fs.readFileSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, { encoding: "utf-8" });
+            data[j].actions.afterRestartMatchReplaceOrAppend[i].data.forEach(replaceOrAppend => {
+                Object.keys(config).forEach(key => {
+                    replaceOrAppend.replace = replaceOrAppend.replace.replaceAll(`[${key}]`, config[key]);
+                })
 
-            replaceOrAppend.match = new RegExp(replaceOrAppend.match)
-            console.log(replaceOrAppend.match)
-            if (replaceOrAppend.match.test(content)) {
-                // If match found, replace the matched line
-                content = content.replace(replaceOrAppend.match,);
-            } else {
-                // If no match, append the replace string as a new line
-                content += `\n${replaceOrAppend.replace}`;
-            }
-            content = content.replaceAll(replaceOrAppend.search, replaceOrAppend.replaceWith)
-        })
-        fs.truncateSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, 0);
-        fs.writeFileSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, content, { encoding: 'utf-8', flag: 'w' });
+                replaceOrAppend.match = new RegExp(replaceOrAppend.match)
+                console.log(replaceOrAppend.match)
+                if (replaceOrAppend.match.test(content)) {
+                    // If match found, replace the matched line
+                    content = content.replace(replaceOrAppend.match,);
+                } else {
+                    // If no match, append the replace string as a new line
+                    content += `\n${replaceOrAppend.replace}`;
+                }
+                content = content.replaceAll(replaceOrAppend.search, replaceOrAppend.replaceWith)
+            })
+            fs.truncateSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, 0);
+            fs.writeFileSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, content, { encoding: 'utf-8', flag: 'w' });
+        }
     }
 }
 const SetupServerAfterStart = async (path, data, config) => {
