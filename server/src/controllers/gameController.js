@@ -83,7 +83,7 @@ const CheckServerRunning = async (req, res) => {
     if (!server) {
         return res.status(404).json({ "msg": "Server not found" })
     }
-    const status = await TerminalService.CheckUserHasProcess(server.sysUser.username, server.gameVersion.searchScript, async (pid) => { await GameService.SetRunningServerPID(serverDetails.id, pid) });
+    const status = await TerminalService.CheckUserHasProcess(server.sysUser.username, server.gameVersion.searchScript, async (pid) => { await GameService.SetRunningServerPID(server.id, pid) });
     res.json({ status });
 }
 const GameController = { GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning };
