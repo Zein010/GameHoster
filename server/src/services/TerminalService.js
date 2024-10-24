@@ -223,7 +223,7 @@ const CheckUserHasProcess = async (username, script, updateProcess = async (pid)
         if (grepData) {
             const matches = grepData.match(/\s*(\d+)/);
             if (matches) {
-                await updateProcess(matches[0])
+                await updateProcess(Number(matches[0]))
                 return true;
 
             }
