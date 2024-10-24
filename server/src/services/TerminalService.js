@@ -215,7 +215,7 @@ const DeleteDir = (path) => {
         console.log({ error })
     }
 }
-const CheckUserHasProcess = (username, script) => {
+const CheckUserHasProcess = (username, script, updateProcess = (pid) => { }) => {
     try {
 
         const grepData = execSync(`sudo ps -u ${username} | grep -E '${script}'`, { encoding: "utf-8" });
@@ -223,13 +223,13 @@ const CheckUserHasProcess = (username, script) => {
         if (grepData) {
             const matches = grepData.match(/\s*(\d+)/);
             if (matches) {
+                updateProcess(matches[0])
                 return true;
 
             }
         }
         return false;
     } catch (error) {
-        console.log({ error })
         return false;
     }
 }
