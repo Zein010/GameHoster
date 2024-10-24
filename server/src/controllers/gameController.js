@@ -78,7 +78,7 @@ const CreateServer = async (req, res) => {
 }
 const CheckServerRunning = (req, res) => {
     const { serverId } = req.params
-    const server = GameService.GetServer(serverId);
+    const server = GameService.GetServer(Number(serverId));
     const status = TerminalService.CheckUserHasProcess(server.sysUser.username);
     res.json({ status });
 }
