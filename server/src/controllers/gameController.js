@@ -95,9 +95,10 @@ const StopServer = async (req, res) => {
     if (!server) {
         return res.status(404).json({ "msg": "Server not found" })
     }
+
     const status = await TerminalService.CheckUserHasProcess(server.sysUser.username, server.gameVersion.searchScript);
     if (status) {
-        TerminalService.StopUserProcesses(server.sysUser.username);
+        TerminalService.StopUserProcesses(server.sysUser.username, server.gameVersion.searchScript);
     }
     res.json({ status });
 }
