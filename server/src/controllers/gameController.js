@@ -76,9 +76,9 @@ const CreateServer = async (req, res) => {
     await
         res.json({ msg: "Game server created successfully", config });
 }
-const CheckServerRunning = (req, res) => {
+const CheckServerRunning = async (req, res) => {
     const { serverId } = req.params
-    const server = GameService.GetServer(Number(serverId));
+    const server = await GameService.GetServer(Number(serverId));
     const status = TerminalService.CheckUserHasProcess(server.sysUser.username);
     res.json({ status });
 }
