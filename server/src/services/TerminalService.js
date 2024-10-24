@@ -216,17 +216,21 @@ const DeleteDir = (path) => {
     }
 }
 const CheckUserHasProcess = (username, script) => {
-    console.log(`sudo ps -u ${username} | grep -E '${script}'`);
-    const grepData = execSync(`sudo ps -u ${username} | grep -E '${script}'`, { encoding: "utf-8" });
-    console.log({ grepData });
-    if (grepData) {
-        const matches = grepData.match(/\s*(\d+)/);
-        if (matches) {
-            return true;
+    try {
 
+        const grepData = execSync(`sudo ps -u ${username} | grep -E '${script}'`, { encoding: "utf-8" });
+        if (grepData) {
+            const matches = grepData.match(/\s*(\d+)/);
+            if (matches) {
+                return true;
+
+            }
         }
+        return false;
+    } catch (error) {
+        console.log({ error })
+        return false;
     }
-    return false;
 }
 const TerminalService = { CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService
