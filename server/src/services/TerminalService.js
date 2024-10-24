@@ -72,7 +72,7 @@ const CheckPortOpen = async (port) => {
     });
 }
 const SetupServerConfigForRestart = (path, data, config) => {
-
+    var content = "";
     for (var j = 0; j < data.length; j++) {
         for (var i = 0; i < data[j].actions.afterRestartMatchReplaceOrAppend.length; i++) {
             content = fs.readFileSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, { encoding: "utf-8" });
