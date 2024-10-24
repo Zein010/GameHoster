@@ -234,5 +234,23 @@ const CheckUserHasProcess = async (username, script, updateProcess = async (pid)
         return false;
     }
 }
-const TerminalService = { CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
+const StopUserProcesses = (username) => {
+    try {
+
+        const grepData = execSync(`sudo ps -u ${username} | grep -E '${script}'`, { encoding: "utf-8" });
+        console.log({ grepData })
+        if (grepData) {
+            const matches = grepData.match(/\s*(\d+)/);
+            if (matches) {
+                execSync(`sudo kill ${Number(matches[0])}`);
+                return true;
+            }
+        }
+        return false;
+    } catch (error) {
+        console.log({ error })
+        return true;
+    }
+}
+const TerminalService = { StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService
