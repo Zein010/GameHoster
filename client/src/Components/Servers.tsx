@@ -1,13 +1,13 @@
 import { Button, Sheet, Table } from '@mui/joy'
 import { useEffect, useState } from 'react'
 import "../index.css"
-import { Home, KeyboardArrowRight, LocalConvenienceStoreOutlined, PlayArrow, Settings, Stop } from '@mui/icons-material'
+import {  PlayArrow, Settings, Stop } from '@mui/icons-material'
 function Servers() {
     const [servers, setServers] = useState([])
     useEffect(() => {
         const fetchData = async () => {
 
-            const response = await window.fetch('http://localhost:3000/Game/Servers/1', {
+            const response = await window.fetch(import.meta.env.VITE_API+'/Game/Servers/1', {
                 method: 'GET',
                 headers: {
                     'content-type': 'application/json;charset=UTF-8',
