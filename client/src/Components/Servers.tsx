@@ -1,13 +1,13 @@
 import { Button, Sheet, Table } from '@mui/joy'
 import { useEffect, useState } from 'react'
 import "../index.css"
-import {  PlayArrow, Settings, Stop } from '@mui/icons-material'
+import { PlayArrow, Settings, SignalWifi1BarLockOutlined, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
 function Servers() {
     const [servers, setServers] = useState([])
     useEffect(() => {
         const fetchData = async () => {
 
-            const response = await window.fetch(import.meta.env.VITE_API+'/Game/Servers/1', {
+            const response = await window.fetch(import.meta.env.VITE_API + '/Game/Servers/1', {
                 method: 'GET',
                 headers: {
                     'content-type': 'application/json;charset=UTF-8',
@@ -44,6 +44,8 @@ function Servers() {
                         <td>{server.gameVersion.game.name}</td>
                         <td>{server.gameVersion.version}</td>
                         <td>
+                            <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} color="success"><SignalWifiStatusbar4Bar /></Button>
+                            <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} color="success"><PlayArrow /></Button>
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} color="success"><PlayArrow /></Button>
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} color="danger"><Stop /></Button>
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} color="warning"><Settings /></Button>
