@@ -40,7 +40,9 @@ const StartServer = async (req, res) => {
     if (!server)
         return res.status(400).json({ msg: "Invalid server id" });
     const config = GetServerStartOptions(server.gameVersion, "restart")
-    TerminalService.SetupServerConfigForRestart(server.path, server.gameVersion.changeFileAfterSetup, config);
+    const SetupCorrectly = TerminalService.SetupServerConfigForRestart(server.path, server.gameVersion.changeFileAfterSetup, config);
+    if (!SetupCorrectly)
+        return res.status(401).json({ msg: "Something went wrong" });
     GameService.AppendToServerConfig(server.id, config);
     const PID = TerminalService.StartCreatedServer(server, (pid) => { GameService.SetRunningServerPID(server.id, pid) })
     await GameService.SetRunningServerPID(server.id, PID)
