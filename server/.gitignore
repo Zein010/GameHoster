@@ -4,3 +4,4 @@ node_modules
 prisma/migrations
 GameServer
 DownloadCache
+package-lock.json
