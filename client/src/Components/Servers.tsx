@@ -28,6 +28,7 @@ function Servers() {
                     <tr>
                         <th>ID</th>
                         <th>Created At</th>
+                        <th>Username</th>
                         <th>Game</th>
                         <th>Version</th>
                         <th>Manage</th>
@@ -39,6 +40,7 @@ function Servers() {
                     (<tr>
                         <td>{server.id}</td>
                         <td>{server.createdAt}</td>
+                        <td>{server.sysUser.username}</td>
                         <td>{server.gameVersion.game.name}</td>
                         <td>{server.gameVersion.version}</td>
                         <td>
