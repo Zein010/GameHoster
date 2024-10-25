@@ -3,8 +3,11 @@ import TerminalService from "./src/services/TerminalService.js";
 import PrismaService from "./PrismaService.js";
 import { Prisma } from "@prisma/client";
 import GameRoutes from "./src/routes/gameRoutes.js"
+import cors from "cors"
 import SysUserRoutes from "./src/routes/sysUserRoutes.js"
 const app = express();
+app.use(cors());
+
 app.get("/", (req, res) => {
   console.log("Test")
   res.json({ msg: "Server is running" })
