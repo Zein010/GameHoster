@@ -46,7 +46,6 @@ function Servers() {
                         <td>
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} color="success"><SignalWifiStatusbar4Bar /></Button>
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} color="success"><PlayArrow /></Button>
-                            <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} color="success"><PlayArrow /></Button>
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} color="danger"><Stop /></Button>
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} color="warning"><Settings /></Button>
                         </td>
