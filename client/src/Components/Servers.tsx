@@ -2,7 +2,7 @@ import { Button, Sheet, Table } from '@mui/joy'
 import { startTransition, useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
 import "../index.css"
-import { PlayArrow, Settings, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
+import { CheckCircleSharp, PlayArrow, Settings, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
 function Servers() {
     const [servers, setServers] = useState<{
         id: number
@@ -38,38 +38,76 @@ function Servers() {
             return obj
         })
     }
-    const checkStatus = async (serverId: number) => {
+    const startSever = async (serverId: number) => {
         setGlobalDisabled(true)
+        const serverOn = await checkStatus(serverId, false, false);
+        const response = await fetch(import.meta.env.VITE_API + `/Game/StartServer/${serverId}`)
+        if (response.ok) {
+            toast.success('Server is running', {
+                position: "top-center",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+        } else {
+            toast.error((await response.json()).msg, {
+                position: "top-center",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+        }
+        setGlobalDisabled(false)
+
+    }
+    const checkStatus = async (serverId: number, HideButtons: boolean = true, showAlert: boolean = true) => {
+        if (HideButtons)
+            setGlobalDisabled(true)
+        var serverOn = false;
         const response = await fetch(import.meta.env.VITE_API + `/Game/CheckServer/${serverId}`)
         if (response.ok) {
             if ((await response.json()).status) {
-                toast.success('Server is running', {
-                    position: "top-center",
-                    autoClose: 2000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "light",
-                });
+                if (showAlert)
+                    toast.success('Server is running', {
+                        position: "top-center",
+                        autoClose: 2000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "light",
+                    });
                 setActionDisabledState(serverId, { start: true, stop: false });
+                serverOn = true;
             } else {
-                toast.error('Server is not running', {
-                    position: "top-center",
-                    autoClose: 2000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "light",
-                });
+                if (showAlert)
+                    toast.error('Server is not running', {
+                        position: "top-center",
+                        autoClose: 2000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "light",
+                    });
                 setActionDisabledState(serverId, { start: false, stop: true });
+                serverOn = false;
             }
-            setGlobalDisabled(false)
+            if (HideButtons)
+                setGlobalDisabled(false)
 
         }
+        return serverOn
     }
     console.log(actionsDisabled)
 
@@ -97,7 +135,7 @@ function Servers() {
                         <td>{server.gameVersion.version}</td>
                         <td>
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled} onClick={() => { checkStatus(server.id) }} color="success"><SignalWifiStatusbar4Bar /></Button>
-                            <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.start[server.id]} color="success"><PlayArrow /></Button>
+                            <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.start[server.id]} onClick={() => { startSever(server.id) }} color="success"><PlayArrow /></Button>
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.stop[server.id]} color="danger"><Stop /></Button>
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled} color="warning"><Settings /></Button>
                         </td>
