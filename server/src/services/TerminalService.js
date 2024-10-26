@@ -243,7 +243,8 @@ const StopUserProcesses = (username, script) => {
 }
 const DisplayUserLog = (path) => {
     try {
-
+        console.log("Not Ready yet")
+        return;
         const outStream = fs.createReadStream(path + "/out.log");
 
         outStream.on('data', (data) => {
