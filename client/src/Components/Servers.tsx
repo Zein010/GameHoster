@@ -1,8 +1,8 @@
 import { Button, Sheet, Table } from '@mui/joy'
 import { startTransition, useEffect, useState } from 'react'
-import { toast } from 'react-toastify';
 import "../index.css"
 import { CheckCircleSharp, PlayArrow, Settings, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
+import { notification } from '../Utils'
 function Servers() {
     const [servers, setServers] = useState<{
         id: number
@@ -43,44 +43,18 @@ function Servers() {
         setGlobalDisabled(true)
         const serverOn = await checkStatus(serverId, false, false);
         if (serverOn) {
-            toast.success('Server already running', {
-                position: "top-center",
-                autoClose: 2000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "light",
-            });
+            notification('Server already running', "success")
+
             setGlobalDisabled(false)
             return;
         }
         const response = await fetch(import.meta.env.VITE_API + `/Game/StartServer/${serverId}`)
         if (response.ok) {
-            toast.success('Server is running', {
-                position: "top-center",
-                autoClose: 2000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "light",
-            });
+            notification('Server is running', "success")
             await checkStatus(serverId, false, false);
 
         } else {
-            toast.error((await response.json()).msg, {
-                position: "top-center",
-                autoClose: 2000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "light",
-            });
+            notification((await response.json()).msg, "error")
         }
         setGlobalDisabled(false)
 
@@ -93,30 +67,13 @@ function Servers() {
         if (response.ok) {
             if ((await response.json()).status) {
                 if (showAlert)
-                    toast.success('Server is running', {
-                        position: "top-center",
-                        autoClose: 2000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                        theme: "light",
-                    });
+                    notification('Server is running', "success")
                 setActionDisabledState(serverId, { start: true, stop: false });
                 serverOn = true;
             } else {
                 if (showAlert)
-                    toast.error('Server is not running', {
-                        position: "top-center",
-                        autoClose: 2000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                        theme: "light",
-                    });
+                    notification('Server is not running', "error")
+
                 setActionDisabledState(serverId, { start: false, stop: true });
                 serverOn = false;
             }
