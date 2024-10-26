@@ -165,32 +165,9 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
         var pidSet = false;
         const ls = spawn(`cd`, [`${path}`, '&& su', username, '-c', `"${script}"`], {
             detached: true,  // Run the process as a separate process
-            stdio: ['ignore', 'pipe', 'pipe'],
+            stdio: ['pipe', 'pipe', 'pipe'],
             shell: true
         });
-        ls.stdout.on('data', (data) => {
-            fs.appendFileSync(path + "/UILogs/out", data, "utf-8");
-            if (!pidSet) {
-
-                const grepData = execSync(`sudo ps -u ${serverDetails.sysUser.username} | grep -E 'java'`, { encoding: "utf-8" });
-                console.log({ grepData })
-                if (grepData) {
-                    const matches = grepData.match(/\s*(\d+)/);
-                    if (matches) {
-
-                        const PID = matches[0];
-                        if (grepData) {
-                            pidSet = true;
-                            pidSetter(parseInt(PID))
-                        }
-                    }
-                }
-            }
-        });
-        ls.stderr.on('data', (data) => {
-            fs.appendFileSync(path + "/UILogs/err", data, "utf-8");
-        });
-
         ls.on('exit', (code) => {
             fs.appendFileSync(path + "/UILogs/exit", `Process exited with code ${code}\n`, "utf-8");
         });
