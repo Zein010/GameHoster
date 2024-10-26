@@ -99,6 +99,7 @@ const SetupServerConfigForRestart = (path, data, config) => {
                 fs.writeFileSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, content, { encoding: 'utf-8', flag: 'w' });
             }
         }
+        return true;
     } catch (SetupServerConfigForRestartError) {
         console.log({ SetupServerConfigForRestartError })
         return false;
