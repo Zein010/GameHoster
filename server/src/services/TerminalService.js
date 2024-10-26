@@ -166,9 +166,11 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
         const out = fs.openSync(serverDetails.path + '/out.log', 'a');
         const err = fs.openSync(serverDetails.path + '/out.log', 'a');
 
+        const stdin = fs.openSync(serverDetails.path + 'in.log', 'r');
+
         const ls = spawn(`cd`, [`${path}`, '&& su', username, '-c', `"${script}"`], {
             detached: true,  // Run the process as a separate process
-            stdio: ["ignore", out, err],
+            stdio: [stdin, out, err],
 
             shell: true
         });
@@ -243,27 +245,13 @@ const StopUserProcesses = (username, script) => {
         return true;
     }
 }
-const DisplayUserLog = (username, script) => {
+const DisplayUserLog = (path) => {
     try {
+        const readStream = fs.ReadStream(path + "/out.log", 'utf8')
+        readStream.on('data', (chunk) => {
+            console.log(chunk)
+        })
 
-        const grepData = execSync(`sudo ps -u ${username} | grep -E '${script}'`, { encoding: "utf-8" });
-        console.log({ grepData })
-        if (grepData) {
-            const matches = grepData.match(/\s*(\d+)/);
-            if (matches) {
-                const stdoutPath = `/proc/${matches[0].trim()}/fd/1`;
-                console.log(`/proc/${matches[0].trim()}/fd/1`);
-                const stdoutStream = fs.createReadStream(stdoutPath);
-
-                stdoutStream.on('data', (data) => {
-                    console.log(`stdout: ${data}`);
-                });
-
-                stdoutStream.on('error', (error) => {
-                    console.error(`Error reading stdout: ${error.message}`);
-                });
-            }
-        }
         return false;
     } catch (error) {
         console.log({ error })

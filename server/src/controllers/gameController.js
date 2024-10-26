@@ -52,7 +52,7 @@ const StartServer = async (req, res) => {
 const DisplayLog = async (req, res) => {
     const { serverId } = req.params;
     const server = await GameService.GetServer(Number(serverId));
-    TerminalService.DisplayUserLog(server.sysUser.username, server.gameVersion.searchShScript);
+    TerminalService.DisplayUserLog(server.sysUser.username);
     res.json({ msg: "try now" });
 }
 const CreateServer = async (req, res) => {
