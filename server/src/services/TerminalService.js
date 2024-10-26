@@ -95,7 +95,6 @@ const SetupServerConfigForRestart = (path, data, config) => {
                     content = content.replaceAll(replaceOrAppend.search, replaceOrAppend.replaceWith)
                 })
                 fs.truncateSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, 0);
-                console.log({ content });
                 fs.writeFileSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, content, { encoding: 'utf-8', flag: 'w' });
             }
         }
