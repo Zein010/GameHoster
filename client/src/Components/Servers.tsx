@@ -53,7 +53,8 @@ function Servers() {
                 progress: undefined,
                 theme: "light",
             });
-
+            setGlobalDisabled(false)
+            return;
         }
         const response = await fetch(import.meta.env.VITE_API + `/Game/StartServer/${serverId}`)
         if (response.ok) {
@@ -67,7 +68,7 @@ function Servers() {
                 progress: undefined,
                 theme: "light",
             });
-            const serverOn = await checkStatus(serverId, false, false);
+            await checkStatus(serverId, false, false);
 
         } else {
             toast.error((await response.json()).msg, {
