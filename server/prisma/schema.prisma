@@ -34,6 +34,7 @@ model GameVersion {
   downloadLink         String
   cacheFile            String?
   scriptFile           String?
+  searchShScript   String?
   runScript            String                 @default("") @db.Text
   searchScript         String?
   runningServers       RunningServers[]
