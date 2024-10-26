@@ -247,17 +247,15 @@ const StopUserProcesses = (username, script) => {
 const DisplayUserLog = (path) => {
     try {
 
-        if (matches) {
-            const outStream = fs.createReadStream(path + "/out.log");
+        const outStream = fs.createReadStream(path + "/out.log");
 
-            outStream.on('data', (data) => {
-                console.log(`stdout: ${data}`);
-            });
+        outStream.on('data', (data) => {
+            console.log(`stdout: ${data}`);
+        });
 
-            outStream.on('error', (error) => {
-                console.error(`Error reading stdout: ${error.message}`);
-            });
-        }
+        outStream.on('error', (error) => {
+            console.error(`Error reading stdout: ${error.message}`);
+        });
         return false;
     } catch (error) {
         console.log({ error })
