@@ -163,16 +163,16 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
         var pidSet = false;
-        const out = fs.openSync(serverDetails.path + '/out.log', 'a');
-        const err = fs.openSync(serverDetails.path + '/out.log', 'a');
-        const stdin = fs.createReadStream(serverDetails.path + '/in.log');
 
         const ls = spawn(`cd`, [`${path}`, '&& su', username, '-c', `"${script}"`], {
             detached: true,  // Run the process as a separate process
-            stdio: [stdin, out, err],
+            stdio: ["pipe", "pipe", "pipe"],
 
             shell: true
         });
+        ls.stdio[0].unref();
+        ls.stdio[1].unref();
+        ls.stdio[2].unref();
         ls.on('exit', (code) => {
             fs.appendFileSync(path + "/UILogs/exit", `Process exited with code ${code}\n`, "utf-8");
         });
@@ -244,13 +244,35 @@ const StopUserProcesses = (username, script) => {
         return true;
     }
 }
-const DisplayUserLog = (path) => {
+const DisplayUserLog = (username, script) => {
     try {
-        const readStream = fs.ReadStream(path + "/out.log", 'utf8')
-        readStream.on('data', (chunk) => {
-            console.log(chunk)
-        })
 
+        const grepData = execSync(`sudo ps -u ${username} | grep -E '${script}'`, { encoding: "utf-8" });
+        console.log({ grepData })
+        const pid = grepData.trim().split(/\s+/)[0];
+        if (!pid) {
+            console.log('No matching process found');
+            return false;
+        }
+        const stdout = fs.createReadStream(`/proc/${pid}/fd/1`);
+        const stderr = fs.createReadStream(`/proc/${pid}/fd/2`);
+
+        stdout.on('data', (data) => {
+            console.log(`[STDOUT] ${data.toString()}`);
+        });
+
+        stdout.on('error', (error) => {
+            console.log('Error reading stdout:', error.message);
+        });
+
+        // Handle error output
+        stderr.on('data', (data) => {
+            console.log(`[STDERR] ${data.toString().trim()}`);
+        });
+
+        stderr.on('error', (error) => {
+            console.log('Error reading stderr:', error.message);
+        });
         return false;
     } catch (error) {
         console.log({ error })
