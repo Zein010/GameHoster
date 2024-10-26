@@ -66,6 +66,8 @@ function Servers() {
                 progress: undefined,
                 theme: "light",
             });
+            const serverOn = await checkStatus(serverId, false, false);
+
         } else {
             toast.error((await response.json()).msg, {
                 position: "top-center",
