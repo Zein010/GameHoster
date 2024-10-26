@@ -150,7 +150,7 @@ function Servers() {
                         <td>{server.sysUser.username}</td>
                         <td>{server.gameVersion.game.name}</td>
                         <td>{server.gameVersion.version}</td>
-                        <td>{server.config?.startData && server.config?.startData.length > 0 && server.config.startData[server.config.startData.length].port}</td>
+                        <td>{server.config?.startData && server.config?.startData.length > 0 && server.config.startData[server.config.startData.length - 1].port}</td>
                         <td>
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled} onClick={() => { checkStatus(server.id) }} color="success"><SignalWifiStatusbar4Bar /></Button>
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.start[server.id]} onClick={() => { startSever(server.id) }} color="success"><PlayArrow /></Button>
