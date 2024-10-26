@@ -163,43 +163,26 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
         var pidSet = false;
-        const wrapperScript = `
-        #!/bin/bash
-        cd "${path}"
-        exec ${script}
-            `.trim();
-        const wrapperPath = `${path}/wrapper.sh`;
-        fs.writeFileSync(wrapperPath, wrapperScript);
-        fs.chmodSync(wrapperPath, '755');
-        const ls = spawn('su', [
-            username,
-            '-c',
-            wrapperPath
-        ], {
-            detached: true,
-            stdio: ['pipe', 'pipe', 'pipe'],
-            cwd: path
+        const out = fs.openSync(serverDetails.path + '/out.log', 'a');
+        const err = fs.openSync(serverDetails.path + '/out.log', 'a');
+
+
+        const ls = spawn(`cd`, [`${path}`, '&& su', username, '-c', `"${script}"`], {
+            detached: true,  // Run the process as a separate process
+            stdio: ["ignore", out, err],
+
+            shell: true
         });
-        ls.stdio[0].unref();
-        ls.stdio[1].unref();
-        ls.stdio[2].unref();
-        ls.unref();
-        fs.writeFileSync(`${path}/process.pid`, ls.pid.toString());
         ls.on('exit', (code) => {
-            fs.appendFileSync(`${path}/UILogs/exit`, `Process exited with code ${code}\n`, "utf-8");
-            // Clean up wrapper script
-            try {
-                fs.unlinkSync(wrapperPath);
-            } catch (err) {
-                // Ignore cleanup errors
-            }
-        });
-        ls.on('error', (error) => {
-            fs.appendFileSync(`${path}/UILogs/err`, `Error with process: ${error.message}`, "utf-8");
+            fs.appendFileSync(path + "/UILogs/exit", `Process exited with code ${code}\n`, "utf-8");
         });
 
-        console.log(`Process started with PID: ${ls.pid}`);
-        console.log("Process detached successfully");
+        ls.on('error', (error) => {
+            fs.appendFileSync(path + "/UILogs/err", `Error with process: ${error.message}`, "utf-8");
+        });
+
+        ls.unref();
+        console.log("Unrefed")
         return 0
     }
     catch (error) {
@@ -261,35 +244,20 @@ const StopUserProcesses = (username, script) => {
         return true;
     }
 }
-const DisplayUserLog = (username, script) => {
+const DisplayUserLog = (path) => {
     try {
 
-        const grepData = execSync(`sudo ps -u ${username} | grep -E '${script}'`, { encoding: "utf-8" });
-        console.log({ grepData })
-        const pid = grepData.trim().split(/\s+/)[0];
-        if (!pid) {
-            console.log('No matching process found');
-            return false;
+        if (matches) {
+            const outStream = fs.createReadStream(path + "/out.log");
+
+            outStream.on('data', (data) => {
+                console.log(`stdout: ${data}`);
+            });
+
+            outStream.on('error', (error) => {
+                console.error(`Error reading stdout: ${error.message}`);
+            });
         }
-        const stdout = fs.createReadStream(`/proc/${pid}/fd/1`);
-        const stderr = fs.createReadStream(`/proc/${pid}/fd/2`);
-
-        stdout.on('data', (data) => {
-            console.log(`[STDOUT] ${data.toString()}`);
-        });
-
-        stdout.on('error', (error) => {
-            console.log('Error reading stdout:', error.message);
-        });
-
-        // Handle error output
-        stderr.on('data', (data) => {
-            console.log(`[STDERR] ${data.toString().trim()}`);
-        });
-
-        stderr.on('error', (error) => {
-            console.log('Error reading stderr:', error.message);
-        });
         return false;
     } catch (error) {
         console.log({ error })
