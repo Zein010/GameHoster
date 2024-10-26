@@ -49,6 +49,12 @@ const StartServer = async (req, res) => {
     res.json({ "msg": "Server started successfully, please wait for initialization to finish", config });
 
 }
+const DisplayLog = async (req, res) => {
+    const { serverId } = req.params;
+    const server = await GameService.GetServer(serverId);
+    TerminalService.DisplayUserLog(server.sysUser.username, server.gameVersion.searchScript);
+    res.json({ msg: "try now" });
+}
 const CreateServer = async (req, res) => {
     const { versionId } = req.params
     const gameVersion = await GameService.GetVersion(parseInt(versionId))
@@ -104,5 +110,5 @@ const StopServer = async (req, res) => {
     }
     res.json({ status });
 }
-const GameController = { StopServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning };
+const GameController = { DisplayLog, StopServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning };
 export default GameController
