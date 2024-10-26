@@ -41,6 +41,19 @@ function Servers() {
     const startSever = async (serverId: number) => {
         setGlobalDisabled(true)
         const serverOn = await checkStatus(serverId, false, false);
+        if (serverOn) {
+            toast.success('Server already running', {
+                position: "top-center",
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+
+        }
         const response = await fetch(import.meta.env.VITE_API + `/Game/StartServer/${serverId}`)
         if (response.ok) {
             toast.success('Server is running', {
