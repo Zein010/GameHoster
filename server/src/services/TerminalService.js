@@ -166,7 +166,7 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
         const out = fs.openSync(serverDetails.path + '/out.log', 'a');
         const err = fs.openSync(serverDetails.path + '/out.log', 'a');
 
-        const stdin = fs.openSync(serverDetails.path + 'in.log', 'r');
+        const stdin = fs.openSync(serverDetails.path + '/in.log', 'r');
 
         const ls = spawn(`cd`, [`${path}`, '&& su', username, '-c', `"${script}"`], {
             detached: true,  // Run the process as a separate process
