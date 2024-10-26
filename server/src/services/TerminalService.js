@@ -165,7 +165,7 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
         var pidSet = false;
         const ls = spawn(`cd`, [`${path}`, '&& su', username, '-c', `"${script}"`], {
             detached: true,  // Run the process as a separate process
-            stdio: ['pipe', 'pipe', 'pipe'],
+            stdio: "ignore",
             shell: true
         });
         ls.on('exit', (code) => {
