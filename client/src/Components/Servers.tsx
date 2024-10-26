@@ -8,7 +8,8 @@ function Servers() {
         id: number
         createdAt: string
         sysUser: { username: string }
-        gameVersion: { version: string, game: { name: string } }
+        gameVersion: { version: string, game: { name: string } },
+        config: null | { startData: [] }
     }[]>([])
     const [actionsDisabled, setActionsDisabled] = useState<{ start: { [key: number]: boolean }, stop: { [key: number]: boolean } }>({ start: {}, stop: {} });
     const [globalDisabled, setGlobalDisabled] = useState<boolean>(false)
@@ -136,6 +137,7 @@ function Servers() {
                         <th>Username</th>
                         <th>Game</th>
                         <th>Version</th>
+                        <th>Config</th>
                         <th>Manage</th>
                     </tr>
                 </thead>
@@ -148,6 +150,7 @@ function Servers() {
                         <td>{server.sysUser.username}</td>
                         <td>{server.gameVersion.game.name}</td>
                         <td>{server.gameVersion.version}</td>
+                        <td>{server.config?.startData && server.config?.startData.length > 0 && server.config.startData[server.config.startData.length]}</td>
                         <td>
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled} onClick={() => { checkStatus(server.id) }} color="success"><SignalWifiStatusbar4Bar /></Button>
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.start[server.id]} onClick={() => { startSever(server.id) }} color="success"><PlayArrow /></Button>
