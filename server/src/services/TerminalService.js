@@ -162,14 +162,11 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
     const gameVersion = serverDetails.gameVersion
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
-        var pidSet = false;
-        const out = fs.openSync(serverDetails.path + '/out.log', 'a');
-        const err = fs.openSync(serverDetails.path + '/out.log', 'a');
 
 
         const ls = spawn(`cd`, [`${path}`, '&& su', username, '-c', `"${script}"`], {
             detached: true,  // Run the process as a separate process
-            stdio: ["ignore", out, err],
+            stdio: "ignore",
 
             shell: true
         });
