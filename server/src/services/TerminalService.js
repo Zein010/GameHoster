@@ -163,26 +163,43 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
         var pidSet = false;
-
-        const ls = spawn(`cd`, [`${path}`, '&& su', username, '-c', `"${script}"`], {
-            detached: true,  // Run the process as a separate process
-            stdio: ["pipe", "pipe", "pipe"],
-
-            shell: true
+        const wrapperScript = `
+        #!/bin/bash
+        cd "${path}"
+        exec ${script}
+            `.trim();
+        const wrapperPath = `${path}/wrapper.sh`;
+        fs.writeFileSync(wrapperPath, wrapperScript);
+        fs.chmodSync(wrapperPath, '755');
+        const ls = spawn('su', [
+            username,
+            '-c',
+            wrapperPath
+        ], {
+            detached: true,
+            stdio: ['pipe', 'pipe', 'pipe'],
+            cwd: path
         });
         ls.stdio[0].unref();
         ls.stdio[1].unref();
         ls.stdio[2].unref();
-        ls.on('exit', (code) => {
-            fs.appendFileSync(path + "/UILogs/exit", `Process exited with code ${code}\n`, "utf-8");
-        });
-
-        ls.on('error', (error) => {
-            fs.appendFileSync(path + "/UILogs/err", `Error with process: ${error.message}`, "utf-8");
-        });
-
         ls.unref();
-        console.log("Unrefed")
+        fs.writeFileSync(`${path}/process.pid`, ls.pid.toString());
+        ls.on('exit', (code) => {
+            fs.appendFileSync(`${path}/UILogs/exit`, `Process exited with code ${code}\n`, "utf-8");
+            // Clean up wrapper script
+            try {
+                fs.unlinkSync(wrapperPath);
+            } catch (err) {
+                // Ignore cleanup errors
+            }
+        });
+        ls.on('error', (error) => {
+            fs.appendFileSync(`${path}/UILogs/err`, `Error with process: ${error.message}`, "utf-8");
+        });
+
+        console.log(`Process started with PID: ${ls.pid}`);
+        console.log("Process detached successfully");
         return 0
     }
     catch (error) {
