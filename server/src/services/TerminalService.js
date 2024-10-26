@@ -248,6 +248,7 @@ const DisplayUserLog = (username, script) => {
             const matches = grepData.match(/\s*(\d+)/);
             if (matches) {
                 const stdoutPath = `/proc/${matches[0].trim()}/fd/1`;
+                console.log(`/proc/${matches[0].trim()}/fd/1`);
                 const stdoutStream = fs.createReadStream(stdoutPath);
 
                 stdoutStream.on('data', (data) => {
