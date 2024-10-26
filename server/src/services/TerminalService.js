@@ -1,4 +1,5 @@
 import { execSync, spawn, fork, exec } from "child_process"
+const { openSync } = require('node:fs');
 import fs from "fs"
 import PrismaService from "../../PrismaService.js";
 import net from "net"
@@ -163,9 +164,13 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
     try {
         var pidSet = false;
+        const out = openSync(serverDetails.path + '/out.log', 'a');
+        const err = openSync(serverDetails.path + '/out.log', 'a');
+
         const ls = spawn(`cd`, [`${path}`, '&& su', username, '-c', `"${script}"`], {
             detached: true,  // Run the process as a separate process
-            stdio: "ignore",
+            stdio: ["ignore", out, err],
+
             shell: true
         });
         ls.on('exit', (code) => {
