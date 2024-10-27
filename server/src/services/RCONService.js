@@ -1,15 +1,8 @@
 import Rcon from 'rcon';
 
 const ConnectToServer = (rport, rpassword) => {
-    const options = {
-        host: 'localhost',
-        port: rport,
-        password: rpassword,
-        timeout: 5000
-    }
 
-    console.log({ options })
-    const rcon = new Rcon(options);
+    const rcon = new Rcon("localhost", rport, rpassword);
 
     // Handle successful connection
     rcon.on('auth', () => {
