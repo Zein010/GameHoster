@@ -161,7 +161,9 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
         const ls = spawn(`cd`, [`${path}`, '&& su', username, '-c', `"${script}"`], {
             detached: true,  // Run the process as a separate process
             stdio: ["ignore", "pipe", "pipe"],
+            shell: true
         });
+        ls.stdin.unref();
         ls.unref();
         console.log("Unrefed")
         return 0
