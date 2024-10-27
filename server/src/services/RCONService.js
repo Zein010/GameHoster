@@ -7,7 +7,6 @@ const ConnectToServer = (rport, rpassword) => {
     // Handle successful connection
     rcon.on('auth', () => {
 
-
         // Send a message to all players
         rcon.send("say Hello from RCON!");
 
@@ -37,13 +36,6 @@ const ConnectToServer = (rport, rpassword) => {
     rcon.connect();
 
     // Example function to send commands
-    function sendCommand(command) {
-        if (rcon.authenticated) {
-            rcon.send(command);
-        } else {
-            console.log("Not connected to RCON!");
-        }
-    }
 
     // Example function to safely disconnect
     function disconnect() {
