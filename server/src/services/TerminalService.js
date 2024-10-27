@@ -160,27 +160,23 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
         // Create a detached process with its own process group
         const ls = spawn('sh', ['-c', `cd "${path}" && su ${username} -c "${script}"`], {
             detached: true,
-            stdio: ['ignore', 'ignore', 'ignore'], // or use files for logging
+            stdio: ['ignore', 'pipe', 'pipe'],
             shell: true,
             // Ensure process has its own process group
-            windowsHide: true,
-            env: {
-                ...process.env,
-                // Add any necessary environment variables
-                FORCE_COLOR: '0',
-                // Prevent the process from receiving SIGINT
-                NODE_OPTIONS: '--no-warnings'
-            }
         });
 
         // Store the PID if needed
         if (pidSetter) {
             pidSetter(ls.pid);
 
-            // Optionally write PID to a file for later management
-            fs.writeFileSync(`${path}/server.pid`, ls.pid.toString());
         }
+        ls.stdout.on("data", (data) => {
+            console.log({ outData: data });
+        })
+        ls.stderr.on("data", (data) => {
+            console.log({ errData: data });
 
+        })
         // Completely detach the child process
         ls.unref();
 
