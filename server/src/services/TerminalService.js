@@ -150,25 +150,48 @@ const RunGameServer = (serverDetails) => {
     }
 }
 const StartCreatedServer = (serverDetails, pidSetter) => {
-    const path = serverDetails.path
-    const scriptFile = serverDetails.scriptFile
-    const username = serverDetails.sysUser.username
-    const gameVersion = serverDetails.gameVersion
+    const path = serverDetails.path;
+    const scriptFile = serverDetails.scriptFile;
+    const username = serverDetails.sysUser.username;
+    const gameVersion = serverDetails.gameVersion;
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
+
     try {
-
-
-        const ls = spawn(`cd`, [`${path}`, '&& su', username, '-c', `"${script}"`], {
-            detached: true,  // Run the process as a separate process
-            stdio: ["ignore", "pipe", "pipe"],
-            shell: true
+        // Create a detached process with its own process group
+        const ls = spawn('sh', ['-c', `cd "${path}" && su ${username} -c "${script}"`], {
+            detached: true,
+            stdio: ['ignore', 'ignore', 'ignore'], // or use files for logging
+            shell: true,
+            // Ensure process has its own process group
+            windowsHide: true,
+            env: {
+                ...process.env,
+                // Add any necessary environment variables
+                FORCE_COLOR: '0',
+                // Prevent the process from receiving SIGINT
+                NODE_OPTIONS: '--no-warnings'
+            }
         });
+
+        // Store the PID if needed
+        if (pidSetter) {
+            pidSetter(ls.pid);
+
+            // Optionally write PID to a file for later management
+            fs.writeFileSync(`${path}/server.pid`, ls.pid.toString());
+        }
+
+        // Completely detach the child process
         ls.unref();
-        console.log("Unrefed")
-        return 0
-    }
-    catch (error) {
-        console.log({ error })
+
+        // Don't wait for the child to exit
+        ls.on('error', (err) => {
+            console.error('Failed to start subprocess:', err);
+        });
+
+        return ls.pid;
+    } catch (error) {
+        console.error('Error starting server:', error);
         return 0;
     }
 }
