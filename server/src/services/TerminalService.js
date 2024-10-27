@@ -167,11 +167,6 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
             stdio: ['ignore', 'pipe', 'pipe'], // Changed to pipe for debugging
             shell: true,
             cwd: "/var/www/GameHoster/server", // Set working directory explicitly
-            env: {
-                ...process.env,
-                JAVA_HOME: process.env.JAVA_HOME, // Ensure Java environment is passed
-                PATH: process.env.PATH
-            }
         });
 
         // Log output for debugging
@@ -182,12 +177,6 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
         ls.stderr.on('data', (data) => {
             console.error(`stderr: ${data.toString("utf8")}`);
         });
-
-        ls.on('error', (error) => {
-            console.error('Failed to start subprocess:', error);
-            return 0;
-        });
-
         // Completely detach the child process
         ls.unref();
 
