@@ -57,6 +57,7 @@ const ConnectToServer = (rport, rpassword) => {
     process.on('SIGINT', () => {
         console.log("Closing RCON connection...");
         disconnect();
+        process.exit()
     });
 }
 const RCONService = { ConnectToServer };
