@@ -162,7 +162,7 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
 
         const ls = spawn('sh', ['-c', command], {
             detached: true,
-            stdio: ['ignore', 'pipe', 'pipe'], // Changed to pipe for debugging
+            stdio: ['ignore', 'ignore', 'ignore'], // Changed to pipe for debugging
             shell: true,
             cwd: "/var/www/GameHoster/server", // Set working directory explicitly
         });
