@@ -2,7 +2,7 @@ import Rcon from 'rcon';
 
 const ConnectToServer = (rport, rpassword) => {
 
-    const rcon = new Rcon("localhost", rport, rpassword);
+    const rcon = new Rcon("localhost", rport, "" + rpassword);
 
     // Handle successful connection
     rcon.on('auth', () => {
