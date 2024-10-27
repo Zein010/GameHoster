@@ -160,8 +160,6 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
         // Create a detached process with its own process group
         const command = `cd "${path}" && /bin/su ${username} -c 'cd "${path}" && ${script}'`;
 
-        console.log('Final command:', command);
-
         const ls = spawn('sh', ['-c', command], {
             detached: true,
             stdio: ['ignore', 'pipe', 'pipe'], // Changed to pipe for debugging
@@ -169,15 +167,6 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
             cwd: "/var/www/GameHoster/server", // Set working directory explicitly
         });
 
-        // Log output for debugging
-        ls.stdout.on('data', (data) => {
-            console.log(`stdout: ${data.toString("utf8")}`);
-        });
-
-        ls.stderr.on('data', (data) => {
-            console.error(`stderr: ${data.toString("utf8")}`);
-        });
-        // Completely detach the child process
         ls.unref();
 
         // Don't wait for the child to exit
