@@ -52,12 +52,15 @@ const seed = async () => {
         actions: {
           toReplace: [
             { fileName: "eula.txt", data: [{ search: "eula=false", replaceWith: "eula=true" }] },
-            { fileName: "server.properties", data: [{ search: "online-mode=true", replaceWith: "online-mode=false" }] }
+            { fileName: "server.properties", data: [{ search: "online-mode=true", replaceWith: "online-mode=false" }, { search: "enable-rcon=false", replaceWith: "enable-rcon=true" }] }
           ], matchReplaceOrAppend: [
             {
               fileName: "server.properties", data: [
                 { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
-                { match: "level-seed\\s*=\\s*\\d+", replace: "level-seed=[seed]" }
+                { match: "level-seed\\s*=\\s*\\d+", replace: "level-seed=[seed]" },
+                { match: "enable-rcon=false", replace: "enable-rcon=true" },
+                { match: "rcon.password\\s*=\\s*\\d+", replace: "rcon.password=[rpassword]" },
+                { match: "rcon.port\\s*=\\s*\\d+", replace: "rcon.port=[rport]" }
               ]
             }
 
@@ -65,6 +68,9 @@ const seed = async () => {
             {
               fileName: "server.properties", data: [
                 { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
+                { match: "enable-rcon=false", replace: "enable-rcon=true" },
+                { match: "rcon.password\\s*=\\s*\\d+", replace: "rcon.password=[rpassword]" },
+                { match: "rcon.port\\s*=\\s*\\d+", replace: "rcon.port=[rport]" }
               ]
             }
 

@@ -2,11 +2,13 @@ import TerminalService from "./services/TerminalService.js";
 
 export const GetServerStartOptions = (gameVersion, type, predefSettings = {}) => {
     const config = {};
-    var port = getFreePort();
+    var port = getFreePorts();
 
     if (gameVersion.game.name == "Minecraft") {
 
         config.port = port
+        config.rport = Number(port) + 1
+        config.rpassword = GenerateSixDigitNumber();
         if (type == "start")
             config.seed = predefSettings.seed || generateJavaSeed()
     }
@@ -15,16 +17,21 @@ export const GetServerStartOptions = (gameVersion, type, predefSettings = {}) =>
 function getRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-export const getFreePort = () => {
+export const getFreePorts = () => {
     var port = 0;
     for (var i = 0; i < 10; i++) {
         port = getRandomNumber(49152, 65535);
         if (TerminalService.CheckPortOpen(port)) {
             break;
+        } if (TerminalService.CheckPortOpen(Number(port) + 1)) {
+            break;
         }
         port = 0
     }
     return port
+}
+function GenerateSixDigitNumber() {
+    return Math.floor(100000 + Math.random() * 900000);
 }
 function generateJavaSeed() {
     const min = BigInt('-9223372036854775808'); // -2^63
