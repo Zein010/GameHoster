@@ -166,7 +166,7 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
             detached: true,
             stdio: ['ignore', 'pipe', 'pipe'], // Changed to pipe for debugging
             shell: true,
-            cwd: serverPath, // Set working directory explicitly
+            cwd: path, // Set working directory explicitly
             env: {
                 ...process.env,
                 JAVA_HOME: process.env.JAVA_HOME, // Ensure Java environment is passed
