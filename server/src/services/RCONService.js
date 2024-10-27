@@ -7,12 +7,10 @@ const ConnectToServer = (rport, rpassword) => {
     // Handle successful connection
     rcon.on('auth', () => {
 
-        rcon.send("list");
-        // Send a message to all players
-        rcon.send("say Hello from RCON!");
+        setTimeout(() => rcon.send("list"), 100);
+        setTimeout(() => rcon.send("say Hello from RCON!"), 200);
+        setTimeout(() => rcon.send("time set night"), 300);
 
-        // You can send any Minecraft server command
-        rcon.send("time set night");
     });
 
     // Handle responses
