@@ -171,10 +171,10 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
 
         }
         ls.stdout.on("data", (data) => {
-            console.log({ outData: data });
+            console.log({ outData: data.toString("utf8") });
         })
         ls.stderr.on("data", (data) => {
-            console.log({ errData: data });
+            console.log({ errData: data.toString("utf8") });
 
         })
         // Completely detach the child process
