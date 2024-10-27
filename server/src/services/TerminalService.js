@@ -84,7 +84,6 @@ const SetupServerConfigForRestart = (path, data, config) => {
                     })
 
                     replaceOrAppend.match = new RegExp(replaceOrAppend.match)
-                    console.log(replaceOrAppend.match)
                     if (replaceOrAppend.match.test(content)) {
                         // If match found, replace the matched line
                         content = content.replace(replaceOrAppend.match, replaceOrAppend.replace);
@@ -123,13 +122,9 @@ const SetupServerAfterStart = async (path, data, config) => {
                 })
                 replaceOrAppend.match = new RegExp(replaceOrAppend.match)
                 if (replaceOrAppend.match.test(content)) {
-                    console.log(replaceOrAppend.match)
-                    console.log("Matched")
                     // If match found, replace the matched line
                     content = content.replace(replaceOrAppend.match, replaceOrAppend.replace);
                 } else {
-                    console.log(replaceOrAppend.match)
-                    console.log("Not Matched")
 
                     // If no match, append the replace string as a new line
                     content += `\n${replaceOrAppend.replace}`;
@@ -200,7 +195,6 @@ const CheckUserHasProcess = async (username, script, updateProcess = async (pid)
     try {
 
         const grepData = execSync(`sudo ps -u ${username} | grep -E '${script}'`, { encoding: "utf-8" });
-        console.log({ grepData })
         if (grepData) {
             const matches = grepData.match(/\s*(\d+)/);
             if (matches) {
@@ -219,7 +213,6 @@ const StopUserProcesses = (username, script) => {
     try {
 
         const grepData = execSync(`sudo ps -u ${username} | grep -E '${script}'`, { encoding: "utf-8" });
-        console.log({ grepData })
         if (grepData) {
             const matches = grepData.match(/\s*(\d+)/);
             if (matches) {
