@@ -2,6 +2,7 @@ import GameService from "../services/gameService.js";
 import TerminalService from "../services/TerminalService.js";
 import sysUserService from "../services/sysUserService.js";
 import { GetServerStartOptions } from "../utils.js";
+import RCONService from "../services/RCONService.js";
 
 
 const GetAll = async (req, res) => {
@@ -52,6 +53,7 @@ const StartServer = async (req, res) => {
 const DisplayLog = async (req, res) => {
     const { serverId } = req.params;
     const server = await GameService.GetServer(Number(serverId));
+    RCONService.ConnectToServer(server.config.startData[server.config.startData.length - 1].rconPort, server.config.startData[server.config.startData - 1].rconPassword)
     TerminalService.DisplayUserLog(server.path);
     res.json({ msg: "try now" });
 }

@@ -14,7 +14,8 @@
   "dependencies": {
     "@prisma/client": "^5.21.1",
     "cors": "^2.8.5",
-    "express": "^4.21.1"
+    "express": "^4.21.1",
+    "rcon": "^1.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.7",
