@@ -166,18 +166,10 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
 
         const ls = spawn(`cd`, [`${path}`, '&& su', username, '-c', `"${script}"`], {
             detached: true,  // Run the process as a separate process
-            stdio: "ignore",
+            stdio: ["ignore", "pipe", "pipe"],
 
             shell: true
         });
-        ls.on('exit', (code) => {
-            fs.appendFileSync(path + "/UILogs/exit", `Process exited with code ${code}\n`, "utf-8");
-        });
-
-        ls.on('error', (error) => {
-            fs.appendFileSync(path + "/UILogs/err", `Error with process: ${error.message}`, "utf-8");
-        });
-
         ls.unref();
         console.log("Unrefed")
         return 0
