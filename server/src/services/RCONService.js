@@ -15,7 +15,7 @@ const ConnectToServer = (rport, rpassword) => {
         rcon.send("say Hello from RCON!");
 
         // You can send any Minecraft server command
-        rcon.send("time set day");
+        rcon.send("time set night");
     });
 
     // Handle responses
