@@ -158,25 +158,36 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
 
     try {
         // Create a detached process with its own process group
-        const ls = spawn('sh', ['-c', `cd "${path}" && su ${username} -c "${script}"`], {
+        const command = `cd "${serverPath}" && /bin/su ${username} -c 'cd "${serverPath}" && ${script}'`;
+
+        console.log('Final command:', command);
+
+        const ls = spawn('sh', ['-c', command], {
             detached: true,
-            stdio: ['ignore', 'pipe', 'pipe'],
+            stdio: ['ignore', 'pipe', 'pipe'], // Changed to pipe for debugging
             shell: true,
-            // Ensure process has its own process group
+            cwd: serverPath, // Set working directory explicitly
+            env: {
+                ...process.env,
+                JAVA_HOME: process.env.JAVA_HOME, // Ensure Java environment is passed
+                PATH: process.env.PATH
+            }
         });
 
-        // Store the PID if needed
-        if (pidSetter) {
-            pidSetter(ls.pid);
+        // Log output for debugging
+        ls.stdout.on('data', (data) => {
+            console.log(`stdout: ${data.toString("utf8")}`);
+        });
 
-        }
-        ls.stdout.on("data", (data) => {
-            console.log({ outData: data.toString("utf8") });
-        })
-        ls.stderr.on("data", (data) => {
-            console.log({ errData: data.toString("utf8") });
+        ls.stderr.on('data', (data) => {
+            console.error(`stderr: ${data.toString("utf8")}`);
+        });
 
-        })
+        ls.on('error', (error) => {
+            console.error('Failed to start subprocess:', error);
+            return 0;
+        });
+
         // Completely detach the child process
         ls.unref();
 
