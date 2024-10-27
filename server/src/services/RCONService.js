@@ -6,10 +6,7 @@ const ConnectToServer = (rport, rpassword) => {
 
     // Handle successful connection
     rcon.on('auth', () => {
-        console.log("RCON connected successfully!");
 
-        // Example commands
-        rcon.send("list");  // List online players
 
         // Send a message to all players
         rcon.send("say Hello from RCON!");
@@ -32,7 +29,9 @@ const ConnectToServer = (rport, rpassword) => {
     rcon.on('end', () => {
         console.log("RCON connection closed!");
     });
-
+    rcon.on("message", (message) => {
+        console.log({ message })
+    })
     // Connect to the server
     console.log("Connecting to RCON...");
     rcon.connect();
