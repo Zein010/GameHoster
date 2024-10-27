@@ -8,6 +8,7 @@ const ConnectToServer = (rport, rpassword) => {
         timeout: 5000
     }
 
+    console.log({ options })
     const rcon = new Rcon(options);
 
     // Handle successful connection
