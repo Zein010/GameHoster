@@ -163,7 +163,6 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
             stdio: ["ignore", "pipe", "pipe"],
             shell: true
         });
-        ls.stdin.unref();
         ls.unref();
         console.log("Unrefed")
         return 0
