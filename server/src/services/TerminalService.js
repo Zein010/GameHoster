@@ -158,7 +158,7 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
 
     try {
         // Create a detached process with its own process group
-        const command = `cd "${serverPath}" && /bin/su ${username} -c 'cd "${serverPath}" && ${script}'`;
+        const command = `cd "${path}" && /bin/su ${username} -c 'cd "${path}" && ${script}'`;
 
         console.log('Final command:', command);
 
