@@ -7,6 +7,7 @@ const ConnectToServer = (rport, rpassword) => {
     // Handle successful connection
     rcon.on('auth', () => {
 
+        rcon.send("list");
         // Send a message to all players
         rcon.send("say Hello from RCON!");
 
