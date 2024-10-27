@@ -143,7 +143,6 @@ const RunGameServer = (serverDetails) => {
     const script = serverDetails.gameVersion.runScript.replaceAll("[{fileName}]", serverDetails.scriptFile);
     try {
         execSync(`sudo -u ${serverDetails.sysUser.username} bash -c " cd ${serverDetails.path} && ${script}"`)
-        fs.mkdirSync(serverDetails.path + "/UILogs");
         return true;
     } catch (error) {
         console.log({ error })
@@ -162,8 +161,6 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
         const ls = spawn(`cd`, [`${path}`, '&& su', username, '-c', `"${script}"`], {
             detached: true,  // Run the process as a separate process
             stdio: ["ignore", "pipe", "pipe"],
-
-            shell: true
         });
         ls.unref();
         console.log("Unrefed")
