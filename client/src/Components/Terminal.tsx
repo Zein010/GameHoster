@@ -1,6 +1,6 @@
 import { Box, Button, Card, CardContent, Input, Sheet, Typography, Stack } from '@mui/joy';
 import "../index.css"
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useFetcher, useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { CollectionsBookmarkOutlined, Send } from '@mui/icons-material';
@@ -11,6 +11,7 @@ export default function App() {
     const [terminalSocket, setTerminalSocket] = useState(null);
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
     const [currentCommandIndex, setCurrentCommandIndex] = useState(0);
+    const commandsDiv = useRef(null);
     useEffect(() => {
         setTerminalSocket(io.connect(import.meta.env.VITE_API, { query: { purpose: "terminal", serverId: id } }));
 
@@ -43,6 +44,11 @@ export default function App() {
     useEffect(() => {
         setCurrentCommandIndex(commandHistory.length)
     }, [commandHistory])
+    useEffect(() => {
+        if (commandsDiv.current) {
+            commandsDiv.current.scrollTop = commandsDiv.current.scrollHeight;
+        }
+    }, [messages])
     const handleKeyPress = (e: any) => {
         if (e.key === 'Enter') {
             handleSend()
@@ -86,7 +92,7 @@ export default function App() {
             <Card variant="outlined" sx={{ bgcolor: '#2d2d2d', color: '#d1d5db', p: 2 }}>
                 <CardContent>
                     {/* Display messages */}
-                    <Stack spacing={1} sx={{ mb: 2, maxHeight: 200, overflowY: 'auto' }}>
+                    <Stack spacing={1} ref={commandsDiv} sx={{ mb: 2, maxHeight: 400, overflowY: 'auto' }}>
                         {messages.map((msg, index) => (
                             <Typography key={index} sx={{ fontFamily: 'monospace', color: '#10b981' }}>
                                 {msg}
