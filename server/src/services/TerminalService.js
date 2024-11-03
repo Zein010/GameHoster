@@ -260,6 +260,9 @@ const TerminalToSocket = (serverId, socket) => {
     socket.on("termianlCommand", (data) => {
         RunningServers[serverId].stdin.write(data.command + "\n");
     })
+    RunningServers[serverId].stdout.removeAllListeners('data');
+    RunningServers[serverId].stderr.removeAllListeners('data');
+
     RunningServers[serverId].stdout.on('data', (data) => {
         socket.emit("termianlOutput", data.toString());
     })
