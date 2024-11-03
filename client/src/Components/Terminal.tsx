@@ -11,10 +11,11 @@ export default function App() {
     let [terminalSocket, setTerminalSocket] = useState(null);
     useEffect(() => {
         setTerminalSocket(io.connect(import.meta.env.VITE_API, { query: { purpose: "terminal", serverId: id } }));
-        terminalSocket.on("termianlOutput", (data: any) => {
-            setMessages((prevMessages) => [...prevMessages, `> ${data}`]);
+        if (terminalSocket)
+            terminalSocket.on("termianlOutput", (data: any) => {
+                setMessages((prevMessages) => [...prevMessages, `> ${data}`]);
 
-        })
+            })
 
     }, [id])
     const [messages, setMessages] = useState<String[]>([]);
@@ -29,10 +30,7 @@ export default function App() {
                 setInputValue('');
             }
     };
-    const sendMessage = () => {
 
-
-    };
 
 
     return (
