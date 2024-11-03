@@ -31,6 +31,7 @@ export default function App() {
         if (terminalSocket)
             if (inputValue.trim()) {
                 setCommandHistory([...commandHistory, inputValue]);
+                setMessages((prevMessages) => [...prevMessages, `>Web Terminal: ${inputValue}`]);
 
                 terminalSocket.emit("termianlCommand", {
 
