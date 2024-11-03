@@ -31,7 +31,7 @@ export default function App() {
         if (terminalSocket)
             if (inputValue.trim()) {
                 setCommandHistory([...commandHistory, inputValue]);
-                setMessages((prevMessages) => [...prevMessages, `> ${getCurrentUTCTime()} [Web Terminal]: [This Session] ${inputValue}`]);
+                setMessages((prevMessages) => [...prevMessages, `> [NA:NA:NA] [Web Terminal]: [This Session] ${inputValue}`]);
 
                 terminalSocket.emit("termianlCommand", {
 
@@ -64,6 +64,7 @@ export default function App() {
                     setCurrentCommandIndex(currentCommandIndex + 1);
                     setInputValue(commandHistory[currentCommandIndex + 1]);
                 } else {
+                    setCurrentCommandIndex(commandHistory.length)
                     setInputValue("")
                 }
             }
