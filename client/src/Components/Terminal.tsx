@@ -31,7 +31,7 @@ export default function App() {
         if (terminalSocket)
             if (inputValue.trim()) {
                 setCommandHistory([...commandHistory, inputValue]);
-                setMessages((prevMessages) => [...prevMessages, `>Web Terminal: ${inputValue}`]);
+                setMessages((prevMessages) => [...prevMessages, `> ${getCurrentUTCTime()} [Web Terminal]: [This Session] ${inputValue}`]);
 
                 terminalSocket.emit("termianlCommand", {
 
@@ -70,7 +70,15 @@ export default function App() {
             e.preventDefault();
         }
     }
+    function getCurrentUTCTime() {
+        const now = new Date();
 
+        const hours = String(now.getUTCHours()).padStart(2, '0');
+        const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+        const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+
+        return `[${hours}:${minutes}:${seconds}]`;
+    }
     return (
 
         <Sheet className="mx-10 px-3 mt-4 p-2">
