@@ -7,7 +7,7 @@ export default function App() {
     const { id } = useParams();
     let terminalSocket = null;
     useEffect(() => {
-        terminalSocket = io.connect('http://localhost:3000', { query: { purpose: "terminal", serverId: id } });
+        terminalSocket = io.connect(mport.meta.env.VITE_API, { query: { purpose: "terminal", serverId: id } });
 
         terminalSocket.on("termianlOutput", (data: any) => {
             console.log(data);
