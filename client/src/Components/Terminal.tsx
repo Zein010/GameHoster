@@ -1,14 +1,16 @@
 import { Box, Button, Card, CardContent, Input, Sheet, Typography, Stack } from '@mui/joy';
 import "../index.css"
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useFetcher, useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
-import { Send } from '@mui/icons-material';
+import { CollectionsBookmarkOutlined, Send } from '@mui/icons-material';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 // Connect to the server with a purpose query parameter
 export default function App() {
     const { id } = useParams();
-    let [terminalSocket, setTerminalSocket] = useState(null);
+    const [terminalSocket, setTerminalSocket] = useState(null);
+    const [commandHistory, setCommandHistory] = useState<string[]>([]);
+    const [currentCommandIndex, setCurrentCommandIndex] = useState(0);
     useEffect(() => {
         setTerminalSocket(io.connect(import.meta.env.VITE_API, { query: { purpose: "terminal", serverId: id } }));
 
@@ -28,14 +30,45 @@ export default function App() {
     const handleSend = () => {
         if (terminalSocket)
             if (inputValue.trim()) {
+                setCommandHistory([...commandHistory, inputValue]);
+
                 terminalSocket.emit("termianlCommand", {
+
                     command: inputValue.trim(),
                 });
                 setInputValue('');
             }
     };
+    useEffect(() => {
+        setCurrentCommandIndex(commandHistory.length)
+    }, [commandHistory])
+    const handleKeyPress = (e: any) => {
+        if (e.key === 'Enter') {
+            handleSend()
+            setInputValue("");
+        }
+        if (e.key === "ArrowUp") {
 
+            if (commandHistory.length > 0) {
+                if (currentCommandIndex > 0) {
+                    setCurrentCommandIndex(currentCommandIndex - 1);
+                    setInputValue(commandHistory[currentCommandIndex - 1]);
+                }
+            }
 
+            e.preventDefault();
+        } if (e.key === "ArrowDown") {
+            if (commandHistory.length > 0) {
+                if (currentCommandIndex < commandHistory.length - 1) {
+                    setCurrentCommandIndex(currentCommandIndex + 1);
+                    setInputValue(commandHistory[currentCommandIndex + 1]);
+                } else {
+                    setInputValue("")
+                }
+            }
+            e.preventDefault();
+        }
+    }
 
     return (
 
@@ -67,7 +100,7 @@ export default function App() {
                             }}
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                            onKeyDown={handleKeyPress}
                         />
                         <Button
                             onClick={handleSend}
