@@ -2,6 +2,8 @@ import { execSync, spawn, fork, exec } from "child_process"
 import fs from "fs"
 import PrismaService from "../../PrismaService.js";
 import net from "net"
+
+const RunningServers = {};
 const CreateNewDirectory = (config) => {
     const PathArr = config.name.split("/");
     var currPath = "";
@@ -162,13 +164,12 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
 
         const ls = spawn('sh', ['-c', command], {
             detached: true,
-            stdio: ['ignore', 'ignore', 'ignore'], // Changed to pipe for debugging
+            stdio: ['pipe', 'pipe', 'pipe'], // Changed to pipe for debugging
             shell: true,
             cwd: "/var/www/GameHoster/server", // Set working directory explicitly
         });
-
-        ls.unref();
-
+        RunningServers[serverDetails.id] = ls
+        // ls.unref();
         // Don't wait for the child to exit
         ls.on('error', (err) => {
             console.error('Failed to start subprocess:', err);
@@ -251,5 +252,21 @@ const DisplayUserLog = (path) => {
         return true;
     }
 }
-const TerminalService = { DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
+const TerminalToSocket = (serverId, socket) => {
+    if (!RunningServers[serverId]) {
+        console.log("Server down")
+        return false;
+    }
+    socket.on("termianlCommand", (data) => {
+        RunningServers[serverId].stdin.write(data.command + "\n");
+    })
+    RunningServers[serverId].stdout.on('data', (data) => {
+        socket.emit("termianlOutput", data.toString());
+    })
+
+    RunningServers[serverId].stderr.on('data', (data) => {
+        socket.emit("termianlOutput", data.toString());
+    })
+}
+const TerminalService = { TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService

@@ -1,19 +1,28 @@
-import express from "express"
-import TerminalService from "./src/services/TerminalService.js";
-import PrismaService from "./PrismaService.js";
-import { Prisma } from "@prisma/client";
-import GameRoutes from "./src/routes/gameRoutes.js"
-import cors from "cors"
-import SysUserRoutes from "./src/routes/sysUserRoutes.js"
+import express from "express";
+import http from "http";
+import { Server } from "socket.io";
+import cors from "cors";
+import GameRoutes from "./src/routes/gameRoutes.js";
+import SysUserRoutes from "./src/routes/sysUserRoutes.js";
+import setupSocketRoutes from "./src/routes/socketRoutes.js";
+
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
 app.use(cors());
 
-app.get("/", (req, res) => {
-  console.log("Test")
-  res.json({ msg: "Server is running" })
-});
 app.use("/Game", GameRoutes);
 app.use("/SysUser", SysUserRoutes);
-app.listen(3000, () => {
+
+// Setup socket routes
+setupSocketRoutes(io);
+
+server.listen(3000, () => {
   console.log("Server started on port 3000");
 });

@@ -1,7 +1,6 @@
 
 import { PrismaClient } from "@prisma/client";
 
-
 const prisma = new PrismaClient();
 const GetAll = async () => {
     return await prisma.game.findMany();
