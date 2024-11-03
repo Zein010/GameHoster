@@ -1,6 +1,6 @@
 import { Box, Button, Card, CardContent, Input, Sheet, Typography, Stack } from '@mui/joy';
 import "../index.css"
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { Send } from '@mui/icons-material';
@@ -11,13 +11,17 @@ export default function App() {
     let [terminalSocket, setTerminalSocket] = useState(null);
     useEffect(() => {
         setTerminalSocket(io.connect(import.meta.env.VITE_API, { query: { purpose: "terminal", serverId: id } }));
+
+
+    }, [id])
+    useEffect(() => {
+
         if (terminalSocket)
             terminalSocket.on("termianlOutput", (data: any) => {
                 setMessages((prevMessages) => [...prevMessages, `> ${data}`]);
 
             })
-
-    }, [id])
+    }, [terminalSocket])
     const [messages, setMessages] = useState<String[]>([]);
     const [inputValue, setInputValue] = useState('');
 
