@@ -8,9 +8,9 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 // Connect to the server with a purpose query parameter
 export default function App() {
     const { id } = useParams();
-    let terminalSocket = null;
+    let [terminalSocket, setTerminalSocket] = useState(null);
     useEffect(() => {
-        terminalSocket = io.connect(import.meta.env.VITE_API, { query: { purpose: "terminal", serverId: id } });
+        setTerminalSocket(io.connect(import.meta.env.VITE_API, { query: { purpose: "terminal", serverId: id } }));
         terminalSocket.on("termianlOutput", (data: any) => {
             setMessages((prevMessages) => [...prevMessages, `> ${data}`]);
 
