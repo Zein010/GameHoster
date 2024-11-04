@@ -18,8 +18,9 @@ export default function Players() {
             const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}`, {
                 method: 'Post',
                 headers: {
-                    'content-type': 'application/json;charset=UTF-8',
-                }, body: { command: "/list uuids" }
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ command: "/list uuids" })
             })
             if (response.ok) {
                 const log = await response.json();
