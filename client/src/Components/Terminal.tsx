@@ -1,9 +1,8 @@
 import { Box, Button, Card, CardContent, Input, Sheet, Typography, Stack } from '@mui/joy';
 import "../index.css"
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useFetcher, useParams } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
-import { CollectionsBookmarkOutlined, Send } from '@mui/icons-material';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 // Connect to the server with a purpose query parameter
 export default function Terminal() {
@@ -87,8 +86,8 @@ export default function Terminal() {
         return `[${hours}:${minutes}:${seconds}]`;
     }
     return (
-
-        <Sheet className="mx-10 px-3 mt-6 p-2">
+        <Box >
+            <Typography level="h3" sx={{ mb: 2, }}>Terminal</Typography>
             <Card variant="outlined" sx={{ bgcolor: '#2d2d2d', color: '#d1d5db', p: 2 }}>
                 <CardContent>
                     {/* Display messages */}
@@ -129,7 +128,7 @@ export default function Terminal() {
                     </Box>
                 </CardContent>
             </Card>
-        </Sheet>
+        </Box>
     );
 
 }
