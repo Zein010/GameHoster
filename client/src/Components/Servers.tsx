@@ -1,7 +1,7 @@
 import { Button, Sheet, Table } from '@mui/joy'
 import { startTransition, useEffect, useState } from 'react'
 import "../index.css"
-import { CheckCircleSharp, PlayArrow, Settings, SignalWifiStatusbar4Bar, Stop, Terminal } from '@mui/icons-material'
+import { PlayArrow, SignalWifiStatusbar4Bar, Stop, Terminal } from '@mui/icons-material'
 import { notification } from '../Utils'
 import { Link } from 'react-router-dom'
 function Servers() {
@@ -106,7 +106,7 @@ function Servers() {
     console.log(actionsDisabled)
 
     return (
-        <Sheet className="mx-10 px-3">
+        <Sheet className="mx-10 px-3 mt-6">
             <Table stripe="odd">
                 <thead>
                     <tr>
@@ -132,9 +132,11 @@ function Servers() {
                         <td>
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled} onClick={() => { checkStatus(server.id) }} color="success"><SignalWifiStatusbar4Bar /></Button>
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.start[server.id]} onClick={() => { startSever(server.id) }} color="success"><PlayArrow /></Button>
-                            <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.stop[server.id]} onclick={() => { stopServer(server.id) }} color="danger"><Stop /></Button>
+                            <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.stop[server.id]} onClick={() => { stopServer(server.id) }} color="danger"><Stop /></Button>
                             <Link to={`/terminal/${server.id}`}>
-                                <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.stop[server.id]} color="primary"><Terminal /></Button></Link>
+                                <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.stop[server.id]} color="primary"><Terminal />
+                                </Button>
+                            </Link>
                         </td>
                     </tr>)
                     )}

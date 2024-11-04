@@ -6,7 +6,7 @@ import { io } from 'socket.io-client';
 import { CollectionsBookmarkOutlined, Send } from '@mui/icons-material';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 // Connect to the server with a purpose query parameter
-export default function App() {
+export default function Terminal() {
     const { id } = useParams();
     const [terminalSocket, setTerminalSocket] = useState(null);
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
@@ -88,7 +88,7 @@ export default function App() {
     }
     return (
 
-        <Sheet className="mx-10 px-3 mt-4 p-2">
+        <Sheet className="mx-10 px-3 mt-6 p-2">
             <Card variant="outlined" sx={{ bgcolor: '#2d2d2d', color: '#d1d5db', p: 2 }}>
                 <CardContent>
                     {/* Display messages */}
