@@ -27,7 +27,7 @@ export default function Players() {
                 const regex = /(\w+)\s\(([\da-fA-F-]+)\)/g;
                 let match;
                 const newPlayers = []
-                while ((match = regex.exec(log)) !== null) {
+                while ((match = regex.exec(log.output)) !== null) {
                     newPlayers.push({ name: match[1], uuid: match[2] });
                 }
                 setPlayers(newPlayers)
