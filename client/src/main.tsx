@@ -16,6 +16,7 @@ createRoot(document.getElementById('root')!).render(
       <Routes>
         <Route path="/" element={<Servers />} />
         <Route path="/server/:id" element={<Server ><Outlet /></Server>}>
+          <Route path="" element={<Terminal />} />
           <Route path="terminal" element={<Terminal />} />
           <Route path="players" element={<Players />} />
         </Route></Routes>
