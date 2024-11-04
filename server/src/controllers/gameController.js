@@ -115,7 +115,8 @@ const StopServer = async (req, res) => {
 const OneCommand = async (req, res) => {
     const { command } = req.body
     const { serverId } = req.params
-    await TerminalService.OneCommand(serverId, command)
+    const output = await TerminalService.OneCommand(serverId, command)
+    res.json({ output });
 }
 const GameController = { OneCommand, DisplayLog, StopServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning };
 export default GameController
