@@ -310,7 +310,6 @@ const OneCommand = async (serverId, command) => {
         };
 
         // Write the command to stdin
-        console.log({ command })
         RunningServers[serverId].stdin.write(command + "\n");
     });
 };

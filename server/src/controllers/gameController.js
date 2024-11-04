@@ -113,7 +113,6 @@ const StopServer = async (req, res) => {
     res.json({ status });
 }
 const OneCommand = async (req, res) => {
-    console.log({ req: req.body })
     const { command } = req.body
     const { serverId } = req.params
     const output = await TerminalService.OneCommand(serverId, command)
