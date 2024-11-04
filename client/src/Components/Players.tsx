@@ -19,7 +19,7 @@ export default function Players() {
                 method: 'Post',
                 headers: {
                     'content-type': 'application/json;charset=UTF-8',
-                }, body: JSON.stringify({ command: "/list uuids" })
+                }, body: { command: "/list uuids" }
             })
             if (response.ok) {
                 const log = await response.json();
