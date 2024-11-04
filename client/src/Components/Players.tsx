@@ -5,6 +5,9 @@ import { Refresh } from '@mui/icons-material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
 import { useParams } from 'react-router-dom';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import RemoveModeratorIcon from '@mui/icons-material/RemoveModerator';
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 export default function Players() {
 
     const [players, setPlayers] = useState([]);
@@ -36,7 +39,58 @@ export default function Players() {
         fetchData();
 
     }, [refresh, id])
+    const kickPlayer = (playername) => {
+        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}`, {
+            method: 'Post',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ command: `/kick ${playername}` })
+        })
+        if (response.ok) {
+            setRefresh(!refresh)
+        }
 
+    }
+    const banPlayer = (playername) => {
+        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}`, {
+            method: 'Post',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ command: `/ban ${playername}` })
+        })
+        if (response.ok) {
+            setRefresh(!refresh)
+        }
+
+    }
+    const opPlayer = (playername) => {
+        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}`, {
+            method: 'Post',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ command: `/op ${playername}` })
+        })
+        if (response.ok) {
+            setRefresh(!refresh)
+        }
+
+    }
+    const deopPlayer = (playername) => {
+        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}`, {
+            method: 'Post',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ command: `/deop ${playername}` })
+        })
+        if (response.ok) {
+            setRefresh(!refresh)
+        }
+
+    }
     return (
         <Sheet className="mx-10 px-3 mt-6 p-2">
             <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
@@ -53,8 +107,10 @@ export default function Players() {
 
                                         <Typography level="title-md">{player.name}</Typography>
                                         <Box sx={{ display: "flex" }}>
-                                            <Button sx={{ mr: 2, px: 1 }} variant='soft' title='Kick' color="danger" size='sm'><RemoveCircleOutlineIcon /></Button>
-                                            <Button sx={{ px: 1 }} variant='soft' title='Ban' color="danger" size='sm'><NotInterestedIcon /></Button>
+                                            <Button sx={{ mr: 2, px: 1 }} variant='soft' title='Kick' color="danger" onClick={() => { kickPlayer(player.name) }} size='sm'><RemoveCircleOutlineIcon /></Button>
+                                            <Button sx={{ px: 1 }} variant='soft' title='Ban' color="danger" size='sm' onClick={() => { banPlayer(player.name) }}><NotInterestedIcon /></Button>
+                                            <Button sx={{ px: 1 }} variant='soft' title='OP' color="success" size='sm' onClick={() => { opPlayer(player.name) }}><VerifiedUserIcon /></Button>
+                                            <Button sx={{ px: 1 }} variant='soft' title='DeOp' color="danger" size='sm' onClick={() => { deopPlayer(player.name) }}><RemoveModeratorIcon /></Button>
                                         </Box>
                                     </Box>
                                     <Typography>UUID: {player.uuid}</Typography>
