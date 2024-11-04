@@ -283,8 +283,6 @@ const OneCommand = async (serverId, command) => {
         const originalStderrListeners = RunningServers[serverId].stderr.listeners('data');
 
         // Remove all existing listeners
-        RunningServers[serverId].stdout.removeAllListeners('data');
-        RunningServers[serverId].stderr.removeAllListeners('data');
 
         // Listen for output of the command
         const onStdoutData = (data) => {
@@ -303,10 +301,10 @@ const OneCommand = async (serverId, command) => {
 
         // Helper function to restore original listeners after the command completes
         const cleanupListeners = () => {
-            RunningServers[serverId].stdout.removeListener('data', onStdoutData);
-            RunningServers[serverId].stderr.removeListener('data', onStderrData);
-
             // Restore the original listeners
+
+            RunningServers[serverId].stdout.removeAllListeners('data');
+            RunningServers[serverId].stderr.removeAllListeners('data');
             originalStdoutListeners.forEach(listener => RunningServers[serverId].stdout.on('data', listener));
             originalStderrListeners.forEach(listener => RunningServers[serverId].stderr.on('data', listener));
         };
