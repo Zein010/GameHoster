@@ -10,9 +10,9 @@ router.get("/CheckServer/:serverId", GameController.CheckServerRunning);
 router.get("/CreateServer/:versionId", GameController.CreateServer);
 router.get("/Version/:id", GameController.GetVersion);
 router.get("/Servers/:versionId", GameController.GetServers);
+router.post("/Command/:serverId", GameController.OneCommand);
 router.get("/Server/:id", GameController.GetServer);
 router.get("/:gameId/Versions", GameController.GetVersions);
 router.get("/:id", GameController.Get);
-
 
 export default router;

@@ -271,5 +271,49 @@ const TerminalToSocket = (serverId, socket) => {
         socket.emit("termianlOutput", data.toString());
     })
 }
-const TerminalService = { TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
+const OneCommand = async (serverId, command) => {
+    if (!RunningServers[serverId]) {
+        console.log("Server down");
+        return false;
+    }
+
+    return new Promise((resolve, reject) => {
+        // Save the original listeners
+        const originalStdoutListeners = RunningServers[serverId].stdout.listeners('data');
+        const originalStderrListeners = RunningServers[serverId].stderr.listeners('data');
+
+        // Remove all existing listeners
+        RunningServers[serverId].stdout.removeAllListeners('data');
+        RunningServers[serverId].stderr.removeAllListeners('data');
+
+        // Listen for output of the command
+        const onStdoutData = (data) => {
+            cleanupListeners();
+            resolve(data.toString());
+        };
+
+        const onStderrData = (data) => {
+            cleanupListeners();
+            resolve(data.toString());
+        };
+
+        // Temporary listeners for this command only
+        RunningServers[serverId].stdout.on('data', onStdoutData);
+        RunningServers[serverId].stderr.on('data', onStderrData);
+
+        // Helper function to restore original listeners after the command completes
+        const cleanupListeners = () => {
+            RunningServers[serverId].stdout.removeListener('data', onStdoutData);
+            RunningServers[serverId].stderr.removeListener('data', onStderrData);
+
+            // Restore the original listeners
+            originalStdoutListeners.forEach(listener => RunningServers[serverId].stdout.on('data', listener));
+            originalStderrListeners.forEach(listener => RunningServers[serverId].stderr.on('data', listener));
+        };
+
+        // Write the command to stdin
+        RunningServers[serverId].stdin.write(command + "\n");
+    });
+};
+const TerminalService = { OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService
