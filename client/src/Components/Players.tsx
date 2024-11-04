@@ -39,7 +39,7 @@ export default function Players() {
         fetchData();
 
     }, [refresh, id])
-    const kickPlayer = (playername) => {
+    const kickPlayer = async (playername: string) => {
         const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}`, {
             method: 'Post',
             headers: {
@@ -52,7 +52,7 @@ export default function Players() {
         }
 
     }
-    const banPlayer = (playername) => {
+    const banPlayer = async (playername: string) => {
         const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}`, {
             method: 'Post',
             headers: {
@@ -65,7 +65,7 @@ export default function Players() {
         }
 
     }
-    const opPlayer = (playername) => {
+    const opPlayer = async (playername: string) => {
         const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}`, {
             method: 'Post',
             headers: {
@@ -78,7 +78,7 @@ export default function Players() {
         }
 
     }
-    const deopPlayer = (playername) => {
+    const deopPlayer = async (playername: string) => {
         const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}`, {
             method: 'Post',
             headers: {
