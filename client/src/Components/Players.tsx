@@ -48,65 +48,65 @@ export default function Players() {
         fetchData();
 
     }, [refresh, id])
-    const kickPlayer = async (playername: string) => {
+    const kickPlayer = async (playerName: string) => {
         const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/Kick`, {
             method: 'Post',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ playername })
+            body: JSON.stringify({ playerName })
         })
         if (response.ok) {
             setRefresh(!refresh)
         }
 
     }
-    const banPlayer = async (playername: string) => {
+    const banPlayer = async (playerName: string) => {
         const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/Ban`, {
             method: 'Post',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ playername })
+            body: JSON.stringify({ playerName })
         })
         if (response.ok) {
             setRefresh(!refresh)
         }
 
     }
-    const opPlayer = async (playername: string) => {
+    const opPlayer = async (playerName: string) => {
         const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/OP`, {
             method: 'Post',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ playername })
+            body: JSON.stringify({ playerName })
         })
         if (response.ok) {
             setRefresh(!refresh)
         }
 
     }
-    const deopPlayer = async (playername: string) => {
+    const deopPlayer = async (playerName: string) => {
         const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/DEOP`, {
             method: 'Post',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ playername })
+            body: JSON.stringify({ playerName })
         })
         if (response.ok) {
             setRefresh(!refresh)
         }
 
     }
-    const unban = async (playername: string) => {
+    const unban = async (playerName: string) => {
         const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/Unban`, {
             method: 'Post',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ playername })
+            body: JSON.stringify({ playerName })
         })
         if (response.ok) {
             setRefresh(!refresh)
