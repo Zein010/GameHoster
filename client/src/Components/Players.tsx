@@ -140,7 +140,7 @@ export default function Players() {
             <Card variant="outlined" sx={{ bgcolor: '#2d2d2d', color: '#d1d5db', p: 2 }}>
 
                 <Grid container spacing={2} sx={{ flexGrow: 1 }}>
-                    {players.length > 0 ? players.map(player => {
+                    {bannedPlayers.length > 0 ? bannedPlayers.map(player => {
                         return (
                             <Grid size={8} >
                                 <Card variant="soft" sx={{ boxShadow: "lg" }} >
@@ -164,7 +164,7 @@ export default function Players() {
                         <Grid size={8} >
                             <Card variant="soft" sx={{ boxShadow: "lg" }} >
                                 <CardContent>
-                                    <Typography level="title-md">No Players</Typography>
+                                    <Typography level="title-md">No Banned Players</Typography>
                                 </CardContent>
                             </Card>
                         </Grid>
