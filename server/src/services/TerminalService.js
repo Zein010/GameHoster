@@ -326,10 +326,14 @@ const GetBannedPlayers = async (serverId) => {
         let timeoutId = null;
         const originalStdoutListeners = RunningServers[serverId].stdout.listeners('data');
         const banListRegex = /\[.*\] \[Server thread\/INFO\]: (.*) was banned by Server: (.*)/;
+        RunningServers[serverId].stdin.write("/banlist\n");
 
         RunningServers[serverId].stdout.on('data', (data) => {
             const lines = data.toString().split('\n');
-
+            timeoutId = setTimeout(() => {
+                processOutput(outputBuffer);
+                outputBuffer = ''; // Clear the buffer after processing
+            }, 2000);
             lines.forEach((line) => {
                 const match = line.match(banListRegex);
 
