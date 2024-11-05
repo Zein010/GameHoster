@@ -171,11 +171,11 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
             cwd: "/var/www/GameHoster/server", // Set working directory explicitly
         });
         ls.stdout.on("data", (data) => {
-            fs.write(outFile, data.toString());
+            fs.writeSync(outFile, data.toString());
         });
 
         ls.stderr.on("data", (data) => {
-            fs.write(outFile, data.toString());
+            fs.writeSync(outFile, data.toString());
         });
         RunningServers[serverDetails.id] = ls
         // ls.unref();
