@@ -12,16 +12,14 @@ import Server from './Server.tsx';
 import Logs from './Components/Log.tsx';
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <BrowserRouter basename="">
-      <Routes>
-        <Route path="/" key={"Main"} element={<Servers />} />
-        <Route path="/server/:id" key={"Server"} element={<Server ><Outlet /></Server>}>
-          <Route path="" key={"Terminal"} element={<Terminal />} />
-          <Route path="logs" key={"Logs"} element={<Logs />} />
-          <Route path="players" key={"Players"} element={<Players />} />
-        </Route></Routes>
-    </BrowserRouter>
+  <BrowserRouter basename="">
+    <Routes>
+      <Route path="/" key={"Main"} element={<Servers />} />
+      <Route path="/server/:id" key={"Server"} element={<Server ><Outlet /></Server>}>
+        <Route path="" key={"Terminal"} element={<Terminal />} />
+        <Route path="logs" key={"Logs"} element={<Logs />} />
+        <Route path="players" key={"Players"} element={<Players />} />
+      </Route></Routes>
     <ToastContainer />
-  </StrictMode>
+  </BrowserRouter>
 )

@@ -11,15 +11,85 @@ import Sheet from '@mui/joy/Sheet';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import TerminalIcon from '@mui/icons-material/Terminal';
 import ColorSchemeToggle from './ColorSchemeToggle';
-import { closeSidebar } from '../Utils.ts';
+import { closeSidebar, notification } from '../Utils.ts';
 import PersonIcon from '@mui/icons-material/Person';
 import { useNavigate, useParams } from 'react-router-dom';
 import ArchiveIcon from '@mui/icons-material/Archive';
+import { useEffect, useState } from 'react';
+import { Button } from '@mui/joy';
+import { PlayArrow, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
 
 export default function Sidebar() {
 
+  const [actionsDisabled, setActionsDisabled] = useState<{ start: boolean, stop: boolean }>({ start: false, stop: false });
+  const [globalDisabled, setGlobalDisabled] = useState<boolean>(false)
+  const [refreshed, setRefreshed] = useState<boolean>(false)
+
   const navigate = useNavigate();
   const { id } = useParams();
+  const startSever = async () => {
+    setGlobalDisabled(true)
+    const serverOn = await checkStatus();
+    if (serverOn) {
+      notification('Server already running', "success")
+
+      setGlobalDisabled(false)
+      return;
+    }
+    const response = await fetch(import.meta.env.VITE_API + `/Game/StartServer/${id}`)
+    if (response.ok) {
+      notification('Server is running', "success")
+      await checkStatus();
+
+    } else {
+      notification((await response.json()).msg, "error")
+    }
+    setGlobalDisabled(false)
+
+  }
+  const stopServer = async () => {
+    setGlobalDisabled(true)
+    const serverOn = await checkStatus();
+    if (!serverOn) {
+      notification('Server already off', "success")
+
+      setGlobalDisabled(false)
+      return;
+    }
+    const response = await fetch(import.meta.env.VITE_API + `/Game/StopServer/${id}`)
+    if (response.ok) {
+      notification('Server is stopped', "success")
+      await checkStatus();
+
+    } else {
+      notification((await response.json()).msg, "error")
+    }
+    setGlobalDisabled(false)
+  }
+  const checkStatus = async () => {
+    var serverOn = false;
+    const response = await fetch(import.meta.env.VITE_API + `/Game/CheckServer/${id}`)
+    if (response.ok) {
+      if ((await response.json()).status) {
+        setActionsDisabled({ start: true, stop: false });
+        serverOn = true;
+      } else {
+        setActionsDisabled({ start: false, stop: true });
+        serverOn = false;
+      }
+
+    }
+    return serverOn
+  }
+
+  useEffect(() => {
+    setTimeout(() => {
+      setRefreshed((refreshed) => !refreshed)
+      console.log("xx")
+      checkStatus()
+    }, 5000)
+  }, [refreshed])
+
   return (
     <Sheet
       className="Sidebar"
@@ -126,6 +196,13 @@ export default function Sidebar() {
           </ListItem>
 
         </List>
+      </Box>
+      <Divider />
+      <Box sx={{ display: "flex", gap: 2 }}>
+
+        <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled} onClick={() => { checkStatus() }} title="Ping Server" color="primary" variant='outlined' ><SignalWifiStatusbar4Bar /></Button>
+        <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.start} onClick={() => { startSever() }} color="success" ><PlayArrow /></Button>
+        <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.stop} onClick={() => { stopServer() }} color="danger" variant='outlined'><Stop /></Button>
       </Box>
       <Divider />
       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>

@@ -103,7 +103,6 @@ function Servers() {
         }
         return serverOn
     }
-    console.log(actionsDisabled)
 
     return (
         <Sheet className="mx-10 px-3 mt-6">
