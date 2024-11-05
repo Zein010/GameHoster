@@ -14,7 +14,7 @@ import ColorSchemeToggle from './ColorSchemeToggle';
 import { closeSidebar } from '../Utils.ts';
 import PersonIcon from '@mui/icons-material/Person';
 import { useNavigate, useParams } from 'react-router-dom';
-
+import ArchiveIcon from '@mui/icons-material/Archive';
 
 export default function Sidebar() {
 
@@ -112,6 +112,15 @@ export default function Sidebar() {
               <PersonIcon />
               <div>
                 <Typography level="title-sm">Players</Typography>
+              </div>
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem>
+            <ListItemButton onClick={() => navigate(`/server/${id}/logs`)}>
+              <ArchiveIcon />
+              <div>
+                <Typography level="title-sm">Logs</Typography>
               </div>
             </ListItemButton>
           </ListItem>
