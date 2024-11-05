@@ -49,12 +49,12 @@ export default function Players() {
 
     }, [refresh, id])
     const kickPlayer = async (playername: string) => {
-        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}`, {
+        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/Kick`, {
             method: 'Post',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ command: `/kick ${playername}` })
+            body: JSON.stringify({ playername })
         })
         if (response.ok) {
             setRefresh(!refresh)
@@ -62,12 +62,12 @@ export default function Players() {
 
     }
     const banPlayer = async (playername: string) => {
-        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}`, {
+        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/Ban`, {
             method: 'Post',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ command: `/ban ${playername}` })
+            body: JSON.stringify({ playername })
         })
         if (response.ok) {
             setRefresh(!refresh)
@@ -75,12 +75,12 @@ export default function Players() {
 
     }
     const opPlayer = async (playername: string) => {
-        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}`, {
+        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/OP`, {
             method: 'Post',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ command: `/op ${playername}` })
+            body: JSON.stringify({ playername })
         })
         if (response.ok) {
             setRefresh(!refresh)
@@ -88,12 +88,25 @@ export default function Players() {
 
     }
     const deopPlayer = async (playername: string) => {
-        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}`, {
+        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/DEOP`, {
             method: 'Post',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ command: `/deop ${playername}` })
+            body: JSON.stringify({ playername })
+        })
+        if (response.ok) {
+            setRefresh(!refresh)
+        }
+
+    }
+    const unban = async (playername: string) => {
+        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/Unban`, {
+            method: 'Post',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ playername })
         })
         if (response.ok) {
             setRefresh(!refresh)
@@ -160,10 +173,7 @@ export default function Players() {
 
                                             <Typography level="title-md">{player.playerName}</Typography>
                                             <Box sx={{ display: "flex" }}>
-                                                <Button sx={{ mr: 1, px: 1 }} variant='soft' title='Kick' color="danger" onClick={() => { kickPlayer(player.playerName) }} size='sm'><RemoveCircleOutlineIcon /></Button>
-                                                <Button sx={{ mr: 1, px: 1 }} variant='soft' title='Ban' color="danger" size='sm' onClick={() => { banPlayer(player.playerName) }}><NotInterestedIcon /></Button>
-                                                <Button sx={{ mr: 1, px: 1 }} variant='soft' title='OP' color="success" size='sm' onClick={() => { opPlayer(player.playerName) }}><VerifiedUserIcon /></Button>
-                                                <Button sx={{ px: 1 }} variant='soft' title='DeOp' color="danger" size='sm' onClick={() => { deopPlayer(player.playerName) }}><RemoveModeratorIcon /></Button>
+                                                <Button sx={{ mr: 1, px: 1 }} variant='soft' title='UNBan' color="success" onClick={() => { unban(player.playerName) }} size='sm'><RemoveCircleOutlineIcon /></Button>
                                             </Box>
                                         </Box>
                                         <Typography>Reason: {player.reason}</Typography>

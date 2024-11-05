@@ -128,5 +128,35 @@ const GetBannedPlayers = async (req, res) => {
     const output = await TerminalService.GetBannedPlayers(serverId)
     res.json({ output });
 }
-const GameController = { GetBannedPlayers, GetPlayers, OneCommand, DisplayLog, StopServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning };
+const DEOPPlayer = async (req, res) => {
+    const { playerName } = req.body
+    const { serverId } = req.params
+    const output = await TerminalService.OneCommand(serverId, `/deop ${playerName}`)
+    res.json({ output });
+}
+const OPPlayer = async (req, res) => {
+    const { playerName } = req.body
+    const { serverId } = req.params
+    const output = await TerminalService.OneCommand(serverId, `/op ${playerName}`)
+    res.json({ output });
+}
+const KickPlayer = async (req, res) => {
+    const { playerName } = req.body
+    const { serverId } = req.params
+    const output = await TerminalService.OneCommand(serverId, `/kick ${playerName}`)
+    res.json({ output });
+}
+const UnBanPlayer = async (req, res) => {
+    const { playerName } = req.body
+    const { serverId } = req.params
+    const output = await TerminalService.OneCommand(serverId, `/pardon ${playerName}`)
+    res.json({ output });
+}
+const BanPlayer = async (req, res) => {
+    const { playerName } = req.body
+    const { serverId } = req.params
+    const output = await TerminalService.OneCommand(serverId, `/ban ${playerName}`)
+    res.json({ output });
+}
+const GameController = { BanPlayer, UnBanPlayer, KickPlayer, OPPlayer, DEOPPlayer, GetBannedPlayers, GetPlayers, OneCommand, DisplayLog, StopServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning };
 export default GameController
