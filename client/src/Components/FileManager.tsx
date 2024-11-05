@@ -33,7 +33,7 @@ export default function FileManager() {
         fetchFiles();
     }, [])
     const SizeFormatter = (sizeInBytes: number): string => {
-        const units = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const units = ['B', 'KB', 'MB', 'GB', 'TB'];
         let index = 0;
 
         let size = sizeInBytes;
@@ -55,7 +55,7 @@ export default function FileManager() {
                             <Item sx={{ flexGrow: 1, borderEndEndRadius: 0, borderStartEndRadius: 0 }}>
                                 <Typography level="body-sm" sx={{ textAlign: 'left' }}  >Name</Typography>
                             </Item>
-                            <Item sx={{ flexBasis: '100px', borderRadius: 0 }}>
+                            <Item sx={{ flexBasis: '150px', borderRadius: 0 }}>
                                 <Typography level="body-sm" sx={{ textAlign: 'right' }}  >
 
                                     Size
@@ -75,7 +75,7 @@ export default function FileManager() {
                                 <Item sx={{ flexGrow: 1, borderEndEndRadius: 0, borderStartEndRadius: 0 }}>
                                     <Typography level="body-sm" sx={{ textAlign: 'left', fontWeight: "bold" }}  >{file.isDirectory ? <FolderIcon sx={{ mr: 1 }} /> : <InsertDriveFileIcon sx={{ mr: 1 }} />}{file.name}</Typography>
                                 </Item>
-                                <Item sx={{ flexBasis: '100px', borderRadius: 0 }}>
+                                <Item sx={{ flexBasis: '150px', borderRadius: 0 }}>
                                     <Typography level="body-sm" sx={{ textAlign: 'right' }}  >
 
                                         {file.isDirectory ? "N/A" : SizeFormatter(file.size)}
