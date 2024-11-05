@@ -18,7 +18,7 @@ import ArchiveIcon from '@mui/icons-material/Archive';
 import { useEffect, useState } from 'react';
 import { Button } from '@mui/joy';
 import { PlayArrow, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
-
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 export default function Sidebar() {
 
   const [actionsDisabled, setActionsDisabled] = useState<{ start: boolean, stop: boolean }>({ start: false, stop: false });
@@ -198,11 +198,12 @@ export default function Sidebar() {
         </List>
       </Box>
       <Divider />
-      <Box sx={{ display: "flex", gap: 2 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
 
         <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled} onClick={() => { checkStatus() }} title="Ping Server" color="primary" variant='outlined' ><SignalWifiStatusbar4Bar /></Button>
         <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.start} onClick={() => { startSever() }} color="success" ><PlayArrow /></Button>
         <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.stop} onClick={() => { stopServer() }} color="danger" variant='outlined'><Stop /></Button>
+        <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} onClick={() => navigate(`/`)} title="All Servers" color="primary" variant='outlined'><FormatListBulletedIcon /></Button>
       </Box>
       <Divider />
       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
