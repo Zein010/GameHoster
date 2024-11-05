@@ -1,14 +1,12 @@
-import { Box, Button, Card, CardContent, Input, Sheet, Typography, Stack } from '@mui/joy';
+import { Box, Card, Typography } from '@mui/joy';
 import "../index.css"
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { io } from 'socket.io-client';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 // Connect to the server with a purpose query parameter
-export default function Terminal() {
+export default function Logs() {
     const { id } = useParams();
     const [terminalSocket, setTerminalSocket] = useState(null);
-    const { content, setContent } = useState("")
+    const [content, setContent] = useState("")
     useEffect(() => {
         const fetchData = async () => {
 
