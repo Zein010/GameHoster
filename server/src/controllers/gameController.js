@@ -160,7 +160,7 @@ const BanPlayer = async (req, res) => {
 }
 const GetLog = async (req, res) => {
     const { serverId } = req.params
-    const server = GameService.GetServer(Number(serverId));
+    const server = await GameService.GetServer(Number(serverId));
     const output = TerminalService.GetLog(server.path);
 
     res.json({ output });
