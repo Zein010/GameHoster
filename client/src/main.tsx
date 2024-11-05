@@ -10,6 +10,7 @@ import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
 import { AccountBalance, SupervisedUserCircleRounded } from '@mui/icons-material';
 import Server from './Server.tsx';
 import Logs from './Components/Log.tsx';
+import FileManager from './Components/FileManager.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter basename="">
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="" key={"Terminal"} element={<Terminal />} />
         <Route path="logs" key={"Logs"} element={<Logs />} />
         <Route path="players" key={"Players"} element={<Players />} />
+        <Route path="Files" key={"Players"} element={<FileManager />} />
       </Route></Routes>
     <ToastContainer />
   </BrowserRouter>

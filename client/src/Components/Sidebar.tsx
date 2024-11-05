@@ -17,6 +17,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import { useEffect, useState } from 'react';
 import { Button } from '@mui/joy';
+import FolderIcon from '@mui/icons-material/Folder';
 import { PlayArrow, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 export default function Sidebar() {
@@ -191,6 +192,15 @@ export default function Sidebar() {
               <ArchiveIcon />
               <div>
                 <Typography level="title-sm">Logs</Typography>
+              </div>
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem>
+            <ListItemButton onClick={() => navigate(`/server/${id}/Files`)}>
+              <FolderIcon />
+              <div>
+                <Typography level="title-sm">File Manager</Typography>
               </div>
             </ListItemButton>
           </ListItem>
