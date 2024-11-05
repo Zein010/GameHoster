@@ -158,15 +158,15 @@ export default function Players() {
                                     <CardContent>
                                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "space-between" }}>
 
-                                            <Typography level="title-md">{player.name}</Typography>
+                                            <Typography level="title-md">{player.playerName}</Typography>
                                             <Box sx={{ display: "flex" }}>
-                                                <Button sx={{ mr: 1, px: 1 }} variant='soft' title='Kick' color="danger" onClick={() => { kickPlayer(player.name) }} size='sm'><RemoveCircleOutlineIcon /></Button>
-                                                <Button sx={{ mr: 1, px: 1 }} variant='soft' title='Ban' color="danger" size='sm' onClick={() => { banPlayer(player.name) }}><NotInterestedIcon /></Button>
-                                                <Button sx={{ mr: 1, px: 1 }} variant='soft' title='OP' color="success" size='sm' onClick={() => { opPlayer(player.name) }}><VerifiedUserIcon /></Button>
-                                                <Button sx={{ px: 1 }} variant='soft' title='DeOp' color="danger" size='sm' onClick={() => { deopPlayer(player.name) }}><RemoveModeratorIcon /></Button>
+                                                <Button sx={{ mr: 1, px: 1 }} variant='soft' title='Kick' color="danger" onClick={() => { kickPlayer(player.playerName) }} size='sm'><RemoveCircleOutlineIcon /></Button>
+                                                <Button sx={{ mr: 1, px: 1 }} variant='soft' title='Ban' color="danger" size='sm' onClick={() => { banPlayer(player.playerName) }}><NotInterestedIcon /></Button>
+                                                <Button sx={{ mr: 1, px: 1 }} variant='soft' title='OP' color="success" size='sm' onClick={() => { opPlayer(player.playerName) }}><VerifiedUserIcon /></Button>
+                                                <Button sx={{ px: 1 }} variant='soft' title='DeOp' color="danger" size='sm' onClick={() => { deopPlayer(player.playerName) }}><RemoveModeratorIcon /></Button>
                                             </Box>
                                         </Box>
-                                        <Typography>UUID: {player.uuid}</Typography>
+                                        <Typography>Reason: {player.reason}</Typography>
                                     </CardContent>
                                 </Card>
                             </Grid>)
