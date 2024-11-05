@@ -32,9 +32,8 @@ export default function Logs() {
         <Box >
             <Typography level="h3" sx={{ mb: 2, }}>Logs</Typography>
             <Card variant="outlined" sx={{ bgcolor: '#2d2d2d', color: '#d1d5db', p: 2 }}>
-                <Typography
-                    level="p"
-                    sx={{ mb: 2 }}
+                <div
+                    style={{ marginBottom: '16px', color: '#d1d5db' }}
                     dangerouslySetInnerHTML={{ __html: content.replaceAll("\n", "<br/>") }}
                 />
             </Card>
