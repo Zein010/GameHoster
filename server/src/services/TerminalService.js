@@ -313,5 +313,58 @@ const OneCommand = async (serverId, command) => {
         RunningServers[serverId].stdin.write(command + "\n");
     });
 };
-const TerminalService = { OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
+const GetBannedPlayers = async (serverId) => {
+    if (!RunningServers[serverId]) {
+        console.log("Server down");
+        return false;
+    }
+
+    return new Promise((resolve, reject) => {
+
+        let outputBuffer = '';
+        const bannedPlayers = [];
+        let timeoutId = null;
+        const originalStdoutListeners = RunningServers[serverId].stdout.listeners('data');
+        const banListRegex = /\[.*\] \[Server thread\/INFO\]: (.*) was banned by Server: (.*)/;
+
+        RunningServers[serverId].stdout.on('data', (data) => {
+            const lines = data.toString().split('\n');
+
+            lines.forEach((line) => {
+                const match = line.match(banListRegex);
+
+                if (match) {
+                    // If line matches, reset the timeout and add to buffer
+                    outputBuffer += line + '\n';
+
+                    // Reset the timer only for matching lines
+                    clearTimeout(timeoutId);
+                    timeoutId = setTimeout(() => {
+                        processOutput(outputBuffer);
+                        outputBuffer = ''; // Clear the buffer after processing
+                    }, 2000);
+                }
+            });
+        });
+
+
+        function processOutput(output) {
+            RunningServers[serverId].stdout.removeAllListeners('data');
+            originalStdoutListeners.forEach(listener => RunningServers[serverId].stdout.on('data', listener));
+            const lines = output.split('\n');
+            lines.forEach((line) => {
+                const match = line.match(banListRegex);
+                if (match) {
+                    const playerName = match[1];
+                    const reason = match[2];
+                    bannedPlayers.push({ playerName, reason });
+                }
+            });
+            // Output the results
+            resolve(bannedPlayers);
+        }
+
+    })
+}
+const TerminalService = { GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService

@@ -17,14 +17,14 @@ export default function Players() {
 
         const fetchData = async () => {
 
-            const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/GetPlayers`, {
+            const resPlayers = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/GetPlayers`, {
                 method: 'Get',
                 headers: {
                     'Content-Type': 'application/json',
                 }
             })
-            if (response.ok) {
-                const log = await response.json();
+            if (resPlayers.ok) {
+                const log = await resPlayers.json();
                 const regex = /(\w+)\s\(([\da-fA-F-]+)\)/g;
                 let match;
                 const newPlayers = []
@@ -32,6 +32,17 @@ export default function Players() {
                     newPlayers.push({ name: match[1], uuid: match[2] });
                 }
                 setPlayers(newPlayers)
+            }
+            const resBanned = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/GetPlayers`, {
+                method: 'Get',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            if (resBanned.ok) {
+                const newBannedPlayers = (await resBanned.json()).output;
+
+                setPlayers(newBannedPlayers)
             }
         }
         fetchData();
