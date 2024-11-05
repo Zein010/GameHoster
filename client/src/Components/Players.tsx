@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Sheet, Grid, Card, CardContent, Typography, Button, Box } from '@mui/joy';
+import { Sheet, Grid, Card, CardContent, Typography, Button, Box, Divider } from '@mui/joy';
 import { Refresh } from '@mui/icons-material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
@@ -9,6 +9,7 @@ import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 export default function Players() {
 
     const [players, setPlayers] = useState([]);
+    const [bannedPlayers, setBannedPlayers] = useState([]);
     const [refresh, setRefresh] = useState(false);
 
     const { id } = useParams();
@@ -16,12 +17,11 @@ export default function Players() {
 
         const fetchData = async () => {
 
-            const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}`, {
-                method: 'Post',
+            const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/GetPlayers`, {
+                method: 'Get',
                 headers: {
                     'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ command: "/list uuids" })
+                }
             })
             if (response.ok) {
                 const log = await response.json();
@@ -93,12 +93,12 @@ export default function Players() {
         <Box >
             <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
                 <Typography level="h3" sx={{ mr: 2 }}>Players</Typography>
-                <Button onClick={() => { setRefresh(!refresh) }} ><Refresh /></Button>
+                <Button onClick={() => { setRefresh(!refresh) }} size='sm'><Refresh /></Button>
             </Box>
             <Card variant="outlined" sx={{ bgcolor: '#2d2d2d', color: '#d1d5db', p: 2 }}>
 
                 <Grid container spacing={2} sx={{ flexGrow: 1 }}>
-                    {players.map(player => {
+                    {players.length > 0 ? players.map(player => {
                         return (
                             <Grid size={8} >
                                 <Card variant="soft" sx={{ boxShadow: "lg" }} >
@@ -118,13 +118,62 @@ export default function Players() {
                                 </Card>
                             </Grid>)
                     }
-                    )}
+                    ) :
+                        <Grid size={8} >
+                            <Card variant="soft" sx={{ boxShadow: "lg" }} >
+                                <CardContent>
+                                    <Typography level="title-md">No Players</Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    }
 
 
                 </Grid>
 
             </Card>
+            <Divider sx={{ color: '#d1d5db', my: 2 }} />
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+                <Typography level="h3" sx={{ mr: 2, }}>Banned Players</Typography>
+                <Button onClick={() => { setRefresh(!refresh) }} size='sm'><Refresh /></Button>
+            </Box>
+            <Card variant="outlined" sx={{ bgcolor: '#2d2d2d', color: '#d1d5db', p: 2 }}>
 
+                <Grid container spacing={2} sx={{ flexGrow: 1 }}>
+                    {players.length > 0 ? players.map(player => {
+                        return (
+                            <Grid size={8} >
+                                <Card variant="soft" sx={{ boxShadow: "lg" }} >
+                                    <CardContent>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "space-between" }}>
+
+                                            <Typography level="title-md">{player.name}</Typography>
+                                            <Box sx={{ display: "flex" }}>
+                                                <Button sx={{ mr: 1, px: 1 }} variant='soft' title='Kick' color="danger" onClick={() => { kickPlayer(player.name) }} size='sm'><RemoveCircleOutlineIcon /></Button>
+                                                <Button sx={{ mr: 1, px: 1 }} variant='soft' title='Ban' color="danger" size='sm' onClick={() => { banPlayer(player.name) }}><NotInterestedIcon /></Button>
+                                                <Button sx={{ mr: 1, px: 1 }} variant='soft' title='OP' color="success" size='sm' onClick={() => { opPlayer(player.name) }}><VerifiedUserIcon /></Button>
+                                                <Button sx={{ px: 1 }} variant='soft' title='DeOp' color="danger" size='sm' onClick={() => { deopPlayer(player.name) }}><RemoveModeratorIcon /></Button>
+                                            </Box>
+                                        </Box>
+                                        <Typography>UUID: {player.uuid}</Typography>
+                                    </CardContent>
+                                </Card>
+                            </Grid>)
+                    }
+                    ) :
+                        <Grid size={8} >
+                            <Card variant="soft" sx={{ boxShadow: "lg" }} >
+                                <CardContent>
+                                    <Typography level="title-md">No Players</Typography>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    }
+
+
+                </Grid>
+
+            </Card>
 
         </Box >
     );

@@ -14,11 +14,10 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter basename="">
       <Routes>
-        <Route path="/" element={<Servers />} />
-        <Route path="/server/:id" element={<Server ><Outlet /></Server>}>
-          <Route path="" element={<Terminal />} />
-          <Route path="terminal" element={<Terminal />} />
-          <Route path="players" element={<Players />} />
+        <Route path="/" key={"Main"} element={<Servers />} />
+        <Route path="/server/:id" key={"Server"} element={<Server ><Outlet /></Server>}>
+          <Route path="" key={"Terminal"} element={<Terminal />} />
+          <Route path="players" key={"Players"} element={<Players />} />
         </Route></Routes>
     </BrowserRouter>
     <ToastContainer />

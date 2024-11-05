@@ -118,5 +118,10 @@ const OneCommand = async (req, res) => {
     const output = await TerminalService.OneCommand(serverId, command)
     res.json({ output });
 }
-const GameController = { OneCommand, DisplayLog, StopServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning };
+const GetPlayers = async (req, res) => {
+    const { serverId } = req.params
+    const output = await TerminalService.OneCommand(serverId, "/list uuids")
+    res.json({ output });
+}
+const GameController = { GetPlayers, OneCommand, DisplayLog, StopServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning };
 export default GameController

@@ -21,7 +21,6 @@ export default function Terminal() {
         if (terminalSocket)
             terminalSocket.on("termianlOutput", (data: any) => {
                 setMessages((prevMessages) => [...prevMessages, `> ${data}`]);
-
             })
     }, [terminalSocket])
     const [messages, setMessages] = useState<String[]>([]);

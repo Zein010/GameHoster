@@ -99,7 +99,7 @@ export default function Sidebar() {
         >
 
           <ListItem>
-            <ListItemButton onClick={() => navigate(`/server/${id}/terminal`)}>
+            <ListItemButton onClick={() => navigate(`/server/${id}`)}>
               <TerminalIcon />
               <div>
                 <Typography level="title-sm">Terminal</Typography>
