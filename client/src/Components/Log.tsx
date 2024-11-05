@@ -1,12 +1,13 @@
 import { Box, Card, Typography } from '@mui/joy';
 import "../index.css"
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 // Connect to the server with a purpose query parameter
 export default function Logs() {
     const { id } = useParams();
-    const [terminalSocket, setTerminalSocket] = useState(null);
     const [content, setContent] = useState("")
+
+    const contentRef = useRef(null);
     useEffect(() => {
         const fetchData = async () => {
 
@@ -24,8 +25,11 @@ export default function Logs() {
 
     }, [id])
     useEffect(() => {
+        if (contentRef.current) {
+            contentRef.current.scrollTop = contentRef.current.scrollHeight;
+        }
 
-    }, [terminalSocket])
+    }, [content])
 
 
     return (
@@ -33,7 +37,13 @@ export default function Logs() {
             <Typography level="h3" sx={{ mb: 2, }}>Logs</Typography>
             <Card variant="outlined" sx={{ bgcolor: '#2d2d2d', color: '#d1d5db', p: 2 }}>
                 <div
-                    style={{ marginBottom: '16px', color: '#d1d5db' }}
+                    ref={contentRef}
+                    style={{
+                        maxHeight: '300px', // Set max height
+                        overflowY: 'auto',   // Make scrollable
+                        color: '#d1d5db',
+                        padding: '16px',
+                    }}
                     dangerouslySetInnerHTML={{ __html: content.replaceAll("\n", "<br/>") }}
                 />
             </Card>
