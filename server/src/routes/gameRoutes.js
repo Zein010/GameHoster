@@ -17,6 +17,7 @@ router.post("/Command/:serverId/Unban", GameController.UnBanPlayer);
 router.post("/Command/:serverId/Kick", GameController.KickPlayer);
 router.post("/Command/:serverId/OP", GameController.OPPlayer);
 router.post("/Command/:serverId/DEOP", GameController.DEOPPlayer);
+router.get("/GetLog/:serverId", GameController.GetLog);
 router.get("/Server/:id", GameController.GetServer);
 router.get("/:gameId/Versions", GameController.GetVersions);
 router.get("/:id", GameController.Get);

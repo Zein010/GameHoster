@@ -381,5 +381,14 @@ const GetBannedPlayers = async (serverId) => {
 
     })
 }
-const TerminalService = { GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
+const GetLog = (path) => {
+    try {
+
+        return fs.readFileSync(path + "/outlog", { encoding: "utf-8" });
+    } catch (error) {
+        console.log({ error })
+        return "No Log Yet";
+    }
+}
+const TerminalService = { GetLog, GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService

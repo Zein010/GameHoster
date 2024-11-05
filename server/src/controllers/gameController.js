@@ -158,5 +158,10 @@ const BanPlayer = async (req, res) => {
     const output = await TerminalService.OneCommand(serverId, `/ban ${playerName}`)
     res.json({ output });
 }
-const GameController = { BanPlayer, UnBanPlayer, KickPlayer, OPPlayer, DEOPPlayer, GetBannedPlayers, GetPlayers, OneCommand, DisplayLog, StopServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning };
+const GetLog = (req, res) => {
+    const { serverId } = req.params
+    const output = TerminalService.GetLog(serverId)
+    res.json({ output });
+}
+const GameController = { GetLog, BanPlayer, UnBanPlayer, KickPlayer, OPPlayer, DEOPPlayer, GetBannedPlayers, GetPlayers, OneCommand, DisplayLog, StopServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning };
 export default GameController
