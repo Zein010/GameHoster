@@ -33,7 +33,7 @@ export default function Players() {
                 }
                 setPlayers(newPlayers)
             }
-            const resBanned = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/GetPlayers`, {
+            const resBanned = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/GetBanned`, {
                 method: 'Get',
                 headers: {
                     'Content-Type': 'application/json',
