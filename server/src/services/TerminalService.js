@@ -158,6 +158,8 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
     const gameVersion = serverDetails.gameVersion;
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
 
+    const outFile = fs.openSync('consoleout.log', 'a'); // Open in append mode ('a')
+
     try {
         // Create a detached process with its own process group
         const command = `cd "${path}" && /bin/su ${username} -c 'cd "${path}" && ${script}'`;
@@ -167,6 +169,13 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
             stdio: ['pipe', 'pipe', 'pipe'], // Changed to pipe for debugging
             shell: true,
             cwd: "/var/www/GameHoster/server", // Set working directory explicitly
+        });
+        ls.stdout.on("data", (data) => {
+            fs.write(outFile, data);
+        });
+
+        ls.stderr.on("data", (data) => {
+            fs.write(outFile, data);
         });
         RunningServers[serverDetails.id] = ls
         // ls.unref();
