@@ -42,7 +42,7 @@ export default function Players() {
             if (resBanned.ok) {
                 const newBannedPlayers = (await resBanned.json()).output;
 
-                setPlayers(newBannedPlayers)
+                setBannedPlayers(newBannedPlayers)
             }
         }
         fetchData();
