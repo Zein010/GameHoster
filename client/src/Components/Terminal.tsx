@@ -32,7 +32,7 @@ export default function Terminal() {
                 setCommandHistory([...commandHistory, inputValue]);
                 setMessages((prevMessages) => [...prevMessages, `> [NA:NA:NA] [Web Terminal]: [This Session] ${inputValue}`]);
 
-                terminalSocket.emit("termianlCommand", {
+                terminalSocket.emit("terminalCommand", {
 
                     command: inputValue.trim(),
                 });

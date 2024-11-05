@@ -266,16 +266,18 @@ const TerminalToSocket = (serverId, socket) => {
         console.log("Server down")
         return false;
     }
-    socket.on("termianlCommand", (data) => {
+    socket.on("terminalCommand", (data) => {
         RunningServers[serverId].stdin.write(data.command + "\n");
     })
-    RunningServers[serverId].stdout.removeAllListeners('data');
-    RunningServers[serverId].stderr.removeAllListeners('data');
 
-    RunningServers[serverId].stdout.on('data', (data) => {
+    const streamData = (data) => {
         socket.emit("termianlOutput", data.toString());
-    })
+    }
+    RunningServers[serverId].stdout.on('data', streamData)
+    socket.on('disconnect', function () {
+        RunningServers[serverId].stdout.removeListener('data', streamData);
 
+    });
     RunningServers[serverId].stderr.on('data', (data) => {
         socket.emit("termianlOutput", data.toString());
     })
