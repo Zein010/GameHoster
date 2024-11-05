@@ -158,7 +158,7 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
     const gameVersion = serverDetails.gameVersion;
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
 
-    const outFile = fs.openSync('consoleout.log', 'a'); // Open in append mode ('a')
+    const outFile = fs.openSync(path + '/outlog', 'a'); // Open in append mode ('a')
 
     try {
         // Create a detached process with its own process group
