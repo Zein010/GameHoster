@@ -3,6 +3,7 @@ import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import GameRoutes from "./src/routes/gameRoutes.js";
+import FileRoutes from "./src/routes/fileRoutes.js";
 import SysUserRoutes from "./src/routes/sysUserRoutes.js";
 import setupSocketRoutes from "./src/routes/socketRoutes.js";
 import bodyParser from "body-parser";
@@ -19,6 +20,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/Game", GameRoutes);
+app.use("/Files", FileRoutes);
 app.use("/SysUser", SysUserRoutes);
 
 // Setup socket routes
