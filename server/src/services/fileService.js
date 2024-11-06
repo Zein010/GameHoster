@@ -51,6 +51,7 @@ const Zip = async (path, files) => {
         const stats = fs.statSync(filePath);
 
         if (stats.isFile()) {
+            console.log("xxxx");
             return pathLib.join(path, files[0])
         }
 
