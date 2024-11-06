@@ -123,27 +123,43 @@ export default function FileManager() {
         setClickedRowIndex(clickedRowIndex == rowID ? -1 : rowID)
     }
     const DonwloadFiles = async () => {
-        setDownloadDisabled(true)
+        setDownloadDisabled(true);
         const response = await fetch(import.meta.env.VITE_API + `/Files/${id}/Download`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ files: selectedFiles, path: currentPath })
-        })
+        });
+
         if (response.ok) {
             const blob = await response.blob();
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'download.zip';
+            response.headers.forEach(header => { console.log(header) })
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'downloaded_file'; // Default filename
+
+            // Extract filename from Content-Disposition header if available
+            if (contentDisposition && contentDisposition.includes('filename=')) {
+                console.log(contentDisposition)
+                filename = contentDisposition
+                    .split('filename=')[1]
+                    .replace(/['"]/g, '');
+            }
+
+            // Set the download attribute with the extracted filename
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             URL.revokeObjectURL(a.href);
             a.remove();
         } else {
+            console.error("Failed to download the file.");
         }
-        setDownloadDisabled(false)
-        setSelectFiles([])
+
+        setDownloadDisabled(false);
+        setSelectFiles([]);
 
     }
     return (
