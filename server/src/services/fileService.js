@@ -44,6 +44,7 @@ const NewFile = (path, name) => {
 }
 const Zip = async (path, files) => {
     if (files.length == 0) {
+        console.log("yyy")
         return false;
     }
     if (files.length == 1) {
