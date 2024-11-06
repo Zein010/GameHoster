@@ -30,18 +30,31 @@ const Download = async (req, res) => {
     const { serverId } = req.params
     const { files, path } = req.body
     const server = await GameService.GetServer(Number(serverId))
-    const zippedFile = await FileService.Zip(pathLib.join(server.path, path), files);
-    const file = pathLib.join(server.path, zippedFile);
+    const zippedFile = await FileService.Zip(server.path, files, path);
+    if (zippedFile.fileName) {
+        const file = pathLib.join(server.path, path, zippedFile.fileName);
 
-    res.setHeader('Content-Disposition', `attachment; filename="${zippedFile}"`);
-    res.setHeader('Content-Type', 'application/zip');
-    res.download(file, (err) => {
+        const mimeType = zippedFile.fileType
+            ? `application/${zippedFile.fileType.replace(".", "")}`
+            : 'application/octet-stream';
 
-        if (err) {
-            console.log({ err })
-        } else
-            FileService.Delete(pathLib.join(server.path, zippedFile));
-    });
+        res.setHeader('Content-Disposition', `attachment; filename="${zippedFile.fileName}"`);
+        res.setHeader('Content-Type', mimeType);
+        res.setHeader('Access-Control-Allow-Origin', '*'); // Or specify your origin
+        res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+        res.download(file, (err) => {
+
+            if (err) {
+                console.log({ err })
+            } else
+                if (zippedFile.delete) {
+
+                    FileService.Delete(pathLib.join(server.path, path, zippedFile.fileName));
+                }
+        });
+    }
+    else res.status(404).json({ "msg": "File not found" })
+
 }
 const FileController = { Download, List, NewFile, NewFolder };
 export default FileController

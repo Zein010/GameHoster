@@ -42,18 +42,18 @@ const NewFile = (path, name) => {
         return false
     }
 }
-const Zip = async (path, files) => {
+const Zip = async (path, files, subPath) => {
     if (files.length == 0) {
-        console.log("yyy")
-        return false;
+        return { delete: false, fileName: null }
     }
     if (files.length == 1) {
-        const filePath = pathLib.join(path, files[0]);
+        const filePath = pathLib.join(path, subPath, files[0]);
         const stats = fs.statSync(filePath);
 
         if (stats.isFile()) {
-            console.log("xxxx");
-            return pathLib.join(path, files[0])
+            return {
+                delete: false, fileName: files[0], fileType: pathLib.extname(pathLib.join(path, subPath, files[0]))
+            }
         }
 
 
@@ -61,7 +61,7 @@ const Zip = async (path, files) => {
 
     return new Promise((resolve, reject) => {
         const zipFileName = `archive-${Date.now()}-${Math.floor(Math.random() * 1000)}.zip`; // Unique zip filename based on the current timestamp
-        const outputPath = pathLib.join(path, zipFileName); // Path where the zip file will be saved
+        const outputPath = pathLib.join(path, subPath, zipFileName); // Path where the zip file will be saved
 
         // Create a write stream for the output zip file
         const output = fs.createWriteStream(outputPath);
@@ -76,7 +76,7 @@ const Zip = async (path, files) => {
 
         // Append files to the archive
         files.forEach(file => {
-            const filePath = pathLib.join(path, file);
+            const filePath = pathLib.join(path, subPath, file);
             if (fs.existsSync(filePath)) {
                 archive.file(filePath, { name: file }); // Add each file to the archive
             } else {
@@ -90,7 +90,7 @@ const Zip = async (path, files) => {
         // Resolve the promise when the archive is created successfully
         output.on('close', () => {
             console.log(`Zip file created: ${outputPath}`);
-            resolve(zipFileName); // Return the zip file name
+            resolve({ delete: true, fileName: zipFileName, fileType: "zip" }); // Return the zip file name
         });
 
         // Reject the promise if an error occurs
