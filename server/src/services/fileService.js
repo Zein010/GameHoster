@@ -43,19 +43,64 @@ const NewFile = (path, name) => {
     }
 }
 const Zip = async (path, files) => {
-    const fileName = `download-${new Date().getTime()}-${Math.floor(Math.random() * 1000)}.zip`
-    const zip = fs.createWriteStream(path + "/" + fileName);
+    if (files.length == 0) {
+        return false;
+    }
+    if (files.length == 1) {
+        const filePath = pathLib.join(path, files[0]);
+        const stats = fs.statSync(filePath);
 
-    const archive = archiver('zip', {
-        zlib: { level: 9 } // Sets the compression level.
+        if (stats.isFile()) {
+            return pathLib.join(path, files[0])
+        }
+
+
+    }
+
+    return new Promise((resolve, reject) => {
+        const zipFileName = `archive-${Date.now()}-${Math.floor(Math.random() * 1000)}.zip`; // Unique zip filename based on the current timestamp
+        const outputPath = pathLib.join(path, zipFileName); // Path where the zip file will be saved
+
+        // Create a write stream for the output zip file
+        const output = fs.createWriteStream(outputPath);
+
+        // Create an archiver instance to zip the files
+        const archive = archiver('zip', {
+            zlib: { level: 9 } // Maximum compression
+        });
+
+        // Pipe the archive output to the write stream (the zip file)
+        archive.pipe(output);
+
+        // Append files to the archive
+        files.forEach(file => {
+            const filePath = pathLib.join(path, file);
+            if (fs.existsSync(filePath)) {
+                archive.file(filePath, { name: file }); // Add each file to the archive
+            } else {
+                console.warn(`File ${file} does not exist, skipping.`);
+            }
+        });
+
+        // Finalize the archive
+        archive.finalize();
+
+        // Resolve the promise when the archive is created successfully
+        output.on('close', () => {
+            console.log(`Zip file created: ${outputPath}`);
+            resolve(zipFileName); // Return the zip file name
+        });
+
+        // Reject the promise if an error occurs
+        archive.on('error', (err) => {
+            reject(err);
+        });
     });
-    archive.pipe(zip);
-    files.forEach(file => {
-        archive.file(pathLib.join(path, file), { name: file });
-    });
-    await archive.finalize();
-    return fileName
+
 
 }
-const FileService = { List, NewFolder, NewFile, Zip };
+const Delete = async (path) => {
+    fs.rmSync(path, { recursive: true, force: true });
+}
+const FileService = { Delete, List, NewFolder, NewFile, Zip };
 export default FileService
