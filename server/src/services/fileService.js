@@ -89,7 +89,6 @@ const Zip = async (path, files, subPath) => {
 
         // Resolve the promise when the archive is created successfully
         output.on('close', () => {
-            console.log(`Zip file created: ${outputPath}`);
             resolve({ delete: true, fileName: zipFileName, fileType: "zip" }); // Return the zip file name
         });
 
