@@ -129,22 +129,21 @@ export default function FileManager() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ files: selectedFiles })
+            body: JSON.stringify({ files: selectedFiles, path: currentPath })
         })
         if (response.ok) {
-            const blob = await response.blob(); // Convert response to blob
-            const url = URL.createObjectURL(blob); // Create a URL for the blob
-            const a = document.createElement('a'); // Create a link element
-            a.href = url;
-            a.download = 'download.zip'; // Set default file name (change as needed)
+            const blob = await response.blob();
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'download.zip';
             document.body.appendChild(a);
-            a.click(); // Programmatically click the link to trigger the download
-            a.remove(); // Clean up the link element
-            URL.revokeObjectURL(url); // Release memory
+            a.click();
+            URL.revokeObjectURL(a.href);
+            a.remove();
         } else {
-            console.error("Failed to download file.");
         }
         setDownloadDisabled(false)
+        setSelectFiles([])
 
     }
     return (
@@ -189,7 +188,7 @@ export default function FileManager() {
 
                             <Stack onDoubleClick={() => { file.isDirectory ? setCurrentPath(currentPath + "/" + file.name) : null }} onClick={() => { fileRowClicked(i) }} direction="row" ref={fileRowsRef[i]} key={"file-" + i} sx={{ flexGrow: 1, backgroundColor: clickedRowIndex == i ? "background.surface" : (selectedFiles.includes(file.name) ? "background.surface" : "background.level2"), "&:hover": { backgroundColor: "background.level3" } }} >
                                 <Item sx={{ flexBasis: '30px', borderEndEndRadius: 0, borderStartEndRadius: 0 }}>
-                                    <Checkbox onClick={(e) => { e.stopPropagation(); }} onChange={(e) => { fileCheckBoxClicked(file.name, e.target.checked); }} />
+                                    <Checkbox checked={selectedFiles.includes(file.name)} onClick={(e) => { e.stopPropagation(); }} onChange={(e) => { fileCheckBoxClicked(file.name, e.target.checked); }} />
                                 </Item>
                                 <Item sx={{ flexGrow: 1, borderRadius: 0 }}>
                                     <Typography level="body-sm" sx={{ textAlign: 'left', fontWeight: "bold" }}  >{file.isDirectory ? <FolderIcon sx={{ mr: 1 }} color='primary' /> : <InsertDriveFileIcon color='warning' sx={{ mr: 1 }} />}{file.name}</Typography>
