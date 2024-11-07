@@ -81,7 +81,6 @@ const CreateServer = async (req, res) => {
     TerminalService.SetupRequiredFiles(dirName, gameVersion.getFilesSetup)
     await TerminalService.OwnFile(dirName, username)
 
-    TerminalService.RunGameServer(serverDetails)
     await TerminalService.SetupServerAfterStart(dirName, gameVersion.changeFileAfterSetup, config);
     TerminalService.StartCreatedServer(serverDetails, (pid) => { GameService.SetRunningServerPID(serverDetails.id, pid) })
     await
