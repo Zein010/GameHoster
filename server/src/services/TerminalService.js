@@ -50,7 +50,7 @@ const CopyFile = async (fromDirectory, toDirectory) => {
     })
 
 }
-const SetupRequiredFiles = async (path, files) => {
+const SetupRequiredFiles = (path, files) => {
     files.forEach(file => {
         fs.appendFileSync(path + "/" + file.fileName, file.content);
     })
