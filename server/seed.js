@@ -181,6 +181,13 @@ const seed = async () => {
     await prisma.getFilesSetup.upsert({ where: { id: 2 }, create: { id: 2, gameVersionId: 2, fileName: "server.properties", content: "" }, update: { fileName: "server.properties", gameVersionId: 2, content: "" } });
     console.log("Created eula.txt")
 
+    await prisma.getFilesSetup.upsert({ where: { id: 3 }, create: { id: 3, gameVersionId: 3, fileName: "eula.txt", content: "eula=true" }, update: { fileName: "eula.txt", gameVersionId: 2, content: "eula=true" } });
+    console.log("Created eula.txt")
+
+    await prisma.getFilesSetup.upsert({ where: { id: 4 }, create: { id: 4, gameVersionId: 3, fileName: "server.properties", content: "" }, update: { fileName: "server.properties", gameVersionId: 2, content: "" } });
+    console.log("Created eula.txt")
+
+
   } catch (error) {
     console.log(error);
   }
