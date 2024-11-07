@@ -34,7 +34,6 @@ const seed = async () => {
         id: 1, gameVersionId: 1, actions: {
           toReplace: [
             { fileName: "eula.txt", data: [{ search: "eula=false", replaceWith: "eula=true" }] },
-            { fileName: "server.properties", data: [{ search: "online-mode=true", replaceWith: "online-mode=false" }] }
           ], matchReplaceOrAppend: [
             {
               fileName: "server.properties", data: [
@@ -86,27 +85,19 @@ const seed = async () => {
     });
 
     await prisma.changeFileAfterSetup.upsert({
-      where: { id:2 },
+      where: { id: 2 },
       create: {
         id: 2, gameVersionId: 2, actions: {
           toReplace: [
             { fileName: "eula.txt", data: [{ search: "eula=false", replaceWith: "eula=true" }] },
-            { fileName: "server.properties", data: [{ search: "online-mode=true", replaceWith: "online-mode=false" }] }
-          ], matchReplaceOrAppend: [
+          ],
+          matchReplaceOrAppend: [],
+          afterRestartMatchReplaceOrAppend: [
             {
               fileName: "server.properties", data: [
                 { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
-                { match: "level-seed\\s*=\\s*\\d+", replace: "level-seed=[seed]" }
-              ]
+                { match: "online-mode\\s*=\\s*true", replaceWith: "online-mode=false" }]
             }
-
-          ], afterRestartMatchReplaceOrAppend: [
-            {
-              fileName: "server.properties", data: [
-                { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
-              ]
-            }
-
           ]
         },
       },
@@ -115,28 +106,14 @@ const seed = async () => {
         actions: {
           toReplace: [
             { fileName: "eula.txt", data: [{ search: "eula=false", replaceWith: "eula=true" }] },
-            { fileName: "server.properties", data: [{ search: "online-mode=true", replaceWith: "online-mode=false" }, { search: "enable-rcon=false", replaceWith: "enable-rcon=true" }] }
-          ], matchReplaceOrAppend: [
+          ],
+          matchReplaceOrAppend: [],
+          afterRestartMatchReplaceOrAppend: [
             {
               fileName: "server.properties", data: [
                 { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
-                { match: "level-seed\\s*=\\s*\\d+", replace: "level-seed=[seed]" },
-                { match: "enable-rcon=false", replace: "enable-rcon=true" },
-                { match: "rcon.password\\s*=\\s*\\d+", replace: "rcon.password=[rpassword]" },
-                { match: "rcon.port\\s*=\\s*\\d+", replace: "rcon.port=[rport]" }
-              ]
+                { match: "online-mode\\s*=\\s*true", replaceWith: "online-mode=false" }]
             }
-
-          ], afterRestartMatchReplaceOrAppend: [
-            {
-              fileName: "server.properties", data: [
-                { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
-                { match: "enable-rcon=false", replace: "enable-rcon=true" },
-                { match: "rcon.password\\s*=\\s*\\d+", replace: "rcon.password=[rpassword]" },
-                { match: "rcon.port\\s*=\\s*\\d+", replace: "rcon.port=[rport]" }
-              ]
-            }
-
           ]
         },
       }

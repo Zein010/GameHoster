@@ -87,6 +87,7 @@ const SetupServerConfigForRestart = (path, data, config) => {
             for (var i = 0; i < data[j].actions.afterRestartMatchReplaceOrAppend.length; i++) {
                 content = fs.readFileSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, { encoding: "utf-8" });
                 data[j].actions.afterRestartMatchReplaceOrAppend[i].data.forEach(replaceOrAppend => {
+
                     Object.keys(config).forEach(key => {
                         replaceOrAppend.replace = replaceOrAppend.replace.replaceAll(`[${key}]`, config[key]);
                     })
@@ -100,6 +101,7 @@ const SetupServerConfigForRestart = (path, data, config) => {
                         content += `\n${replaceOrAppend.replace}`;
                     }
                     content = content.replaceAll(replaceOrAppend.search, replaceOrAppend.replaceWith)
+
                 })
                 fs.truncateSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, 0);
                 fs.writeFileSync(path + "/" + data[j].actions.afterRestartMatchReplaceOrAppend[i].fileName, content, { encoding: 'utf-8', flag: 'w' });
