@@ -6,6 +6,7 @@ import GameRoutes from "./src/routes/gameRoutes.js";
 import FileRoutes from "./src/routes/fileRoutes.js";
 import SysUserRoutes from "./src/routes/sysUserRoutes.js";
 import setupSocketRoutes from "./src/routes/socketRoutes.js";
+import fileUpload from "express-fileupload"
 import bodyParser from "body-parser";
 const app = express();
 const server = http.createServer(app);
@@ -16,6 +17,9 @@ const io = new Server(server, {
   }
 });
 
+app.use(fileUpload({
+  createParentPath: true
+}))
 app.use(cors());
 app.use(express.json());
 

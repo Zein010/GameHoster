@@ -9,7 +9,7 @@ router.get("/StopServer/:serverId", GameController.StopServer);
 router.get("/CheckServer/:serverId", GameController.CheckServerRunning);
 router.get("/CreateServer/:versionId", GameController.CreateServer);
 router.get("/Version/:id", GameController.GetVersion);
-router.get("/Servers/:versionId", GameController.GetServers);
+router.get("/Servers", GameController.GetServers);
 router.get("/Command/:serverId/GetPlayers", GameController.GetPlayers);
 router.get("/Command/:serverId/GetBanned", GameController.GetBannedPlayers);
 router.post("/Command/:serverId/Ban", GameController.BanPlayer);

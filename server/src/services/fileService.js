@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import fs from "fs";
 import pathLib from "path";
 import archiver from 'archiver';
+import formidable from "formidable";
 const prisma = new PrismaClient();
 const List = (path) => {
 
@@ -60,7 +61,7 @@ const Zip = async (path, files, subPath) => {
     }
 
     return new Promise((resolve, reject) => {
-        const zipFileName = `archive-${Date.now()}-${Math.floor(Math.random() * 1000)}.zip`; // Unique zip filename based on the current timestamp
+        const zipFileName = `Download-${Date.now()}-${Math.floor(Math.random() * 1000)}.zip`; // Unique zip filename based on the current timestamp
         const outputPath = pathLib.join(path, subPath, zipFileName); // Path where the zip file will be saved
 
         // Create a write stream for the output zip file
@@ -78,7 +79,15 @@ const Zip = async (path, files, subPath) => {
         files.forEach(file => {
             const filePath = pathLib.join(path, subPath, file);
             if (fs.existsSync(filePath)) {
-                archive.file(filePath, { name: file }); // Add each file to the archive
+                const fileStat = fs.statSync(filePath);
+
+                if (fileStat.isDirectory()) {
+                    // If it's a file, add it to the archive as a file
+                    archive.directory(filePath, pathLib.join(subPath, file));
+                } else if (fileStat.isFile()) {
+                    // If it's a directory, add it to the archive as a directory
+                    archive.file(filePath, { name: pathLib.join(subPath, file) });
+                }
             } else {
                 console.warn(`File ${file} does not exist, skipping.`);
             }
@@ -103,5 +112,7 @@ const Zip = async (path, files, subPath) => {
 const Delete = async (path) => {
     fs.rmSync(path, { recursive: true, force: true });
 }
-const FileService = { Delete, List, NewFolder, NewFile, Zip };
+
+
+const FileService = {  Delete, List, NewFolder, NewFile, Zip };
 export default FileService

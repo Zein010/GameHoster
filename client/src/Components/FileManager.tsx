@@ -14,7 +14,8 @@ import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import Checkbox from '@mui/joy/Checkbox';
 import { main } from '@mui/material/colors';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { ArrowBack, ArrowUpward, Download } from '@mui/icons-material';
+import axios from 'axios';
+import { ArrowBack, ArrowUpward, Download, UploadFile } from '@mui/icons-material';
 const Item = styled(Sheet)(({ theme }) => ({
     // Use prop if provided, fallback to #fff
     ...theme.typography['body-sm'],
@@ -28,6 +29,8 @@ const Item = styled(Sheet)(({ theme }) => ({
 
 export default function FileManager() {
     const [files, setFiles] = useState([])
+    const [uploadOpen, setUploadOpen] = useState(false)
+    const [uploadFiles, setUploadFiles] = useState([])
     const { id } = useParams();
     const fileRows = useRef([])
     const [fileRowsRef, setFileRowsRef] = useState([]);
@@ -87,6 +90,26 @@ export default function FileManager() {
         fetchFiles();
     }, [refresh, currentPath])
 
+
+    const handleUploadFile = (event) => {
+        event.preventDefault()
+        const formData = new FormData();
+        uploadFiles.forEach(file => {
+            formData.append('files[]', file);
+
+        })
+        formData.append('path', currentPath);
+        axios.post(import.meta.env.VITE_API + `/Files/${id}/Upload`, formData, {
+            headers: {
+                'content-type': 'multipart/form-data',
+            },
+        }).then((response) => {
+            setRefresh(!refresh);
+            setUploadOpen(false);
+            setUploadFiles([]);
+        });
+
+    }
     const SizeFormatter = (sizeInBytes: number): string => {
         const units = ['B', 'KB', 'MB', 'GB', 'TB'];
         let index = 0;
@@ -116,7 +139,9 @@ export default function FileManager() {
 
 
     }
+    const sendUpload = () => {
 
+    }
     const ConfirmDeleteFiles = async () => {
         setConfirmContent({ text: "Confirm to delete", button: "Delete", buttonColor: "danger", action: DeleteFiles });
         setConfirmOpen(true)
@@ -201,7 +226,7 @@ export default function FileManager() {
                         <Box sx={{ display: "flex", justifyContent: "end", gap: 1 }}>
                             {selectedFiles.length > 0 ? <Button disabled={downloadDisabled} size="sm" startDecorator={<Download />} onClick={() => { DonwloadFiles() }}>{selectedFiles.length} Files</Button> : ""}
                             {selectedFiles.length > 0 ? <Button disabled={downloadDisabled} size="sm" startDecorator={<DeleteIcon />} color={"danger"} onClick={() => { ConfirmDeleteFiles() }}>{selectedFiles.length} Files</Button> : ""}
-                            <Button size="sm" startDecorator={<DriveFolderUploadIcon />}> Upload</Button>
+                            <Button size="sm" startDecorator={<UploadFile />} onClick={() => { setUploadOpen(true) }}> Upload</Button>
                         </Box>
                     </Box>
                     <Stack spacing={1} sx={{ textAlign: 'left' }} >
@@ -297,6 +322,30 @@ export default function FileManager() {
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mt: 2 }}>
                         <Button color="success" onClick={() => sendCreate()} size='sm' sx={{ mr: 2 }} startDecorator={createType == "file" ? <NoteAddIcon /> : <CreateNewFolderIcon />}> Create</Button>
                         <Button size='sm' onClick={() => setCreateOpen(false)} color='neutral'>Cancel</Button>
+
+                    </Box>
+                </Sheet>
+            </Modal>
+            <Modal
+                aria-labelledby="modal-title"
+                aria-describedby="modal-desc"
+                open={uploadOpen}
+                onClose={() => setUploadOpen(false)}
+                sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+            >
+                <Sheet
+                    variant="outlined"
+                    sx={{ maxWidth: 500, borderRadius: 'md', p: 3, boxShadow: 'lg' }}
+                >
+                    <ModalClose variant="plain" sx={{ m: 1 }} />
+
+                    <Typography id="modal-desc " sx={{ mb: 2 }} textColor="text.tertiary">
+                        Upload File
+                    </Typography>
+                    <input type='file' multiple onChange={(e) => { e.target.files ? setUploadFiles(Array.from(e.target.files)) : null }} />
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mt: 2 }}>
+                        <Button color="success" onClick={(e) => handleUploadFile(e)} size='sm' sx={{ mr: 2 }} startDecorator={<UploadFile />}> Upload</Button>
+                        <Button size='sm' onClick={() => setUploadOpen(false)} color='neutral'>Cancel</Button>
 
                     </Box>
                 </Sheet>

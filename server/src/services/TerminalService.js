@@ -40,9 +40,15 @@ const DownloadServerData = (url, pathName) => {
     } catch (error) {
     }
 }
-const CopyFile = (fromFile, to) => {
+const CopyFile = async (fromDirectory, toDirectory) => {
+    return new Promise((resolve, reject) => {
+        fs.cp(fromDirectory, toDirectory, { recursive: true }, (err) => {
+            if (err)
+                reject("Error copying directory:", err)
+            resolve("Directory copied successfully!")
+        });
+    })
 
-    fs.copyFileSync(fromFile, to);
 }
 const SetupRequiredFiles = async (path, files) => {
     files.forEach(file => {
@@ -190,9 +196,11 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
         return 0;
     }
 }
-const CacheFile = (file, sub, scriptFileName) => {
-    CreateNewDirectory({ name: `DownloadCache/${sub}` });
-    fs.copyFileSync(file, `DownloadCache/${sub}/${scriptFileName}`);
+const CacheFile = (DirectoryFrom, versionID) => {
+
+    CreateNewDirectory({ name: `DownloadCache/${versionID}` });
+
+    fs.cp(DirectoryFrom, `DownloadCache/${versionID}`);
 
 }
 const OwnFile = async (name, username) => {

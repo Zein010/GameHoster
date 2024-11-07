@@ -1,8 +1,9 @@
-import { Button, Sheet, Table } from '@mui/joy'
-import { startTransition, useEffect, useState } from 'react'
+import { Box, Button, Modal, ModalClose, Select, Sheet, Table, Typography, Option } from '@mui/joy'
+import React, { startTransition, useEffect, useState } from 'react'
 import "../index.css"
-import { PlayArrow, Settings, SignalWifiStatusbar4Bar, Stop, Terminal } from '@mui/icons-material'
+import { PlayArrow, PlusOne, Settings, SignalWifiStatusbar4Bar, Stop, Terminal } from '@mui/icons-material'
 import { notification } from '../Utils'
+import AddIcon from '@mui/icons-material/Add';
 import { Link } from 'react-router-dom'
 function Servers() {
     const [servers, setServers] = useState<{
@@ -14,22 +15,36 @@ function Servers() {
     }[]>([])
     const [actionsDisabled, setActionsDisabled] = useState<{ start: { [key: number]: boolean }, stop: { [key: number]: boolean } }>({ start: {}, stop: {} });
     const [globalDisabled, setGlobalDisabled] = useState<boolean>(false)
+    const [games, setGames] = useState<{ id: number, name: string, gameVersion: { id: number, version: string } }[]>([])
+    const [newOpen, setNewOpen] = useState(false)
+    const [newDetails, setNewDetails] = useState<{ gameID: number, versionID: number }>({ gameID: 0, versionID: 0 });
+    const [refresh, setRefresh] = useState(false)
     useEffect(() => {
         const fetchData = async () => {
 
-            const response = await fetch(import.meta.env.VITE_API + '/Game/Servers/1', {
+            const serversResponse = await fetch(import.meta.env.VITE_API + '/Game/Servers', {
                 method: 'GET',
                 headers: {
                     'content-type': 'application/json;charset=UTF-8',
                 }
             })
-            if (response.ok) {
-                setServers((await response.json()).data)
+            if (serversResponse.ok) {
+                setServers((await serversResponse.json()).data)
+            }
+            const gameResponse = await fetch(import.meta.env.VITE_API + '/Game', {
+                method: 'GET',
+                headers: {
+                    'content-type': 'application/json;charset=UTF-8',
+                }
+            })
+            if (gameResponse.ok) {
+                setGames((await gameResponse.json()).data)
             }
         }
         fetchData()
 
-    }, [])
+    }, [refresh])
+
     const setActionDisabledState = (id: number, value: { [key: string]: boolean }) => {
 
         setActionsDisabled((obj) => {
@@ -103,9 +118,24 @@ function Servers() {
         }
         return serverOn
     }
+    const createServer = async () => {
+
+        setNewOpen(false)
+        const response = await fetch(import.meta.env.VITE_API + `/Game/CreateServer/${newDetails.versionID}`)
+        if (response.ok) {
+            setRefresh(!refresh)
+        }
+    }
 
     return (
         <Sheet className="mx-10 px-3 mt-6">
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 2 }}>
+
+                <Typography level="h3">Servers</Typography>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button startDecorator={<AddIcon />} onClick={() => { setNewDetails({ gameID: 0, versionID: 0 }); setNewOpen(true) }} sx={{ px: 1 }} size="sm">Server</Button>
+                </Box>
+            </Box>
             <Table stripe="odd">
                 <thead>
                     <tr>
@@ -141,7 +171,40 @@ function Servers() {
                     )}
                 </tbody>
             </Table>
+            <Modal
+                aria-labelledby="modal-title"
+                aria-describedby="modal-desc"
+                open={newOpen}
+                onClose={() => setNewOpen(false)}
+                sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+            >
+                <Sheet
+                    variant="outlined"
+                    sx={{ minWidth: 400, borderRadius: 'md', p: 3, boxShadow: 'lg' }}
+                >
+                    <ModalClose variant="plain" sx={{ m: 1 }} />
+
+                    <Typography id="modal-desc " sx={{ mb: 2 }} textColor="text.tertiary">
+                        Create New Server
+                    </Typography>
+                    <Select placeholder="Select server" onChange={(_, newValue) => setNewDetails({ gameID: Number(newValue), versionID: 0 })}>
+                        {games.map(game => (<Option key={game.id} value={game.id}>{game.name}</Option>))}
+
+                    </Select>
+                    {newDetails.gameID != 0 ? <Select onChange={(_, newValue) => setNewDetails((oldDetails) => ({ ...oldDetails, versionID: Number(newValue) }))} placeholder="Select version..." sx={{ mt: 2 }}>
+                        {games.filter(game => game.id == newDetails.gameID)[0].gameVersion.map(version => (<Option value={version.id}>{version.version}</Option>))}
+
+                    </Select> : ""}
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mt: 2 }}>
+                        <Button color="success" size='sm' onClick={() => { createServer() }} sx={{ mr: 2 }} > Create</Button>
+                        <Button size='sm' onClick={() => setNewOpen(false)} color='neutral'>Cancel</Button>
+
+                    </Box>
+                </Sheet>
+            </Modal >
         </Sheet >
+
     )
 }
 

@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 const GetAll = async () => {
-    return await prisma.game.findMany();
+    return await prisma.game.findMany({ select: { name: true, id: true, gameVersion: { select: { version: true, id: true } } } });
 }
 const Get = async (id) => {
     return await prisma.game.findUnique({ where: { id }, include: { gameVersion: true } })
@@ -14,8 +14,8 @@ const GetVersions = async (id) => {
 const GetVersion = async (id) => {
     return await prisma.gameVersion.findUnique({ where: { id }, include: { game: true, getFilesSetup: true, changeFileAfterSetup: true } })
 }
-const GetServers = async (gameVersionId) => {
-    return await prisma.runningServers.findMany({ where: { gameVersionId, deleted: false }, include: { gameVersion: { include: { game: true } }, sysUser: true } });
+const GetServers = async () => {
+    return await prisma.runningServers.findMany({ where: { deleted: false }, include: { gameVersion: { include: { game: true } }, sysUser: true } });
 }
 const GetServer = async (serverId) => {
     return await prisma.runningServers.findUnique({ where: { id: serverId, deleted: false }, include: { sysUser: true, gameVersion: { include: { game: true, getFilesSetup: true, changeFileAfterSetup: true } } } });
@@ -30,8 +30,8 @@ const AddRunningServer = async (path, username, gameVersionId, scriptFile) => {
     const temp = await prisma.runningServers.create({ data: { path, scriptFile, gameVersion: { connect: { id: gameVersionId } }, sysUser: { connect: { username } } } })
     return await prisma.runningServers.findUnique({ where: { id: temp.id }, include: { gameVersion: true, sysUser: true } });
 }
-const SetGameVersionCache = async (id, cacheFile, scriptFile) => {
-    await prisma.gameVersion.update({ where: { id }, data: { cacheFile, scriptFile } });
+const SetGameVersionCache = async (id, cacheFile) => {
+    await prisma.gameVersion.update({ where: { id }, data: { cacheFile } });
 }
 const AppendToServerConfig = async (id, config) => {
     const server = await prisma.runningServers.findUnique({ where: { id } })
