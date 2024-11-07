@@ -26,6 +26,12 @@ const seed = async () => {
       create: { id: 2, searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "", version: "Forge-1.21.3", cacheFile: "DownloadCache/Minecraft/2", scriptFile: "forge-1.21.3-53.0.9-shim.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
       update: { searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "", version: "Forge-1.21.3", cacheFile: "DownloadCache/Minecraft/2", scriptFile: "forge-1.21.3-53.0.9-shim.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
     });
+
+    await prisma.gameVersion.upsert({
+      where: { id: 3 },
+      create: { id: 3, searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "", version: "Forge-1.21.1", cacheFile: "DownloadCache/Minecraft/3", scriptFile: "forge-1.21.1-53.0.9-shim.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
+      update: { searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "", version: "Forge-1.21.1", cacheFile: "DownloadCache/Minecraft/3", scriptFile: "forge-1.21.1-53.0.9-shim.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
+    });
     console.log("Created Minecraft Version")
     await prisma.changeFileAfterSetup.upsert({
       where: { id: 1 },
@@ -102,6 +108,50 @@ const seed = async () => {
       },
       update: {
         gameVersionId: 2,
+        actions: {
+          toReplace: [
+            { fileName: "eula.txt", data: [{ search: "eula=false", replace: "eula=true" }] },
+          ],
+          matchReplaceOrAppend: [{
+            fileName: "server.properties", data: [
+              { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
+              { match: "level-seed\\s*=\\s*\\d+", replace: "level-seed=[seed]" },
+              { match: "online-mode\\s*=\\s*true", replace: "online-mode=false" }
+            ]
+          }],
+          afterRestartMatchReplaceOrAppend: [
+            {
+              fileName: "server.properties", data: [
+                { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" }]
+            }
+          ]
+        },
+      }
+    });
+    await prisma.changeFileAfterSetup.upsert({
+      where: { id: 3 },
+      create: {
+        id: 3, gameVersionId: 3, actions: {
+          toReplace: [
+            { fileName: "eula.txt", data: [{ search: "eula=false", replace: "eula=true" }] },
+          ],
+          matchReplaceOrAppend: [{
+            fileName: "server.properties", data: [
+              { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
+              { match: "level-seed\\s*=\\s*\\d+", replace: "level-seed=[seed]" },
+              { match: "online-mode\\s*=\\s*true", replace: "online-mode=false" }
+            ]
+          }],
+          afterRestartMatchReplaceOrAppend: [
+            {
+              fileName: "server.properties", data: [
+                { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" }]
+            }
+          ]
+        },
+      },
+      update: {
+        gameVersionId: 3,
         actions: {
           toReplace: [
             { fileName: "eula.txt", data: [{ search: "eula=false", replace: "eula=true" }] },
