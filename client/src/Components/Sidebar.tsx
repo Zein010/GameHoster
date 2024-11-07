@@ -20,8 +20,10 @@ import { Button } from '@mui/joy';
 import FolderIcon from '@mui/icons-material/Folder';
 import { PlayArrow, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+
 export default function Sidebar() {
 
+  const [port, setPort] = useState(0)
   const [actionsDisabled, setActionsDisabled] = useState<{ start: boolean, stop: boolean }>({ start: false, stop: false });
   const [globalDisabled, setGlobalDisabled] = useState<boolean>(false)
   const [refreshed, setRefreshed] = useState<boolean>(false)
@@ -71,13 +73,15 @@ export default function Sidebar() {
     var serverOn = false;
     const response = await fetch(import.meta.env.VITE_API + `/Game/CheckServer/${id}`)
     if (response.ok) {
-      if ((await response.json()).status) {
+      const resdata = await response.json()
+      if (resdata.status) {
         setActionsDisabled({ start: true, stop: false });
         serverOn = true;
       } else {
         setActionsDisabled({ start: false, stop: true });
         serverOn = false;
       }
+      if (resdata.config.port) setPort(resdata.config.port)
 
     }
     return serverOn
@@ -86,10 +90,11 @@ export default function Sidebar() {
   useEffect(() => {
     setTimeout(() => {
       setRefreshed((refreshed) => !refreshed)
-      console.log("xx")
       checkStatus()
     }, 5000)
+    checkStatus()
   }, [refreshed])
+
 
   return (
     <Sheet
@@ -207,6 +212,7 @@ export default function Sidebar() {
 
         </List>
       </Box>
+      {port != 0 && <Typography level="body2" sx={{ mb: 1 }}>Server port: {port}</Typography>}
       <Divider />
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
 
