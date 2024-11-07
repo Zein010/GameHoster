@@ -95,7 +95,7 @@ const seed = async () => {
           afterRestartMatchReplaceOrAppend: [
             {
               fileName: "server.properties", data: [
-                { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" }
+                { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" }]
             }
           ]
         },
@@ -116,7 +116,7 @@ const seed = async () => {
           afterRestartMatchReplaceOrAppend: [
             {
               fileName: "server.properties", data: [
-                { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" }
+                { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" }]
             }
           ]
         },
