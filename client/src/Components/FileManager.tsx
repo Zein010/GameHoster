@@ -13,6 +13,7 @@ import { styled } from '@mui/joy/styles';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import Checkbox from '@mui/joy/Checkbox';
 import { main } from '@mui/material/colors';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { ArrowBack, ArrowUpward, Download } from '@mui/icons-material';
 const Item = styled(Sheet)(({ theme }) => ({
     // Use prop if provided, fallback to #fff
@@ -112,6 +113,21 @@ export default function FileManager() {
         }
 
     }
+    const DeleteFiles = async () => {
+
+        const response = await fetch(import.meta.env.VITE_API + `/Files/${id}/Delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ path: currentPath, files: selectedFiles })
+        })
+        if (response.ok) {
+            setRefresh(!refresh)
+            setSelectFiles([])
+        }
+
+    }
     const openCreate = (type: "folder" | "file") => {
         setCreateType(type);
 
@@ -175,7 +191,8 @@ export default function FileManager() {
                             {currentPath != "" ? <Button size="sm" startDecorator={<ArrowUpward />} onClick={() => { setCurrentPath(currentPath.substring(0, currentPath.lastIndexOf("/"))) }}> Back</Button> : <></>}
                         </Box>
                         <Box sx={{ display: "flex", justifyContent: "end", gap: 1 }}>
-                            {selectedFiles.length > 0 ? <Button disabled={downloadDisabled} size="sm" startDecorator={<Download />} onClick={() => { DonwloadFiles() }}>Download {selectedFiles.length} Files</Button> : ""}
+                            {selectedFiles.length > 0 ? <Button disabled={downloadDisabled} size="sm" startDecorator={<Download />} onClick={() => { DonwloadFiles() }}>{selectedFiles.length} Files</Button> : ""}
+                            {selectedFiles.length > 0 ? <Button disabled={downloadDisabled} size="sm" startDecorator={<DeleteIcon />} color={"danger"} onClick={() => { DeleteFiles() }}>{selectedFiles.length} Files</Button> : ""}
                             <Button size="sm" startDecorator={<DriveFolderUploadIcon />}> Upload</Button>
                         </Box>
                     </Box>
