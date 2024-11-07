@@ -134,6 +134,11 @@ const seed = async () => {
       }
     });
     console.log("Created minecraft file requirements")
+
+
+    await prisma.getFilesSetup.upsert({ where: { id: 1 }, create: { id: 1, gameVersionId: 2, fileName: "eula.txt", content: "eula=true" }, update: { fileName: "eula.txt", gameVersionId: 2, content: "eula=true" } });
+    console.log("Created eula.txt")
+
   } catch (error) {
     console.log(error);
   }
