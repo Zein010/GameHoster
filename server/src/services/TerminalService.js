@@ -199,7 +199,6 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
 const CacheFile = async (DirectoryFrom, versionID) => {
 
     CreateNewDirectory({ name: `DownloadCache/${versionID}` });
-    console.log({ DirectoryFrom })
     await CopyFile(DirectoryFrom, `DownloadCache/${versionID}`);
 
 }

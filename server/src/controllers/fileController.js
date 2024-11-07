@@ -82,7 +82,7 @@ const Upload = async (req, res) => {
             if (Array.isArray(files)) {
 
                 files.forEach(file => {
-                    if (file.name.includes("server.jar")) return
+                    if (file.name.includes(server.gameVersion.scriptFile)) return
                     file.mv(pathLib.join(server.path, path, file.name))
                 })
             } else {
