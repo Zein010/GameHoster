@@ -121,9 +121,6 @@ const seed = async () => {
             fileName: "server.properties", data: [
               { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
               { match: "level-seed\\s*=\\s*\\d+", replace: "level-seed=[seed]" },
-              { match: "enable-rcon=false", replace: "enable-rcon=true" },
-              { match: "rcon.password\\s*=\\s*\\d+", replace: "rcon.password=[rpassword]" },
-              { match: "rcon.port\\s*=\\s*\\d+", replace: "rcon.port=[rport]" }
             ]
           }],
           afterRestartMatchReplaceOrAppend: [
