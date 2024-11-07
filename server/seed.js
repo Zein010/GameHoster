@@ -88,7 +88,7 @@ const seed = async () => {
     await prisma.changeFileAfterSetup.upsert({
       where: { id:2 },
       create: {
-        id: 1, gameVersionId: 2, actions: {
+        id: 2, gameVersionId: 2, actions: {
           toReplace: [
             { fileName: "eula.txt", data: [{ search: "eula=false", replaceWith: "eula=true" }] },
             { fileName: "server.properties", data: [{ search: "online-mode=true", replaceWith: "online-mode=false" }] }
