@@ -84,6 +84,63 @@ const seed = async () => {
         },
       }
     });
+
+    await prisma.changeFileAfterSetup.upsert({
+      where: { id:2 },
+      create: {
+        id: 1, gameVersionId: 2, actions: {
+          toReplace: [
+            { fileName: "eula.txt", data: [{ search: "eula=false", replaceWith: "eula=true" }] },
+            { fileName: "server.properties", data: [{ search: "online-mode=true", replaceWith: "online-mode=false" }] }
+          ], matchReplaceOrAppend: [
+            {
+              fileName: "server.properties", data: [
+                { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
+                { match: "level-seed\\s*=\\s*\\d+", replace: "level-seed=[seed]" }
+              ]
+            }
+
+          ], afterRestartMatchReplaceOrAppend: [
+            {
+              fileName: "server.properties", data: [
+                { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
+              ]
+            }
+
+          ]
+        },
+      },
+      update: {
+        gameVersionId: 2,
+        actions: {
+          toReplace: [
+            { fileName: "eula.txt", data: [{ search: "eula=false", replaceWith: "eula=true" }] },
+            { fileName: "server.properties", data: [{ search: "online-mode=true", replaceWith: "online-mode=false" }, { search: "enable-rcon=false", replaceWith: "enable-rcon=true" }] }
+          ], matchReplaceOrAppend: [
+            {
+              fileName: "server.properties", data: [
+                { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
+                { match: "level-seed\\s*=\\s*\\d+", replace: "level-seed=[seed]" },
+                { match: "enable-rcon=false", replace: "enable-rcon=true" },
+                { match: "rcon.password\\s*=\\s*\\d+", replace: "rcon.password=[rpassword]" },
+                { match: "rcon.port\\s*=\\s*\\d+", replace: "rcon.port=[rport]" }
+              ]
+            }
+
+          ], afterRestartMatchReplaceOrAppend: [
+            {
+              fileName: "server.properties", data: [
+                { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
+                { match: "enable-rcon=false", replace: "enable-rcon=true" },
+                { match: "rcon.password\\s*=\\s*\\d+", replace: "rcon.password=[rpassword]" },
+                { match: "rcon.port\\s*=\\s*\\d+", replace: "rcon.port=[rport]" }
+              ]
+            }
+
+          ]
+        },
+      }
+    });
     console.log("Created minecraft file requirements")
   } catch (error) {
     console.log(error);
