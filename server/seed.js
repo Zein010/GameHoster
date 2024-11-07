@@ -33,7 +33,7 @@ const seed = async () => {
       create: {
         id: 1, gameVersionId: 1, actions: {
           toReplace: [
-            { fileName: "eula.txt", data: [{ search: "eula=false", replaceWith: "eula=true" }] },
+            { fileName: "eula.txt", data: [{ search: "eula=false", replace: "eula=true" }] },
           ], matchReplaceOrAppend: [
             {
               fileName: "server.properties", data: [
@@ -56,8 +56,8 @@ const seed = async () => {
         gameVersionId: 1,
         actions: {
           toReplace: [
-            { fileName: "eula.txt", data: [{ search: "eula=false", replaceWith: "eula=true" }] },
-            { fileName: "server.properties", data: [{ search: "online-mode=true", replaceWith: "online-mode=false" }, { search: "enable-rcon=false", replaceWith: "enable-rcon=true" }] }
+            { fileName: "eula.txt", data: [{ search: "eula=false", replace: "eula=true" }] },
+            { fileName: "server.properties", data: [{ search: "online-mode=true", replace: "online-mode=false" }, { search: "enable-rcon=false", replace: "enable-rcon=true" }] }
           ], matchReplaceOrAppend: [
             {
               fileName: "server.properties", data: [
@@ -89,14 +89,14 @@ const seed = async () => {
       create: {
         id: 2, gameVersionId: 2, actions: {
           toReplace: [
-            { fileName: "eula.txt", data: [{ search: "eula=false", replaceWith: "eula=true" }] },
+            { fileName: "eula.txt", data: [{ search: "eula=false", replace: "eula=true" }] },
           ],
           matchReplaceOrAppend: [],
           afterRestartMatchReplaceOrAppend: [
             {
               fileName: "server.properties", data: [
                 { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
-                { match: "online-mode\\s*=\\s*true", replaceWith: "online-mode=false" }]
+                { match: "online-mode\\s*=\\s*true", replace: "online-mode=false" }]
             }
           ]
         },
@@ -105,14 +105,14 @@ const seed = async () => {
         gameVersionId: 2,
         actions: {
           toReplace: [
-            { fileName: "eula.txt", data: [{ search: "eula=false", replaceWith: "eula=true" }] },
+            { fileName: "eula.txt", data: [{ search: "eula=false", replace: "eula=true" }] },
           ],
           matchReplaceOrAppend: [],
           afterRestartMatchReplaceOrAppend: [
             {
               fileName: "server.properties", data: [
                 { match: "server-port\\s*=\\s*\\d+", replace: "server-port=[port]" },
-                { match: "online-mode\\s*=\\s*true", replaceWith: "online-mode=false" }]
+                { match: "online-mode\\s*=\\s*true", replace: "online-mode=false" }]
             }
           ]
         },
