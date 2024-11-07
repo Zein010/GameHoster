@@ -196,11 +196,11 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
         return 0;
     }
 }
-const CacheFile = (DirectoryFrom, versionID) => {
+const CacheFile = async (DirectoryFrom, versionID) => {
 
     CreateNewDirectory({ name: `DownloadCache/${versionID}` });
-
-    fs.cp(DirectoryFrom, `DownloadCache/${versionID}`);
+    console.log({ DirectoryFrom })
+    await CopyFile(DirectoryFrom, `DownloadCache/${versionID}`);
 
 }
 const OwnFile = async (name, username) => {
