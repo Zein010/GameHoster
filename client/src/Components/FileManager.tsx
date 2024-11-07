@@ -39,6 +39,8 @@ export default function FileManager() {
     const [currentPath, setCurrentPath] = useState("");
     const [clickedRowIndex, setClickedRowIndex] = useState(-1)
     const [downloadDisabled, setDownloadDisabled] = useState(false)
+    const [confirmOpen, setConfirmOpen] = useState(false)
+    const [confirmContent, setConfirmContent] = useState({ button: "", text: "", action: () => { }, buttonColor: "primary" })
     const fileCheckBoxClicked = (file: string, add: boolean) => {
 
         if (add) {
@@ -112,8 +114,15 @@ export default function FileManager() {
             setCreateName("")
         }
 
+
+    }
+
+    const ConfirmDeleteFiles = async () => {
+        setConfirmContent({ text: "Confirm to delete", button: "Delete", buttonColor: "danger", action: DeleteFiles });
+        setConfirmOpen(true)
     }
     const DeleteFiles = async () => {
+
 
         const response = await fetch(import.meta.env.VITE_API + `/Files/${id}/Delete`, {
             method: 'POST',
@@ -130,9 +139,8 @@ export default function FileManager() {
     }
     const openCreate = (type: "folder" | "file") => {
         setCreateType(type);
-
+        setCreateOpen(true)
         setCreateName("");
-        setCreateOpen(true);
     }
     const fileRowClicked = (rowID: number) => {
 
@@ -192,23 +200,24 @@ export default function FileManager() {
                         </Box>
                         <Box sx={{ display: "flex", justifyContent: "end", gap: 1 }}>
                             {selectedFiles.length > 0 ? <Button disabled={downloadDisabled} size="sm" startDecorator={<Download />} onClick={() => { DonwloadFiles() }}>{selectedFiles.length} Files</Button> : ""}
-                            {selectedFiles.length > 0 ? <Button disabled={downloadDisabled} size="sm" startDecorator={<DeleteIcon />} color={"danger"} onClick={() => { DeleteFiles() }}>{selectedFiles.length} Files</Button> : ""}
+                            {selectedFiles.length > 0 ? <Button disabled={downloadDisabled} size="sm" startDecorator={<DeleteIcon />} color={"danger"} onClick={() => { ConfirmDeleteFiles() }}>{selectedFiles.length} Files</Button> : ""}
                             <Button size="sm" startDecorator={<DriveFolderUploadIcon />}> Upload</Button>
                         </Box>
                     </Box>
                     <Stack spacing={1} sx={{ textAlign: 'left' }} >
 
                         <Stack direction="row" key={"Header"} sx={{ flexGrow: 1, backgroundColor: "background.level2", }}>
-                            <Item sx={{ flexBasis: '30px', borderEndEndRadius: 0, borderStartEndRadius: 0 }}></Item>
+                            <Item sx={{ flexBasis: '40px', borderEndEndRadius: 0, borderStartEndRadius: 0 }}></Item>
                             <Item sx={{ flexGrow: 1, borderRadius: 0 }}>
                                 <Typography level="body-sm" sx={{ textAlign: 'left' }}  >Name</Typography>
                             </Item>
-                            <Item sx={{ flexBasis: '150px', borderRadius: 0 }}>
+                            <Item sx={{ flexBasis: '80px', borderRadius: 0 }}>
                                 <Typography level="body-sm" sx={{ textAlign: 'right' }}  >
 
                                     Size
                                 </Typography>
-                            </Item> <Item sx={{ flexBasis: '200px', borderRadius: 0 }}>
+                            </Item>
+                            <Item sx={{ flexBasis: '200px', borderRadius: 0 }}>
                                 <Typography level="body-sm" sx={{ textAlign: 'left' }}  >   Modified At</Typography>
 
                             </Item>
@@ -220,13 +229,13 @@ export default function FileManager() {
                         {files.map((file, i) => (
 
                             <Stack onDoubleClick={() => { file.isDirectory ? setCurrentPath(currentPath + "/" + file.name) : null }} onClick={() => { fileRowClicked(i) }} direction="row" ref={fileRowsRef[i]} key={"file-" + i} sx={{ flexGrow: 1, backgroundColor: clickedRowIndex == i ? "background.surface" : (selectedFiles.includes(file.name) ? "background.surface" : "background.level2"), "&:hover": { backgroundColor: "background.level3" } }} >
-                                <Item sx={{ flexBasis: '30px', borderEndEndRadius: 0, borderStartEndRadius: 0 }}>
+                                <Item sx={{ flexBasis: '40px', borderEndEndRadius: 0, borderStartEndRadius: 0 }}>
                                     <Checkbox checked={selectedFiles.includes(file.name)} onClick={(e) => { e.stopPropagation(); }} onChange={(e) => { fileCheckBoxClicked(file.name, e.target.checked); }} />
                                 </Item>
                                 <Item sx={{ flexGrow: 1, borderRadius: 0 }}>
                                     <Typography level="body-sm" sx={{ textAlign: 'left', fontWeight: "bold" }}  >{file.isDirectory ? <FolderIcon sx={{ mr: 1 }} color='primary' /> : <InsertDriveFileIcon color='warning' sx={{ mr: 1 }} />}{file.name}</Typography>
                                 </Item>
-                                <Item sx={{ flexBasis: '150px', borderRadius: 0 }}>
+                                <Item sx={{ flexBasis: '80px', borderRadius: 0 }}>
                                     <Typography level="body-sm" sx={{ textAlign: 'right' }}  >
                                         {file.isDirectory ? "-" : SizeFormatter(file.size)}
                                     </Typography>
@@ -248,6 +257,29 @@ export default function FileManager() {
             <Modal
                 aria-labelledby="modal-title"
                 aria-describedby="modal-desc"
+                open={confirmOpen}
+                onClose={() => setConfirmOpen(false)}
+                sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+            >
+                <Sheet
+                    variant="outlined"
+                    sx={{ maxWidth: 500, borderRadius: 'md', p: 3, boxShadow: 'lg' }}
+                >
+                    <ModalClose variant="plain" sx={{ m: 1 }} />
+
+                    <Typography id="modal-desc " sx={{ mb: 2 }} textColor="text.tertiary">
+                        {confirmContent.text}
+                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mt: 2 }}>
+                        <Button color={confirmContent.buttonColor} onClick={() => { setConfirmOpen(false); confirmContent.action() }} size='sm' sx={{ mr: 2 }} >{confirmContent.button}</Button>
+                        <Button size='sm' onClick={() => setConfirmOpen(false)} color='neutral'>Cancel</Button>
+
+                    </Box>
+                </Sheet>
+            </Modal>
+            <Modal
+                aria-labelledby="modal-title"
+                aria-describedby="modal-desc"
                 open={createOpen}
                 onClose={() => setCreateOpen(false)}
                 sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
@@ -263,8 +295,8 @@ export default function FileManager() {
                     </Typography>
                     <Input autoFocus type='text' onKeyDown={(e) => e.key === 'Enter' ? sendCreate() : null} value={createName} onChange={(e) => setCreateName(e.target.value)} />
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mt: 2 }}>
-                        <Button color="success" onClick={() => sendCreate()} size='sm' startDecorator={createType == "file" ? <NoteAddIcon /> : <CreateNewFolderIcon />}>Create</Button>
-                        <Button size='sm' onClick={() => setCreateOpen(false)} color='danger'>Cancel</Button>
+                        <Button color="success" onClick={() => sendCreate()} size='sm' sx={{ mr: 2 }} startDecorator={createType == "file" ? <NoteAddIcon /> : <CreateNewFolderIcon />}> Create</Button>
+                        <Button size='sm' onClick={() => setCreateOpen(false)} color='neutral'>Cancel</Button>
 
                     </Box>
                 </Sheet>
