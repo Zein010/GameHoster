@@ -5,9 +5,9 @@ import { useParams } from 'react-router-dom';
 // Connect to the server with a purpose query parameter
 export default function Logs() {
     const { id } = useParams();
-    const [content, setContent] = useState("")
+    const [content, setContent] = useState<string>("")
 
-    const contentRef = useRef(null);
+    const contentRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
         const fetchData = async () => {
 

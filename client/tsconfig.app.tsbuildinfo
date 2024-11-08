@@ -1,0 +1,1 @@
+{"root":["./src/Server.tsx","./src/Utils.ts","./src/main.tsx","./src/vite-env.d.ts","./src/Components/ColorSchemeToggle.tsx","./src/Components/FileManager.tsx","./src/Components/Header.tsx","./src/Components/Log.tsx","./src/Components/Players.tsx","./src/Components/Servers.tsx","./src/Components/Sidebar.tsx","./src/Components/Terminal.tsx"],"version":"5.6.3"}

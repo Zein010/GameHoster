@@ -1,18 +1,18 @@
-import { Box, Button, Card, CardContent, Input, Sheet, Typography, Stack } from '@mui/joy';
+import { Box, Button, Card, CardContent, Input, Typography, Stack } from '@mui/joy';
 import "../index.css"
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 // Connect to the server with a purpose query parameter
 export default function Terminal() {
     const { id } = useParams();
-    const [terminalSocket, setTerminalSocket] = useState(null);
+    const [terminalSocket, setTerminalSocket] = useState<Socket | null>(null);
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
     const [currentCommandIndex, setCurrentCommandIndex] = useState(0);
-    const commandsDiv = useRef(null);
+    const commandsDiv = useRef<HTMLDivElement>(null);
     useEffect(() => {
-        setTerminalSocket(io.connect(import.meta.env.VITE_API, { query: { purpose: "terminal", serverId: id } }));
+        setTerminalSocket(io(import.meta.env.VITE_API, { query: { purpose: "terminal", serverId: id } }));
 
 
     }, [id])
@@ -75,7 +75,7 @@ export default function Terminal() {
             e.preventDefault();
         }
     }
-    
+
     return (
         <Box >
             <Typography level="h3" sx={{ mb: 2, }}>Terminal</Typography>

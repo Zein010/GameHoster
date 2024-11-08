@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Sheet, Grid, Card, CardContent, Typography, Button, Box, Divider } from '@mui/joy';
+import {  Grid, Card, CardContent, Typography, Button, Box, Divider } from '@mui/joy';
 import { Refresh } from '@mui/icons-material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
@@ -8,8 +8,8 @@ import RemoveModeratorIcon from '@mui/icons-material/RemoveModerator';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 export default function Players() {
 
-    const [players, setPlayers] = useState([]);
-    const [bannedPlayers, setBannedPlayers] = useState([]);
+    const [players, setPlayers] = useState<{ name: string, uuid: string }[]>([]);
+    const [bannedPlayers, setBannedPlayers] = useState<{ playerName: string, reason: string }[]>([]);
     const [refresh, setRefresh] = useState(false);
 
     const { id } = useParams();
@@ -124,7 +124,7 @@ export default function Players() {
                 <Grid container spacing={2} sx={{ flexGrow: 1 }}>
                     {players.length > 0 ? players.map(player => {
                         return (
-                            <Grid size={8} >
+                            <Box >
                                 <Card variant="soft" sx={{ boxShadow: "lg" }} >
                                     <CardContent>
                                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "space-between" }}>
@@ -140,16 +140,16 @@ export default function Players() {
                                         <Typography>UUID: {player.uuid}</Typography>
                                     </CardContent>
                                 </Card>
-                            </Grid>)
+                            </Box>)
                     }
                     ) :
-                        <Grid size={8} >
+                        <Box >
                             <Card variant="soft" sx={{ boxShadow: "lg" }} >
                                 <CardContent>
                                     <Typography level="title-md">No Players</Typography>
                                 </CardContent>
                             </Card>
-                        </Grid>
+                        </Box>
                     }
 
 
@@ -166,7 +166,7 @@ export default function Players() {
                 <Grid container spacing={2} sx={{ flexGrow: 1 }}>
                     {bannedPlayers.length > 0 ? bannedPlayers.map(player => {
                         return (
-                            <Grid size={8} >
+                            <Box  >
                                 <Card variant="soft" sx={{ boxShadow: "lg" }} >
                                     <CardContent>
                                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "space-between" }}>
@@ -179,16 +179,16 @@ export default function Players() {
                                         <Typography>Reason: {player.reason}</Typography>
                                     </CardContent>
                                 </Card>
-                            </Grid>)
+                            </Box>)
                     }
                     ) :
-                        <Grid size={8} >
+                        <Box >
                             <Card variant="soft" sx={{ boxShadow: "lg" }} >
                                 <CardContent>
                                     <Typography level="title-md">No Banned Players</Typography>
                                 </CardContent>
                             </Card>
-                        </Grid>
+                        </Box>
                     }
 
 

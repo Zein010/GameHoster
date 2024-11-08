@@ -1,4 +1,4 @@
-import { Profiler, StrictMode } from 'react'
+
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import { ToastContainer } from 'react-toastify';
@@ -7,7 +7,6 @@ import Terminal from './Components/Terminal.tsx'
 import Players from './Components/Players.tsx'
 import 'react-toastify/dist/ReactToastify.css';
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
-import { AccountBalance, SupervisedUserCircleRounded } from '@mui/icons-material';
 import Server from './Server.tsx';
 import Logs from './Components/Log.tsx';
 import FileManager from './Components/FileManager.tsx';

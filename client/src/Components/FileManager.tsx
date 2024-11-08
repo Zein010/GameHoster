@@ -1,21 +1,17 @@
-import { Box, Button, Card, CardContent, Input, Sheet, Typography, Stack, ModalClose, Modal, TextField } from '@mui/joy';
+import { Box, Button, Card, CardContent, Input, Sheet, Typography, Stack, ModalClose, Modal } from '@mui/joy';
 import "../index.css"
-import { createRef, useEffect, useRef, useState } from 'react';
+import { createRef, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { io } from 'socket.io-client';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import FolderIcon from '@mui/icons-material/Folder';
 // Connect to the server with a purpose query parameter
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
 import { styled } from '@mui/joy/styles';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import Checkbox from '@mui/joy/Checkbox';
-import { main } from '@mui/material/colors';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
-import { ArrowBack, ArrowUpward, Download, UploadFile } from '@mui/icons-material';
+import { ArrowUpward, Download, UploadFile } from '@mui/icons-material';
 const Item = styled(Sheet)(({ theme }) => ({
     // Use prop if provided, fallback to #fff
     ...theme.typography['body-sm'],
@@ -28,11 +24,10 @@ const Item = styled(Sheet)(({ theme }) => ({
 }));
 
 export default function FileManager() {
-    const [files, setFiles] = useState([])
+    const [files, setFiles] = useState<{ name: string; isDirectory: boolean, extension: string, size: number, createdAt: string, modifiedAt: string }[]>([])
     const [uploadOpen, setUploadOpen] = useState(false)
-    const [uploadFiles, setUploadFiles] = useState([])
+    const [uploadFiles, setUploadFiles] = useState<File[]>([])
     const { id } = useParams();
-    const fileRows = useRef([])
     const [fileRowsRef, setFileRowsRef] = useState([]);
     const [selectedFiles, setSelectFiles] = useState<string[]>([])
     const [refresh, setRefresh] = useState(false)
@@ -75,7 +70,7 @@ export default function FileManager() {
 
                 const data = await response.json()
 
-                const sortedFiles = data.files.sort((a, b) => {
+                const sortedFiles = data.files.sort((a: { name: string; isDirectory: boolean; }, b: { name: string; isDirectory: boolean; }) => {
                     // First, sort by isDirectory so directories come first
                     if (a.isDirectory && !b.isDirectory) return -1;
                     if (!a.isDirectory && b.isDirectory) return 1;
@@ -94,7 +89,7 @@ export default function FileManager() {
     }, [refresh, currentPath])
 
 
-    const handleUploadFile = (event) => {
+    const handleUploadFile = (event: any) => {
         event.preventDefault()
         const formData = new FormData();
         uploadFiles.forEach(file => {
@@ -106,7 +101,7 @@ export default function FileManager() {
             headers: {
                 'content-type': 'multipart/form-data',
             },
-        }).then((response) => {
+        }).then(() => {
             setRefresh(!refresh);
             setUploadOpen(false);
             setUploadFiles([]);
@@ -142,9 +137,7 @@ export default function FileManager() {
 
 
     }
-    const sendUpload = () => {
 
-    }
     const ConfirmDeleteFiles = async () => {
         setConfirmContent({ text: "Confirm to delete", button: "Delete", buttonColor: "danger", action: DeleteFiles });
         setConfirmOpen(true)
@@ -202,39 +195,44 @@ export default function FileManager() {
                     .replace(/['"]/g, '');
             }
 
-            // Create a stream from the response and then create a URL for it
-            const reader = response.body.getReader();
-            const stream = new ReadableStream({
-                start(controller) {
-                    // Continuously read and push chunks of data to the stream
-                    function push() {
-                        reader.read().then(({ done, value }) => {
-                            if (done) {
-                                controller.close();
-                                return;
-                            }
-                            controller.enqueue(value);
-                            push();
-                        }).catch(err => {
-                            console.error('Error reading the file stream:', err);
-                            controller.error(err);
-                        });
-                    }
-                    push();
+            // Create a writable stream to write chunks to the file
+            const stream = response.body;
+            const reader = stream?.getReader();
+
+            // Create a file blob for the download
+            const writer = new WritableStream({
+                write(chunk) {
+                    // We accumulate chunks here (this part happens as we receive data)
+                    // We could do more processing on each chunk here if needed.
+                    const blob = new Blob([chunk]);
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    URL.revokeObjectURL(a.href);
+                    a.remove();
+                },
+                close() {
+                    console.log('Download complete!');
                 }
             });
 
-            // Create a blob from the stream
-            const blob = new Blob([stream], { type: 'application/octet-stream' });
+            // Read chunks and pass them to the writer
+            const pump = () => {
+                reader?.read().then(({ done, value }) => {
+                    if (done) {
+                        writer.close();
+                        return;
+                    }
+                    writer.getWriter().write(value);
+                    pump();
+                }).catch(err => {
+                    console.error('Stream error:', err);
+                });
+            };
 
-            // Create a download link and trigger the download
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            URL.revokeObjectURL(a.href);
-            a.remove();
+            pump();
 
         } catch (error) {
             console.error("Error during file download:", error);
@@ -242,7 +240,7 @@ export default function FileManager() {
 
         setDownloadDisabled(false);
         setSelectFiles([]);
-    }
+    };
     return (
         <Box >
             <Typography level="h3" sx={{ mb: 2, }}>File Manager</Typography>
@@ -328,7 +326,7 @@ export default function FileManager() {
                         {confirmContent.text}
                     </Typography>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mt: 2 }}>
-                        <Button color={confirmContent.buttonColor} onClick={() => { setConfirmOpen(false); confirmContent.action() }} size='sm' sx={{ mr: 2 }} >{confirmContent.button}</Button>
+                        <Button onClick={() => { setConfirmOpen(false); confirmContent.action() }} size='sm' sx={{ mr: 2, color: confirmContent.buttonColor }} >{confirmContent.button}</Button>
                         <Button size='sm' onClick={() => setConfirmOpen(false)} color='neutral'>Cancel</Button>
 
                     </Box>

@@ -1,7 +1,7 @@
 import { Box, Button, Modal, ModalClose, Select, Sheet, Table, Typography, Option } from '@mui/joy'
-import React, { startTransition, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import "../index.css"
-import { PlayArrow, PlusOne, Settings, SignalWifiStatusbar4Bar, Stop, Terminal } from '@mui/icons-material'
+import { PlayArrow, Settings, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
 import { notification } from '../Utils'
 import AddIcon from '@mui/icons-material/Add';
 import { Link } from 'react-router-dom'
@@ -13,9 +13,9 @@ function Servers() {
         gameVersion: { version: string, game: { name: string } },
         config: null | { startData: { port: number }[] }
     }[]>([])
-    const [actionsDisabled, setActionsDisabled] = useState<{ start: { [key: number]: boolean }, stop: { [key: number]: boolean } }>({ start: {}, stop: {} });
+    const [actionsDisabled, setActionsDisabled] = useState<{ [key: string]: { [key: number]: boolean } }>({ start: {}, stop: {} });
     const [globalDisabled, setGlobalDisabled] = useState<boolean>(false)
-    const [games, setGames] = useState<{ id: number, name: string, gameVersion: { id: number, version: string } }[]>([])
+    const [games, setGames] = useState<{ id: number, name: string, gameVersion: { id: number, version: string }[] }[]>([])
     const [newOpen, setNewOpen] = useState(false)
     const [newDetails, setNewDetails] = useState<{ gameID: number, versionID: number }>({ gameID: 0, versionID: 0 });
     const [refresh, setRefresh] = useState(false)
