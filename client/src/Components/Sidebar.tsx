@@ -2,7 +2,7 @@ import GlobalStyles from '@mui/joy/GlobalStyles';
 import Box from '@mui/joy/Box';
 import Divider from '@mui/joy/Divider';
 import IconButton from '@mui/joy/IconButton';
-import List from '@mui/joy/List';
+import Link from '@mui/joy/Link';
 import ListItem from '@mui/joy/ListItem';
 import ListItemButton, { listItemButtonClasses } from '@mui/joy/ListItemButton';
 import ListItemContent from '@mui/joy/ListItemContent';
@@ -13,7 +13,7 @@ import TerminalIcon from '@mui/icons-material/Terminal';
 import ColorSchemeToggle from './ColorSchemeToggle';
 import { closeSidebar, notification } from '../Utils.ts';
 import PersonIcon from '@mui/icons-material/Person';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import { useEffect, useState } from 'react';
 import { Button } from '@mui/joy';
@@ -24,9 +24,13 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 export default function Sidebar() {
 
   const [port, setPort] = useState(0)
+  const [gameVersion, setGameVersion] = useState<null | { version: string, id: number, game: { name: string, id: number } }>(null)
   const [actionsDisabled, setActionsDisabled] = useState<{ start: boolean, stop: boolean }>({ start: false, stop: false });
   const [globalDisabled, setGlobalDisabled] = useState<boolean>(false)
   const [refreshed, setRefreshed] = useState<boolean>(false)
+  const location = useLocation();
+
+  const isActive = (path: string) => location.pathname === path;
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -82,6 +86,7 @@ export default function Sidebar() {
         serverOn = false;
       }
       if (resdata.config.port) setPort(resdata.config.port)
+      if (resdata.gameVersion) setGameVersion(resdata.gameVersion)
 
     }
     return serverOn
@@ -158,61 +163,36 @@ export default function Sidebar() {
           minHeight: 0,
           overflow: 'hidden auto',
           flexGrow: 1,
+          gap: 1,
           display: 'flex',
           flexDirection: 'column',
-          [`& .${listItemButtonClasses.root}`]: {
-            gap: 1.5,
-          },
         }}
       >
-        <List
-          size="sm"
-          sx={{
-            gap: 1,
-            '--List-nestedInsetStart': '30px',
-            '--ListItem-radius': (theme) => theme.vars.radius.sm,
-          }}
-        >
+        <Link href={`/server/${id}`} underline="none" sx={{ gap: 1, backgroundColor: isActive(`/server/${id}`) ? 'background.level2' : "", py: .5, px: 1, borderRadius: 10 }} >
+          <TerminalIcon />
+          <Typography level="title-sm">Terminal</Typography>
+        </Link>
 
-          <ListItem>
-            <ListItemButton onClick={() => navigate(`/server/${id}`)}>
-              <TerminalIcon />
-              <div>
-                <Typography level="title-sm">Terminal</Typography>
-              </div>
-            </ListItemButton>
-          </ListItem>
+        <Link href={`/server/${id}/players`} underline="none" sx={{ gap: 1, backgroundColor: isActive(`/server/${id}/players`) ? 'background.level2' : "", py: .5, px: 1, borderRadius: 10 }}>
+          <PersonIcon />
+          <Typography level="title-sm">Players</Typography>
+        </Link>
 
-          <ListItem>
-            <ListItemButton onClick={() => navigate(`/server/${id}/players`)}>
-              <PersonIcon />
-              <div>
-                <Typography level="title-sm">Players</Typography>
-              </div>
-            </ListItemButton>
-          </ListItem>
+        <Link href={`/server/${id}/logs`} underline="none" sx={{ gap: 1, backgroundColor: isActive(`/server/${id}/logs`) ? 'background.level2' : "", py: .5, px: 1, borderRadius: 10 }}>
+          <ArchiveIcon />
+          <Typography level="title-sm">Logs</Typography>
+        </Link>
 
-          <ListItem>
-            <ListItemButton onClick={() => navigate(`/server/${id}/logs`)}>
-              <ArchiveIcon />
-              <div>
-                <Typography level="title-sm">Logs</Typography>
-              </div>
-            </ListItemButton>
-          </ListItem>
-
-          <ListItem>
-            <ListItemButton onClick={() => navigate(`/server/${id}/Files`)}>
-              <FolderIcon />
-              <div>
-                <Typography level="title-sm">File Manager</Typography>
-              </div>
-            </ListItemButton>
-          </ListItem>
-
-        </List>
+        <Link href={`/server/${id}/files`} underline="none" sx={{ gap: 1, backgroundColor: isActive(`/server/${id}/files`) ? 'background.level2' : "", py: .5, px: 1, borderRadius: 10 }}>
+          <FolderIcon />
+          <Typography level="title-sm">File Manager</Typography>
+        </Link>
       </Box>
-      {port != 0 && <Typography level="body2" sx={{ mb: 1 }}>Server port: {port}</Typography>}
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+
+        {gameVersion && <Typography level="body-xs" sx={{}}>{gameVersion.game.name} | {gameVersion.version}</Typography>}
+        {port != 0 && <Typography level="body-xs" sx={{}}>Server port: {port}</Typography>}
+      </Box>
       <Divider />
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
 
@@ -232,6 +212,6 @@ export default function Sidebar() {
           <LogoutRoundedIcon />
         </IconButton>
       </Box>
-    </Sheet>
+    </Sheet >
   );
 }

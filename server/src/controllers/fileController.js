@@ -3,6 +3,7 @@ import FileService from "../services/fileService.js";
 import pathLib from "path";
 import { fstat } from "fs";
 import { isArray } from "util";
+import TerminalService from "../services/TerminalService.js";
 
 const List = async (req, res) => {
     const { serverId } = req.params
@@ -31,7 +32,7 @@ const Download = async (req, res) => {
     const { serverId } = req.params
     const { files, path } = req.body
     const server = await GameService.GetServer(Number(serverId))
-    const zippedFile = await FileService.Zip(server.path, files, path);
+    const zippedFile = await TerminalService.CreateZip(files, server.path, path);
     if (zippedFile.fileName) {
         const file = pathLib.join(server.path, path, zippedFile.fileName);
 

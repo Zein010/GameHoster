@@ -2,7 +2,7 @@ import { execSync, spawn, fork, exec } from "child_process"
 import fs from "fs"
 import PrismaService from "../../PrismaService.js";
 import net from "net"
-
+import pathLib from "path";
 const RunningServers = {};
 const CreateNewDirectory = (config) => {
     const PathArr = config.name.split("/");
@@ -396,5 +396,50 @@ const GetLog = (path) => {
         return "No Log Yet";
     }
 }
-const TerminalService = { GetLog, GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
+function isValidFileName(fileName) {
+    // Ensure filename does not contain dangerous characters (e.g., `;`, `&`, `|`, etc.)
+    const regex = /^[a-zA-Z0-9_\-\/.\[\]\(\)\s]+$/;
+    return regex.test(fileName);
+}
+
+// Function to create a zip file
+function CreateZip(files, path, subPath) {
+    const zipName = `Download-${Date.now()}-${Math.floor(Math.random() * 1000)}.zip`;
+
+
+    const validPaths = [];
+
+    if (files.length == 1) {
+
+        const filePath = pathLib.join(path, subPath, files[0]);
+        const stats = fs.statSync(filePath);
+
+        if (stats.isFile()) {
+            return { fileName: files[0], fileType: pathLib.extname(pathLib.join(path, subPath, files[0])) }
+        }
+    }
+
+    files.forEach(file => {
+        if (isValidFileName(file)) {
+            validPaths.push(`"${file}"`);
+        } else {
+            console.warn(`Skipping invalid file or directory name: ${file}`);
+        }
+    });
+
+    const pathsString = validPaths.join(' ');
+
+    const command = `cd "${pathLib.join(path, subPath)}" &&  zip -r "${zipName}" ${pathsString}`;
+
+    try {
+
+        const res = execSync(command, { encoding: "utf-8" });
+        return { fileName: zipName, fileType: '.zip', delete: true }
+    } catch (error) {
+        console.log({ error: error.toString() })
+        return false;
+    }
+}
+
+const TerminalService = { GetLog, CreateZip, GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService

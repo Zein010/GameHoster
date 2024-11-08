@@ -94,7 +94,7 @@ const CheckServerRunning = async (req, res) => {
         return res.status(404).json({ "msg": "Server not found" })
     }
     const status = await TerminalService.CheckUserHasProcess(server.sysUser.username, server.gameVersion.searchScript, async (pid) => { await GameService.SetRunningServerPID(server.id, pid) });
-    res.json({ status, config: server.config.startData.length > 0 ? server.config.startData[server.config.startData.length - 1] : {} });
+    res.json({ status, gameVersion: server.gameVersion, config: server.config.startData.length > 0 ? server.config.startData[server.config.startData.length - 1] : {} });
 }
 const StopServer = async (req, res) => {
     const { serverId } = req.params

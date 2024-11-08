@@ -87,6 +87,9 @@ export default function FileManager() {
                 setCurrentPath("")
             }
         }
+        setSelectFiles([])
+        setClickedRowIndex(-1)
+        
         fetchFiles();
     }, [refresh, currentPath])
 
@@ -231,7 +234,7 @@ export default function FileManager() {
                     </Box>
                     <Stack spacing={1} sx={{ textAlign: 'left' }} >
 
-                        <Stack direction="row" key={"Header"} sx={{ flexGrow: 1, backgroundColor: "background.level2", }}>
+                        <Stack direction="row" key={"Header"} sx={{ flexGrow: 1, backgroundColor: "background.level2", userSelect: "none", }}>
                             <Item sx={{ flexBasis: '40px', borderEndEndRadius: 0, borderStartEndRadius: 0 }}></Item>
                             <Item sx={{ flexGrow: 1, borderRadius: 0 }}>
                                 <Typography level="body-sm" sx={{ textAlign: 'left' }}  >Name</Typography>
@@ -253,24 +256,24 @@ export default function FileManager() {
                         </Stack>
                         {files.map((file, i) => (
 
-                            <Stack onDoubleClick={() => { file.isDirectory ? setCurrentPath(currentPath + "/" + file.name) : null }} onClick={() => { fileRowClicked(i) }} direction="row" ref={fileRowsRef[i]} key={"file-" + i} sx={{ flexGrow: 1, backgroundColor: clickedRowIndex == i ? "background.surface" : (selectedFiles.includes(file.name) ? "background.surface" : "background.level2"), "&:hover": { backgroundColor: "background.level3" } }} >
+                            <Stack onDoubleClick={(e) => { (file.isDirectory ? setCurrentPath(currentPath + "/" + file.name) : null); e.preventDefault() }} onClick={() => { fileRowClicked(i) }} direction="row" ref={fileRowsRef[i]} key={"file-" + i} sx={{ flexGrow: 1, userSelect: "none", backgroundColor: clickedRowIndex == i ? "background.surface" : (selectedFiles.includes(file.name) ? "background.surface" : "background.level2"), "&:hover": { backgroundColor: "background.level3" } }} >
                                 <Item sx={{ flexBasis: '40px', borderEndEndRadius: 0, borderStartEndRadius: 0 }}>
                                     <Checkbox checked={selectedFiles.includes(file.name)} onClick={(e) => { e.stopPropagation(); }} onChange={(e) => { fileCheckBoxClicked(file.name, e.target.checked); }} />
                                 </Item>
                                 <Item sx={{ flexGrow: 1, borderRadius: 0 }}>
-                                    <Typography level="body-sm" sx={{ textAlign: 'left', fontWeight: "bold" }}  >{file.isDirectory ? <FolderIcon sx={{ mr: 1 }} color='primary' /> : <InsertDriveFileIcon color='warning' sx={{ mr: 1 }} />}{file.name}</Typography>
+                                    <Typography level="body-sm" sx={{ textAlign: 'left', fontWeight: "bold", userSelect: "none" }}  >{file.isDirectory ? <FolderIcon sx={{ mr: 1 }} color='primary' /> : <InsertDriveFileIcon color='warning' sx={{ mr: 1 }} />}{file.name}</Typography>
                                 </Item>
                                 <Item sx={{ flexBasis: '80px', borderRadius: 0 }}>
-                                    <Typography level="body-sm" sx={{ textAlign: 'right' }}  >
+                                    <Typography level="body-sm" sx={{ textAlign: 'right', userSelect: "none" }}  >
                                         {file.isDirectory ? "-" : SizeFormatter(file.size)}
                                     </Typography>
                                 </Item>
                                 <Item sx={{ flexBasis: '200px', borderRadius: 0 }}>
-                                    <Typography level="body-sm" sx={{ textAlign: 'left', color: "gray" }}  >{file.modifiedAt.split(".")[0].replace("T", " ")}</Typography>
+                                    <Typography level="body-sm" sx={{ textAlign: 'left', color: "gray", userSelect: "none" }}  >{file.modifiedAt.split(".")[0].replace("T", " ")}</Typography>
 
                                 </Item>
                                 <Item sx={{ flexBasis: '200px', borderEndStartRadius: 0, borderStartStartRadius: 0 }} >
-                                    <Typography level="body-sm" sx={{ textAlign: 'left', color: "gray" }}  >{file.createdAt.split(".")[0].replace("T", " ")}</Typography>
+                                    <Typography level="body-sm" sx={{ textAlign: 'left', color: "gray", userSelect: "none" }}  >{file.createdAt.split(".")[0].replace("T", " ")}</Typography>
 
                                 </Item>
                             </Stack>

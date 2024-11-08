@@ -163,7 +163,7 @@ function Servers() {
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.start[server.id]} onClick={() => { startSever(server.id) }} color="success"><PlayArrow /></Button>
                             <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.stop[server.id]} onClick={() => { stopServer(server.id) }} color="danger"><Stop /></Button>
                             <Link to={`/server/${server.id}`}>
-                                <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.stop[server.id]} color="primary"><Settings />
+                                <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} color="primary"><Settings />
                                 </Button>
                             </Link>
                         </td>
