@@ -44,7 +44,7 @@ const Download = async (req, res) => {
         res.setHeader('Content-Type', mimeType);
         res.setHeader('Access-Control-Allow-Origin', '*'); // Or specify your origin
         res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
-        res.json({ "xxxx"})
+        res.json({ "xxxx": "xx" })
     }
     else res.status(404).json({ "msg": "File not found" })
 
