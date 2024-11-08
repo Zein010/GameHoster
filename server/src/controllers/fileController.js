@@ -50,8 +50,7 @@ const Download = async (req, res) => {
                 console.log({ err })
             } else
                 if (zippedFile.delete) {
-
-                    FileService.Delete(pathLib.join(server.path, path, zippedFile.fileName));
+                    ;
                 }
         });
     }
