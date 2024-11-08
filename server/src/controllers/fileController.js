@@ -44,7 +44,16 @@ const Download = async (req, res) => {
         res.setHeader('Content-Type', mimeType);
         res.setHeader('Access-Control-Allow-Origin', '*'); // Or specify your origin
         res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
-        res.json({ "xxxx": "xx" })
+        res.download(file, (err) => {
+
+            if (err) {
+                console.log({ err })
+            } else
+                if (zippedFile.delete) {
+
+                    FileService.Delete(pathLib.join(server.path, path, zippedFile.fileName));
+                }
+        });
     }
     else res.status(404).json({ "msg": "File not found" })
 
