@@ -89,7 +89,7 @@ export default function FileManager() {
         }
         setSelectFiles([])
         setClickedRowIndex(-1)
-        
+
         fetchFiles();
     }, [refresh, currentPath])
 
@@ -174,45 +174,74 @@ export default function FileManager() {
 
         setClickedRowIndex(clickedRowIndex == rowID ? -1 : rowID)
     }
-    const DonwloadFiles = async () => {
+    const DownloadFiles = async () => {
         setDownloadDisabled(true);
-        const response = await fetch(import.meta.env.VITE_API + `/Files/${id}/Download`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ files: selectedFiles, path: currentPath })
-        });
 
-        if (response.ok) {
-            const blob = await response.blob();
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            response.headers.forEach(header => { console.log(header) })
+        try {
+            // Make the API request to start the download
+            const response = await fetch(import.meta.env.VITE_API + `/Files/${id}/Download`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ files: selectedFiles, path: currentPath })
+            });
+
+            if (!response.ok) {
+                console.error("Failed to download the file. Server responded with:", response.statusText);
+                return;
+            }
+
+            // Get the Content-Disposition header for the filename
             const contentDisposition = response.headers.get('Content-Disposition');
             let filename = 'downloaded_file'; // Default filename
 
-            // Extract filename from Content-Disposition header if available
             if (contentDisposition && contentDisposition.includes('filename=')) {
-                console.log(contentDisposition)
                 filename = contentDisposition
                     .split('filename=')[1]
                     .replace(/['"]/g, '');
             }
 
-            // Set the download attribute with the extracted filename
+            // Create a stream from the response and then create a URL for it
+            const reader = response.body.getReader();
+            const stream = new ReadableStream({
+                start(controller) {
+                    // Continuously read and push chunks of data to the stream
+                    function push() {
+                        reader.read().then(({ done, value }) => {
+                            if (done) {
+                                controller.close();
+                                return;
+                            }
+                            controller.enqueue(value);
+                            push();
+                        }).catch(err => {
+                            console.error('Error reading the file stream:', err);
+                            controller.error(err);
+                        });
+                    }
+                    push();
+                }
+            });
+
+            // Create a blob from the stream
+            const blob = new Blob([stream], { type: 'application/octet-stream' });
+
+            // Create a download link and trigger the download
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
             a.download = filename;
             document.body.appendChild(a);
             a.click();
             URL.revokeObjectURL(a.href);
             a.remove();
-        } else {
-            console.error("Failed to download the file.");
+
+        } catch (error) {
+            console.error("Error during file download:", error);
         }
 
         setDownloadDisabled(false);
         setSelectFiles([]);
-
     }
     return (
         <Box >
