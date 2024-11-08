@@ -256,7 +256,7 @@ export default function FileManager() {
                             {currentPath != "" ? <Button size="sm" startDecorator={<ArrowUpward />} onClick={() => { setCurrentPath(currentPath.substring(0, currentPath.lastIndexOf("/"))) }}> Back</Button> : <></>}
                         </Box>
                         <Box sx={{ display: "flex", justifyContent: "end", gap: 1 }}>
-                            {selectedFiles.length > 0 ? <Button disabled={downloadDisabled} size="sm" startDecorator={<Download />} onClick={() => { DonwloadFiles() }}>{selectedFiles.length} Files</Button> : ""}
+                            {selectedFiles.length > 0 ? <Button disabled={downloadDisabled} size="sm" startDecorator={<Download />} onClick={() => { DownloadFiles() }}>{selectedFiles.length} Files</Button> : ""}
                             {selectedFiles.length > 0 ? <Button disabled={downloadDisabled} size="sm" startDecorator={<DeleteIcon />} color={"danger"} onClick={() => { ConfirmDeleteFiles() }}>{selectedFiles.length} Files</Button> : ""}
                             <Button size="sm" startDecorator={<UploadFile />} onClick={() => { setUploadOpen(true) }}> Upload</Button>
                         </Box>
