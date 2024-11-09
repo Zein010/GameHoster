@@ -42,7 +42,6 @@ export default function Logs() {
                         maxHeight: '300px', // Set max height
                         overflowY: 'auto',   // Make scrollable
                         color: '#d1d5db',
-                        padding: '16px',
                     }}
                     dangerouslySetInnerHTML={{ __html: content.replaceAll("\n", "<br/>") }}
                 />

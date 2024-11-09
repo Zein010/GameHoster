@@ -17,6 +17,7 @@ import { Button } from '@mui/joy';
 import FolderIcon from '@mui/icons-material/Folder';
 import { PlayArrow, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
 
 export default function Sidebar() {
 
@@ -26,7 +27,7 @@ export default function Sidebar() {
   const [globalDisabled, setGlobalDisabled] = useState<boolean>(false)
   const [refreshed, setRefreshed] = useState<boolean>(false)
   const location = useLocation();
-
+  const auth = useAuthUser<{ username: string, email: string }>()
   const isActive = (path: string) => location.pathname === path;
 
   const navigate = useNavigate();
@@ -196,14 +197,14 @@ export default function Sidebar() {
         <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled} onClick={() => { checkStatus() }} title="Ping Server" color="primary" variant='outlined' ><SignalWifiStatusbar4Bar /></Button>
         <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.start} onClick={() => { startSever() }} color="success" ><PlayArrow /></Button>
         <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.stop} onClick={() => { stopServer() }} color="danger" variant='outlined'><Stop /></Button>
-        <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} onClick={() => navigate(`/`)} title="All Servers" color="primary" variant='outlined'><FormatListBulletedIcon /></Button>
+        <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} onClick={() => navigate(`/Servers`)} title="All Servers" color="primary" variant='outlined'><FormatListBulletedIcon /></Button>
       </Box>
       <Divider />
       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
 
         <Box sx={{ minWidth: 0, flex: 1 }}>
-          <Typography level="title-sm">Zyxnware</Typography>
-          <Typography level="body-xs">Zyxnware@admin.com</Typography>
+          <Typography level="title-sm">{auth?.username}</Typography>
+          <Typography level="body-xs">{auth?.email}</Typography>
         </Box>
         <IconButton size="sm" variant="plain" color="neutral">
           <LogoutRoundedIcon />

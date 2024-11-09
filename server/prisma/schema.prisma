@@ -14,9 +14,13 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  username String
-  password String
+  id             Int              @id @default(autoincrement())
+  firstName      String           @default("")
+  lastName       String           @default("")
+  email          String           @unique @default("")
+  username       String           @unique
+  password       String
+  RunningServers RunningServers[]
 }
 
 model Game {
@@ -43,11 +47,12 @@ model GameVersion {
 }
 
 model SysUser {
-  id             Int              @id @default(autoincrement())
-  username       String           @unique @db.VarChar(100)
-  createdAt      DateTime         @default(now())
-  deletedAt      DateTime?
-  deleted        Boolean          @default(false)
+  id        Int       @id @default(autoincrement())
+  username  String    @unique @db.VarChar(100)
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+  deleted   Boolean   @default(false)
+
   userAccess     UserAccess[]
   runningServers RunningServers[]
 }
@@ -84,6 +89,8 @@ model RunningServers {
   pid           Int         @default(0)
   config        Json?
   sysUser       SysUser     @relation(fields: [sysUserId], references: [id])
+  userId        Int?
+  user          User?       @relation(fields: [userId], references: [id])
 }
 
 model GetFilesSetup {

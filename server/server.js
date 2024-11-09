@@ -5,9 +5,9 @@ import cors from "cors";
 import GameRoutes from "./src/routes/gameRoutes.js";
 import FileRoutes from "./src/routes/fileRoutes.js";
 import SysUserRoutes from "./src/routes/sysUserRoutes.js";
+import UserRoutes from "./src/routes/userRoutes.js";
 import setupSocketRoutes from "./src/routes/socketRoutes.js";
 import fileUpload from "express-fileupload"
-import bodyParser from "body-parser";
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -26,6 +26,7 @@ app.use(express.json());
 app.use("/Game", GameRoutes);
 app.use("/Files", FileRoutes);
 app.use("/SysUser", SysUserRoutes);
+app.use("/User", UserRoutes);
 
 // Setup socket routes
 setupSocketRoutes(io);

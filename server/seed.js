@@ -1,12 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
-
+import bcrypt from "bcrypt";
 const seed = async () => {
   try {
     await prisma.user.upsert({
       where: { id: 1 },
-      create: { id: 1, username: "Zyxn010", password: "123123aA@" },
-      update: { username: "Zyxn010", password: "123123aA@" },
+      create: { id: 1, username: "zzzxxx", firstName: "zzz", lastName: "xxx", email: "zzz@xxx.com", password: bcrypt.hashSync("123123aA@", 10) },
+      update: { username: "zzzxxx", email: "zzz@xxx.com", password: bcrypt.hashSync("123123aA@", 10) },
     });
     console.log("Created Default User")
     await prisma.game.upsert({
