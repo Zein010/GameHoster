@@ -14,6 +14,11 @@ const seed = async () => {
       create: { id: 1, name: "Minecraft", dirName: "minecraft" },
       update: { name: "Minecraft", dirName: "minecraft" },
     });
+    await prisma.game.upsert({
+      where: { id: 1 },
+      create: { id: 1, name: "Rust", dirName: "rust" },
+      update: { name: "Rust", dirName: "rust" },
+    });
     console.log("Created Minecraft Server")
     await prisma.gameVersion.upsert({
       where: { id: 1 },
@@ -186,6 +191,30 @@ const seed = async () => {
 
     await prisma.getFilesSetup.upsert({ where: { id: 4 }, create: { id: 4, gameVersionId: 3, fileName: "server.properties", content: "" }, update: { fileName: "server.properties", gameVersionId: 2, content: "" } });
     console.log("Created eula.txt")
+
+
+
+
+
+
+
+
+
+
+
+
+    await prisma.gameVersion.upsert({
+      where: { id: 4 },
+      create: { id: 4, searchShScript: "sh", searchScript: "java", gameId: 1, version: "Vanilla-1.21.1", cacheFile: null, downloadLink: "", scriptFile: "server.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
+      update: { searchShScript: "sh", searchScript: "java", gameId: 1, version: "Vanilla-1.21.1", cacheFile: null, downloadLink: "", scriptFile: "server.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
+    });
+
+    
+
+    /usr/games/steamcmd +@sSteamCmdForcePlatformType linux +force_install_dir /GameServer/xxx +login anonymous +app_update 258550 +quit
+
+
+
 
 
   } catch (error) {

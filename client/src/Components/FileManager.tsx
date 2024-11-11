@@ -1,7 +1,7 @@
 import { Box, Button, Card, CardContent, Input, Sheet, Typography, Stack, ModalClose, Modal } from '@mui/joy';
 import "../index.css"
 import { createRef, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import FolderIcon from '@mui/icons-material/Folder';
 // Connect to the server with a purpose query parameter
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
@@ -24,21 +24,23 @@ const Item = styled(Sheet)(({ theme }) => ({
 }));
 
 export default function FileManager() {
-    const [files, setFiles] = useState<{ name: string; isDirectory: boolean, extension: string, size: number, createdAt: string, modifiedAt: string }[]>([])
+    const [files, setFiles] = useState<{ name: string; isDirectory: boolean, extension: string, textEditable: boolean, size: number, createdAt: string, modifiedAt: string }[]>([])
     const [uploadOpen, setUploadOpen] = useState(false)
     const [uploadFiles, setUploadFiles] = useState<File[]>([])
-    const { id } = useParams();
+    const { id, "*": remainingPath } = useParams();
     const [fileRowsRef, setFileRowsRef] = useState([]);
     const [selectedFiles, setSelectFiles] = useState<string[]>([])
     const [refresh, setRefresh] = useState(false)
     const [createOpen, setCreateOpen] = useState(false);
     const [createType, setCreateType] = useState<"folder" | "file">("folder")
     const [createName, setCreateName] = useState("")
-    const [currentPath, setCurrentPath] = useState("");
     const [clickedRowIndex, setClickedRowIndex] = useState(-1)
     const [downloadDisabled, setDownloadDisabled] = useState(false)
     const [confirmOpen, setConfirmOpen] = useState(false)
+
+    const navigate = useNavigate();
     const [confirmContent, setConfirmContent] = useState({ button: "", text: "", action: () => { }, buttonColor: "primary" })
+    const currentPath = remainingPath || ""
     const fileCheckBoxClicked = (file: string, add: boolean) => {
 
         if (add) {
@@ -48,7 +50,6 @@ export default function FileManager() {
             setSelectFiles((prev) => prev.filter((f) => f !== file))
         }
     }
-
     useEffect(() => {
         // add or remove refs
         setFileRowsRef((fileRows) =>
@@ -79,7 +80,7 @@ export default function FileManager() {
                 });
                 setFiles(sortedFiles);
             } else {
-                setCurrentPath("")
+                ChangePath("")
             }
         }
         setSelectFiles([])
@@ -87,8 +88,14 @@ export default function FileManager() {
 
         fetchFiles();
     }, [refresh, currentPath])
+    const ChangePath = (path: string) => {
 
+        navigate(`/server/${id}/Files/${path}`);
+    }
+    const EditFile = (path: string) => {
+        navigate(`/server/${id}/Files/Edit/${path}`);
 
+    }
     const handleUploadFile = (event: any) => {
         event.preventDefault()
         const formData = new FormData();
@@ -251,7 +258,7 @@ export default function FileManager() {
                         <Box sx={{ display: "flex", justifyContent: "start", gap: 1 }}>
                             <Button size="sm" startDecorator={<CreateNewFolderIcon />} onClick={() => { openCreate("folder") }}> New Folder</Button>
                             <Button size="sm" startDecorator={<NoteAddIcon />} onClick={() => { openCreate("file") }}> New File</Button>
-                            {currentPath != "" ? <Button size="sm" startDecorator={<ArrowUpward />} onClick={() => { setCurrentPath(currentPath.substring(0, currentPath.lastIndexOf("/"))) }}> Back</Button> : <></>}
+                            {currentPath != "" ? <Button size="sm" startDecorator={<ArrowUpward />} onClick={() => { ChangePath(currentPath.substring(0, currentPath.lastIndexOf("/"))) }}> Back</Button> : <></>}
                         </Box>
                         <Box sx={{ display: "flex", justifyContent: "end", gap: 1 }}>
                             {selectedFiles.length > 0 ? <Button disabled={downloadDisabled} size="sm" startDecorator={<Download />} onClick={() => { DownloadFiles() }}>{selectedFiles.length} Files</Button> : ""}
@@ -283,7 +290,7 @@ export default function FileManager() {
                         </Stack>
                         {files.map((file, i) => (
 
-                            <Stack onDoubleClick={(e) => { (file.isDirectory ? setCurrentPath(currentPath + "/" + file.name) : null); e.preventDefault() }} onClick={() => { fileRowClicked(i) }} direction="row" ref={fileRowsRef[i]} key={"file-" + i} sx={{ flexGrow: 1, userSelect: "none", backgroundColor: clickedRowIndex == i ? "background.surface" : (selectedFiles.includes(file.name) ? "background.surface" : "background.level2"), "&:hover": { backgroundColor: "background.level3" } }} >
+                            <Stack onDoubleClick={(e) => { (file.isDirectory ? ChangePath((currentPath != "" ? currentPath + "/" : "") + file.name) : (file.textEditable ? EditFile((currentPath != "" ? currentPath + "/" : "") + file.name) : "")); e.preventDefault() }} onClick={() => { fileRowClicked(i) }} direction="row" ref={fileRowsRef[i]} key={"file-" + i} sx={{ flexGrow: 1, userSelect: "none", backgroundColor: clickedRowIndex == i ? "background.surface" : (selectedFiles.includes(file.name) ? "background.surface" : "background.level2"), "&:hover": { backgroundColor: "background.level3" } }} >
                                 <Item sx={{ flexBasis: '40px', borderEndEndRadius: 0, borderStartEndRadius: 0 }}>
                                     <Checkbox checked={selectedFiles.includes(file.name)} onClick={(e) => { e.stopPropagation(); }} onChange={(e) => { fileCheckBoxClicked(file.name, e.target.checked); }} />
                                 </Item>

@@ -14,6 +14,7 @@ import Login from './Components/Login.tsx';
 import AuthProvider from 'react-auth-kit';
 import createStore from 'react-auth-kit/createStore';
 import RequireAuth from '@auth-kit/react-router/RequireAuth'
+import TextEditor from './Components/TextEditor.tsx';
 
 const store = createStore({
   authName: '_auth',
@@ -34,7 +35,8 @@ createRoot(document.getElementById('root')!).render(
           <Route path="" key={"Terminal"} element={<Terminal />} />
           <Route path="logs" key={"Logs"} element={<Logs />} />
           <Route path="players" key={"Players"} element={<Players />} />
-          <Route path="Files" key={"Players"} element={<FileManager />} />
+          <Route path="Files/*" key={"Players"} element={<FileManager />} />
+          <Route path="Files/Edit/*" key={"Players"} element={<TextEditor />} />
         </Route>
       </Routes>
       <ToastContainer />

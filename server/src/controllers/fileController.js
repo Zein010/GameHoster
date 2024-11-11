@@ -13,6 +13,30 @@ const List = async (req, res) => {
     res.json({ files })
 }
 
+const GetTextContent = async (req, res) => {
+
+    const { serverId } = req.params
+    const { path } = req.body
+    const server = await GameService.GetServer(Number(serverId))
+    if (FileService.IsTextFile(pathLib.join(server.path, path))) {
+        const content = FileService.GetTextContent(pathLib.join(server.path, path));
+        res.json({ content })
+    } else {
+        res.status(404).json({ "msg": "File not found" })
+    }
+}
+const SaveContent = async (req, res) => {
+
+    const { serverId } = req.params
+    const { path, content } = req.body
+    const server = await GameService.GetServer(Number(serverId))
+    if (FileService.IsTextFile(pathLib.join(server.path, path))) {
+        const saved = FileService.SaveTextContent(pathLib.join(server.path, path), content);
+        res.json({ saved })
+    } else {
+        res.status(404).json({ "msg": "File not found" })
+    }
+}
 const NewFolder = async (req, res) => {
     const { serverId } = req.params
     const { name, path } = req.body
@@ -100,5 +124,5 @@ const Upload = async (req, res) => {
     }
 
 }
-const FileController = { Upload, Delete, Download, List, NewFile, NewFolder };
+const FileController = { SaveContent, GetTextContent, Upload, Delete, Download, List, NewFile, NewFolder };
 export default FileController

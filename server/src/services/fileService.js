@@ -1,9 +1,10 @@
 
 import { PrismaClient } from "@prisma/client";
-import fs from "fs";
+import fs, { stat } from "fs";
 import pathLib from "path";
 import archiver from 'archiver';
 import formidable from "formidable";
+import { isText } from 'istextorbinary';
 const prisma = new PrismaClient();
 const List = (path) => {
 
@@ -19,7 +20,8 @@ const List = (path) => {
             extension: stats.isFile() ? pathLib.extname(path + "/" + file) : '',
             size: stats.size,
             createdAt: stats.birthtime,
-            modifiedAt: stats.mtime
+            modifiedAt: stats.mtime,
+            textEditable: stats.isFile() && isText(filePath)
         };
     });
 }
@@ -42,6 +44,10 @@ const NewFile = (path, name) => {
         console.log({ error })
         return false
     }
+}
+const IsTextFile = (filePath) => {
+
+    return isText(filePath)
 }
 const Zip = async (path, files, subPath) => {
     if (files.length == 0) {
@@ -109,10 +115,18 @@ const Zip = async (path, files, subPath) => {
 
 
 }
+const GetTextContent = (path) => {
+
+    return fs.readFileSync(path, 'utf8');
+
+}
 const Delete = async (path) => {
     fs.rmSync(path, { recursive: true, force: true });
 }
+const SaveTextContent = (path, content) => {
+    fs.writeFileSync(path, content);
+}
 
 
-const FileService = {  Delete, List, NewFolder, NewFile, Zip };
+const FileService = { SaveTextContent, GetTextContent, IsTextFile, Delete, List, NewFolder, NewFile, Zip };
 export default FileService
