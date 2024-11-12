@@ -211,8 +211,6 @@ const seed = async () => {
 
     
 
-    /usr/games/steamcmd +@sSteamCmdForcePlatformType linux +force_install_dir /GameServer/xxx +login anonymous +app_update 258550 +quit
-
 
 
 
