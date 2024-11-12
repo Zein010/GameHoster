@@ -15,8 +15,8 @@ const seed = async () => {
       update: { name: "Minecraft", dirName: "minecraft" },
     });
     await prisma.game.upsert({
-      where: { id: 1 },
-      create: { id: 1, name: "Rust", dirName: "rust" },
+      where: { id: 2 },
+      create: { id: 2, name: "Rust", dirName: "rust" },
       update: { name: "Rust", dirName: "rust" },
     });
     console.log("Created Minecraft Server")
