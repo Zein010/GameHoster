@@ -42,11 +42,22 @@ run the seed script
 ```ruby
 npm run seed
 ```
+Then to start the backend of the project, use the following command 
+```ruby
+npm run dev
+```
 
 ## Client Side Setup
+After setting up the server side, now we need to setup the client side and connect it to the server side
+
+kindly note that you should do this on a different terminal, or different terminal screen, so that you don't have to stop the server
+
 Go to client directory
 
-install node modules: npm i
+install node modules:
+```ruby
+npm i
+```
 
 Create a .env file with the following content 
 ```ruby
@@ -59,3 +70,7 @@ VITE_HOST=[ClientHost]
 - Client Port: The port that the client will be running on
 - Client Host: The Host that the client will be running on
 
+Then to start the client side, use the following command:
+```ruby
+npm run dev
+```
