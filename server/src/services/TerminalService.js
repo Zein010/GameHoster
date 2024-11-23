@@ -44,8 +44,6 @@ const DownloadServerData = (url, pathName) => {
 const DownloadServerDataByScript = async (script, pathName) => {
     return new Promise((resolve, reject) => {
         let directory = import.meta.dirname;
-        console.log({ directory })
-        console.log(import.meta.dirname)
         directory = pathLib.join(directory.replace(pathLib.join("server", "src", "services")), pathName);
 
         try {
