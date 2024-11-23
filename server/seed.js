@@ -47,8 +47,8 @@ const seed = async () => {
 
     await prisma.gameVersion.upsert({
       where: { id: 4 },
-      create: { id: 4, searchShScript: "astro", version: "Astroneer Vanilla", searchScript: "astro", gameId: 3, downloadLink: "", InstallScript: "steamcmd -@sSteamCmdForcePlatformType windows -force_install_dir [path] -login anonymous -app_update 728470 validate -quit", runOnce: [{ script: "wine AstroServer.exe", timeOut: 5000 }] },
-      update: { searchShScript: "astro", version: "Astroneer Vanilla", searchScript: "astro", gameId: 3, downloadLink: "", InstallScript: "steamcmd -@sSteamCmdForcePlatformType windows -force_install_dir [path] -login anonymous -app_update 728470 validate -quit", runOnce: [{ script: "wine AstroServer.exe", timeOut: 5000 }] },
+      create: { id: 4, searchShScript: "astro", version: "Astroneer Vanilla", searchScript: "astro", gameId: 3, downloadLink: "", InstallScript: "steamcmd +@sSteamCmdForcePlatformType windows +force_install_dir [path] +login anonymous +app_update 728470 validate +quit", runOnce: [{ script: "wine AstroServer.exe", timeOut: 5000 }] },
+      update: { searchShScript: "astro", version: "Astroneer Vanilla", searchScript: "astro", gameId: 3, downloadLink: "", InstallScript: "steamcmd +@sSteamCmdForcePlatformType windows +force_install_dir [path] +login anonymous +app_update 728470 validate +quit", runOnce: [{ script: "wine AstroServer.exe", timeOut: 5000 }] },
     });
     console.log("Created Astronner Version")
     await prisma.changeFileAfterSetup.upsert({
