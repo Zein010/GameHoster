@@ -41,7 +41,7 @@ const DownloadServerData = (url, pathName) => {
     } catch (error) {
     }
 }
-const DownloadServerDataByScript = (script, pathName) => {
+const DownloadServerDataByScript = async (script, pathName) => {
     new Promise((resolve, reject) => {
 
         try {
@@ -58,6 +58,7 @@ const DownloadServerDataByScript = (script, pathName) => {
                 console.log(data)
             })
             downloadDataProcess.on('close', (code) => {
+                console.log(code);
                 resolve(code)
             })
         } catch (error) {

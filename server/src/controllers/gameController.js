@@ -76,7 +76,7 @@ const CreateServer = async (req, res) => {
             scriptFile = TerminalService.DownloadServerData(gameVersion.downloadLink, dirName);
         }
         if (gameVersion.InstallScript) {
-            TerminalService.DownloadServerDataByScript(gameVersion.InstallScript, dirName);
+            await TerminalService.DownloadServerDataByScript(gameVersion.InstallScript, dirName);
             scriptFile = gameVersion.scriptFile
         }
         await TerminalService.CacheFile(dirName, `${gameVersion.game.name}/${gameVersion.id}`);
