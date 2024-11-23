@@ -193,6 +193,8 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
     const scriptFile = serverDetails.scriptFile;
     const username = serverDetails.sysUser.username;
     const gameVersion = serverDetails.gameVersion;
+
+
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
 
     const outFile = fs.openSync(path + '/outlog', 'a'); // Open in append mode ('a')
@@ -226,6 +228,7 @@ const StartCreatedServer = (serverDetails, pidSetter) => {
         console.error('Error starting server:', error);
         return 0;
     }
+
 }
 const CacheFile = async (DirectoryFrom, versionID) => {
 
@@ -497,7 +500,11 @@ const RunScript = async (pathName, script, autoCancelAfter = 0) => {
 
     })
 }
+const StartService = (service) => {
 
+    execSync(`sudo systemctl start ${service}`);
+
+}
 const CreateService = (name, path, service) => {
     const serviceFilePath = `/etc/systemd/system/${name}.service`;
     const serviceContent = service.replaceAll("[path]", path).replaceAll("[sysuser]", name);
@@ -521,5 +528,5 @@ const CreateService = (name, path, service) => {
     }
 };
 
-const TerminalService = { CreateService, RunScript, GetLog, CreateZip, DownloadServerDataByScript, GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
+const TerminalService = { StartService, CreateService, RunScript, GetLog, CreateZip, DownloadServerDataByScript, GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService
