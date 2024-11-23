@@ -54,6 +54,9 @@ const DownloadServerDataByScript = (script, pathName) => {
             downloadDataProcess.stdout.on('data', (data) => {
                 console.log(data)
             })
+            downloadDataProcess.stderr.on('data', (data) => {
+                console.log(data)
+            })
             downloadDataProcess.on('close', (code) => {
                 resolve(code)
             })
