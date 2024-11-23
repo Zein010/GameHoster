@@ -44,7 +44,12 @@ const StartServer = async (req, res) => {
     if (!SetupCorrectly)
         return res.status(401).json({ msg: "Something went wrong" });
     GameService.AppendToServerConfig(server.id, config);
-    const PID = TerminalService.StartCreatedServer(server, (pid) => { GameService.SetRunningServerPID(server.id, pid) })
+    if (server.gameVersion.service) {
+        TerminalService.StartService(`${username}.service`);
+    } else {
+
+        const PID = TerminalService.StartCreatedServer(server, (pid) => { GameService.SetRunningServerPID(server.id, pid) })
+    }
     await GameService.SetRunningServerPID(server.id, PID)
     res.json({ "msg": "Server started successfully, please wait for initialization to finish", config });
 
