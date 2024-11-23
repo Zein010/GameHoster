@@ -46,7 +46,8 @@ const DownloadServerDataByScript = (script, pathName) => {
 
         try {
             console.log(`cd ${pathName} && ${script.replaceAll("[path]", pathName)}`)
-            const downloadDataProcess = spawn(`cd ${pathName} && ${script.replaceAll("[path]", pathName)}`, { encoding: "utf-8" })
+            const downloadDataProcess = spawn(`cd ${pathName} && ${script.replaceAll("[path]", pathName)}`, { shell: true });
+
             downloadDataProcess.on('error', (error) => {
                 console.log(error)
             })
