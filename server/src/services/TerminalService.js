@@ -40,6 +40,14 @@ const DownloadServerData = (url, pathName) => {
     } catch (error) {
     }
 }
+const DownloadServerDataByScript = (script, pathName) => {
+    try {
+
+        execSync(`${script.replace("[path]", pathName)}`)
+    } catch (error) {
+        console.log({ error })
+    }
+}
 const CopyFile = async (fromDirectory, toDirectory) => {
     return new Promise((resolve, reject) => {
         fs.cp(fromDirectory, toDirectory, { recursive: true }, (err) => {
@@ -440,6 +448,51 @@ function CreateZip(files, path, subPath) {
         return false;
     }
 }
+const RunScript = async (pathName, script, autoCancelAfter = 0) => {
 
-const TerminalService = { GetLog, CreateZip, GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
+    return new Promise((resolve, reject) => {
+
+        const command = `cd "${pathName}" && ${script.replaceAll("[path]", pathName)}`;
+
+        const res = exec(command, { encoding: "utf-8" });
+
+        res.stdout.on('data', (data) => {
+            console.log(data)
+            resolve(data)
+        });
+        if (autoCancelAfter != 0) {
+            setTimeout(() => {
+                res.stdout.removeAllListeners('data');
+                res.kill();
+                resolve("Process Killed")
+            })
+        }
+
+    })
+}
+
+const CreateService = (name, path, service) => {
+    const serviceFilePath = `/etc/systemd/system/${name}.service`;
+    const serviceContent = service.content.replaceAll("[path]", path).replaceAll("[sysuser]", name);
+
+    try {
+        // Create the service file
+        execSync(`sudo touch ${serviceFilePath}`);
+
+        // Write the service content
+        execSync(`echo "${serviceContent}" | sudo tee ${serviceFilePath} > /dev/null`);
+
+        // Set the correct permissions
+        execSync(`sudo chmod 644 ${serviceFilePath}`);
+
+        // Reload systemd to apply the new service
+        execSync('sudo systemctl daemon-reload');
+
+        console.log(`Service file ${serviceFilePath} created successfully.`);
+    } catch (error) {
+        console.error(`Error creating the service file: ${error.message}`);
+    }
+};
+
+const TerminalService = { CreateService, RunScript, GetLog, CreateZip, DownloadServerDataByScript, GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService

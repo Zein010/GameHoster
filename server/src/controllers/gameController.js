@@ -71,9 +71,25 @@ const CreateServer = async (req, res) => {
         await TerminalService.CopyFile(gameVersion.cacheFile, dirName);
         scriptFile = gameVersion.scriptFile
     } else {
-        scriptFile = TerminalService.DownloadServerData(gameVersion.downloadLink, dirName);
+        if (gameVersion.downloadLink) {
+
+            scriptFile = TerminalService.DownloadServerData(gameVersion.downloadLink, dirName);
+        }
+        if (gameVersion.InstallScript) {
+            TerminalService.DownloadServerDataByScript(gameVersion.InstallScript, dirName);
+            scriptFile = gameVersion.scriptFile
+        }
         await TerminalService.CacheFile(dirName, `${gameVersion.game.name}/${gameVersion.id}`);
         GameService.SetGameVersionCache(gameVersion.id, `DownloadCache/${gameVersion.game.name}/${gameVersion.id}`)
+    }
+    if (gameVersion.runOnce) {
+        gameVersion.runOnce.forEach(script => {
+            TerminalService.RunScript(dirName, script.script, script.timeout || 0);
+        })
+
+    }
+    if (gameVersion.service) {
+        TerminalService.CreateService(username, dirName, gameVersion.service);
     }
     const serverDetails = await GameService.AddRunningServer(dirName, username, gameVersion.id, scriptFile)
     const config = GetServerStartOptions(gameVersion, "start")

@@ -14,12 +14,19 @@ const seed = async () => {
       create: { id: 1, name: "Minecraft", dirName: "minecraft" },
       update: { name: "Minecraft", dirName: "minecraft" },
     });
+    console.log("Created Minecraft Server")
     await prisma.game.upsert({
       where: { id: 2 },
       create: { id: 2, name: "Rust", dirName: "rust" },
       update: { name: "Rust", dirName: "rust" },
     });
-    console.log("Created Minecraft Server")
+    console.log("Created Rust Server")
+    await prisma.game.upsert({
+      where: { id: 3 },
+      create: { id: 3, name: "Astroneer", dirName: "astroneer" },
+      update: { name: "Astroneer", dirName: "astroneer" },
+    });
+    console.log("Created Astroneer Server")
     await prisma.gameVersion.upsert({
       where: { id: 1 },
       create: { id: 1, searchShScript: "sh", searchScript: "java", gameId: 1, version: "Vanilla-1.21.1", cacheFile: null, downloadLink: "https://piston-data.mojang.com/v1/objects/59353fb40c36d304f2035d51e7d6e6baa98dc05c/server.jar", scriptFile: "server.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
@@ -37,7 +44,13 @@ const seed = async () => {
       create: { id: 3, searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "", version: "Forge-1.21.1", cacheFile: "DownloadCache/Minecraft/3", scriptFile: "forge-1.21.1-52.0.26-shim.jar", runScript: "java -Xmx2024M -Xms2024M -jar  [{fileName}] nogui" },
       update: { searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "", version: "Forge-1.21.1", cacheFile: "DownloadCache/Minecraft/3", scriptFile: "forge-1.21.1-52.0.26-shim.jar", runScript: "java -Xmx2024M -Xms2024M -jar  [{fileName}] nogui" },
     });
-    console.log("Created Minecraft Version")
+
+    await prisma.gameVersion.upsert({
+      where: { id: 4 },
+      create: { id: 4, searchShScript: "astro", version: "Astroneer Vanilla", searchScript: "astro", gameId: 3, downloadLink: "", InstallScript: "steamcmd -@sSteamCmdForcePlatformType windows -force_install_dir [path] -login anonymous -app_update 728470 validate -quit", runOnce: [{ script: "wine AstroServer.exe", timeOut: 5000 }] },
+      update: { searchShScript: "astro", version: "Astroneer Vanilla", searchScript: "astro", gameId: 3, downloadLink: "", InstallScript: "steamcmd -@sSteamCmdForcePlatformType windows -force_install_dir [path] -login anonymous -app_update 728470 validate -quit", runOnce: [{ script: "wine AstroServer.exe", timeOut: 5000 }] },
+    });
+    console.log("Created Astronner Version")
     await prisma.changeFileAfterSetup.upsert({
       where: { id: 1 },
       create: {
@@ -181,33 +194,17 @@ const seed = async () => {
 
 
     await prisma.getFilesSetup.upsert({ where: { id: 1 }, create: { id: 1, gameVersionId: 2, fileName: "eula.txt", content: "eula=true" }, update: { fileName: "eula.txt", gameVersionId: 2, content: "eula=true" } });
-    console.log("Created eula.txt")
 
     await prisma.getFilesSetup.upsert({ where: { id: 2 }, create: { id: 2, gameVersionId: 2, fileName: "server.properties", content: "" }, update: { fileName: "server.properties", gameVersionId: 2, content: "" } });
-    console.log("Created eula.txt")
 
     await prisma.getFilesSetup.upsert({ where: { id: 3 }, create: { id: 3, gameVersionId: 3, fileName: "eula.txt", content: "eula=true" }, update: { fileName: "eula.txt", gameVersionId: 2, content: "eula=true" } });
-    console.log("Created eula.txt")
 
     await prisma.getFilesSetup.upsert({ where: { id: 4 }, create: { id: 4, gameVersionId: 3, fileName: "server.properties", content: "" }, update: { fileName: "server.properties", gameVersionId: 2, content: "" } });
-    console.log("Created eula.txt")
 
 
 
 
 
-
-
-
-
-
-
-
-    await prisma.gameVersion.upsert({
-      where: { id: 4 },
-      create: { id: 4, searchShScript: "sh", searchScript: "java", gameId: 1, version: "Vanilla-1.21.1", cacheFile: null, downloadLink: "", scriptFile: "server.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
-      update: { searchShScript: "sh", searchScript: "java", gameId: 1, version: "Vanilla-1.21.1", cacheFile: null, downloadLink: "", scriptFile: "server.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
-    });
 
 
 
