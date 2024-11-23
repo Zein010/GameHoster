@@ -467,14 +467,12 @@ function CreateZip(files, path, subPath) {
         const res = execSync(command, { encoding: "utf-8" });
         return { fileName: zipName, fileType: '.zip', delete: true }
     } catch (error) {
-        console.log({ error: error.toString() })
         return false;
     }
 }
 const RunScript = async (pathName, script, autoCancelAfter = 0) => {
 
     return new Promise((resolve, reject) => {
-        console.log(`cd "${pathName}" && ${script.replaceAll("[path]", pathName)}`);
         const command = `cd "${pathName}" && ${script.replaceAll("[path]", pathName)}`;
 
         const res = exec(command, { encoding: "utf-8" });
@@ -502,7 +500,7 @@ const RunScript = async (pathName, script, autoCancelAfter = 0) => {
 
 const CreateService = (name, path, service) => {
     const serviceFilePath = `/etc/systemd/system/${name}.service`;
-    const serviceContent = service.content.replaceAll("[path]", path).replaceAll("[sysuser]", name);
+    const serviceContent = service.replaceAll("[path]", path).replaceAll("[sysuser]", name);
     console.log(serviceContent);
     try {
         // Create the service file
