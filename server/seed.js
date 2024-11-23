@@ -194,7 +194,7 @@ const seed = async () => {
     await prisma.changeFileAfterSetup.upsert({
       where: { id: 4 },
       create: {
-        id: 3, gameVersionId: 4, actions: {
+        id: 4, gameVersionId: 4, actions: {
           toReplace: [],
           matchReplaceOrAppend: [{
             fileName: "Astro/Saved/Config/WindowsServer/Engine.ini", data: [
