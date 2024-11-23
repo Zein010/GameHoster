@@ -49,16 +49,16 @@ const DownloadServerDataByScript = async (script, pathName) => {
             const downloadDataProcess = spawn(`cd ${pathName} && ${script.replaceAll("[path]", pathName)}`, { shell: true });
 
             downloadDataProcess.on('error', (error) => {
-                console.log(error)
+                console.log({ error })
             })
             downloadDataProcess.stdout.on('data', (data) => {
-                console.log(data)
+                console.log({ data })
             })
             downloadDataProcess.stderr.on('data', (data) => {
-                console.log(data)
+                console.log({ data })
             })
             downloadDataProcess.on('close', (code) => {
-                console.log(code);
+                console.log({ code });
                 resolve(code)
             })
         } catch (error) {
