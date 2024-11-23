@@ -58,7 +58,7 @@ const DownloadServerDataByScript = async (script, pathName) => {
                 console.log({ data: data.toString("utf-8") })
             })
             downloadDataProcess.on('close', (code) => {
-                console.log({ code: code.toString("utf-8") });
+                console.log({ code: code});
                 resolve(code)
             })
         } catch (error) {
