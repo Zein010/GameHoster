@@ -67,7 +67,7 @@ const CreateServer = async (req, res) => {
     await sysUserService.StoreSysUser(username);
     var scriptFile = "";
     if (gameVersion.cacheFile) {
-        console.log("Coppying file");
+        console.log("Copying file");
         await TerminalService.CopyFile(gameVersion.cacheFile, dirName);
         console.log("Done copying files");
         scriptFile = gameVersion.scriptFile

@@ -474,7 +474,7 @@ function CreateZip(files, path, subPath) {
 const RunScript = async (pathName, script, autoCancelAfter = 0) => {
 
     return new Promise((resolve, reject) => {
-
+        console.log(`cd "${pathName}" && ${script.replaceAll("[path]", pathName)}`);
         const command = `cd "${pathName}" && ${script.replaceAll("[path]", pathName)}`;
 
         const res = exec(command, { encoding: "utf-8" });
