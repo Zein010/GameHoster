@@ -503,7 +503,7 @@ const RunScript = async (pathName, script, autoCancelAfter = 0) => {
 const CreateService = (name, path, service) => {
     const serviceFilePath = `/etc/systemd/system/${name}.service`;
     const serviceContent = service.content.replaceAll("[path]", path).replaceAll("[sysuser]", name);
-
+    console.log(serviceContent);
     try {
         // Create the service file
         execSync(`sudo touch ${serviceFilePath}`);
