@@ -480,18 +480,14 @@ const RunScript = async (pathName, script, autoCancelAfter = 0) => {
         const res = exec(command, { encoding: "utf-8" });
 
         res.stdout.on('data', (data) => {
-            console.log({ data })
         });
 
         res.stderr.on('data', (err) => {
-            console.log({ err })
-            resolve(err)
         });
         res.on("error", (data) => {
-            console.log({ data })
         })
         res.on("close", (code) => {
-            console.log({ code })
+            resolve(code);
         })
         if (autoCancelAfter != 0) {
             setTimeout(() => {
