@@ -52,13 +52,13 @@ const DownloadServerDataByScript = async (script, pathName) => {
                 console.log({ error })
             })
             downloadDataProcess.stdout.on('data', (data) => {
-                console.log({ data })
+                console.log({ data: data.toString("utf-8") })
             })
             downloadDataProcess.stderr.on('data', (data) => {
-                console.log({ data })
+                console.log({ data: data.toString("utf-8") })
             })
             downloadDataProcess.on('close', (code) => {
-                console.log({ code });
+                console.log({ code: code.toString("utf-8") });
                 resolve(code)
             })
         } catch (error) {
