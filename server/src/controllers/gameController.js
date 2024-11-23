@@ -50,7 +50,6 @@ const StartServer = async (req, res) => {
 
         const PID = TerminalService.StartCreatedServer(server)
     }
-    await GameService.SetRunningServerPID(server.id, PID)
     res.json({ "msg": "Server started successfully, please wait for initialization to finish", config });
 
 }
@@ -126,7 +125,7 @@ const CheckServerRunning = async (req, res) => {
     if (!server) {
         return res.status(404).json({ "msg": "Server not found" })
     }
-    const status = await TerminalService.CheckUserHasProcess(server.sysUser.username, server.gameVersion.searchScript, async (pid) => { await GameService.SetRunningServerPID(server.id, pid) });
+    const status = await TerminalService.CheckUserHasProcess(server.sysUser.username, server.gameVersion.searchScript);
     res.json({ status, gameVersion: server.gameVersion, config: server.config.startData.length > 0 ? server.config.startData[server.config.startData.length - 1] : {} });
 }
 const StopServer = async (req, res) => {
