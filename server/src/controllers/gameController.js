@@ -62,7 +62,7 @@ const CreateServer = async (req, res) => {
     const rand = parseInt((Math.random() * 10000) % 10000);
     const dirName = `GameServer/${gameVersion.game.dirName}-${rand}`;
     const username = `${gameVersion.game.dirName}-${rand}`;
-
+   
     TerminalService.CreateNewDirectory({ name: dirName })
     await TerminalService.CreateUser(username);
     await sysUserService.StoreSysUser(username);

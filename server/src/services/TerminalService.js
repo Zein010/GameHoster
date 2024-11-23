@@ -43,10 +43,12 @@ const DownloadServerData = (url, pathName) => {
 }
 const DownloadServerDataByScript = async (script, pathName) => {
     return new Promise((resolve, reject) => {
-        console.log("trying");
+        let directory = import.meta.dirname;
+        directory = pathLib.join(directory.replace(pathLib.join("server", "src", "services")), pathName);
+
         try {
-            console.log(`cd ${pathName} && ${script.replaceAll("[path]", pathName)}`)
-            const downloadDataProcess = spawn(`cd ${pathName} && ${script.replaceAll("[path]", pathName)}`, { shell: true });
+            console.log(`${script.replaceAll("[path]", directory)}`)
+            const downloadDataProcess = spawn(`${script.replaceAll("[path]", directory)}`, { shell: true });
 
             downloadDataProcess.on('error', (error) => {
                 console.log({ error })
@@ -58,7 +60,7 @@ const DownloadServerDataByScript = async (script, pathName) => {
                 console.log({ data: data.toString("utf-8") })
             })
             downloadDataProcess.on('close', (code) => {
-                console.log({ code: code});
+                console.log({ code: code });
                 resolve(code)
             })
         } catch (error) {
@@ -79,6 +81,7 @@ const CopyFile = async (fromDirectory, toDirectory) => {
 }
 const SetupRequiredFiles = (path, files) => {
     files.forEach(file => {
+
         fs.appendFileSync(path + "/" + file.fileName, file.content);
     })
 
