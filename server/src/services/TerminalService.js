@@ -3,6 +3,7 @@ import fs from "fs"
 import PrismaService from "../../PrismaService.js";
 import net from "net"
 import pathLib from "path";
+import { promiseHooks } from "v8";
 const RunningServers = {};
 const CreateNewDirectory = (config) => {
     const PathArr = config.name.split("/");
@@ -41,12 +42,17 @@ const DownloadServerData = (url, pathName) => {
     }
 }
 const DownloadServerDataByScript = (script, pathName) => {
+
     try {
 
-        execSync(`${script.replace("[path]", pathName)}`)
+        execSync(`cd ${pathName} && ${script}`, { encoding: "utf-8" })
+        console.log("Download Completed")
+
+
     } catch (error) {
         console.log({ error })
     }
+
 }
 const CopyFile = async (fromDirectory, toDirectory) => {
     return new Promise((resolve, reject) => {
