@@ -42,16 +42,25 @@ const DownloadServerData = (url, pathName) => {
     }
 }
 const DownloadServerDataByScript = (script, pathName) => {
+    new Promise((resolve, reject) => {
 
-    try {
-        console.log(`cd ${pathName} && ${script.replaceAll("[path]", pathName)}`)
-        execSync(`cd ${pathName} && ${script.replaceAll("[path]", pathName)}`, { encoding: "utf-8" })
-        console.log("Download Completed")
+        try {
+            console.log(`cd ${pathName} && ${script.replaceAll("[path]", pathName)}`)
+            const downloadDataProcess = spawn(`cd ${pathName} && ${script.replaceAll("[path]", pathName)}`, { encoding: "utf-8" })
+            downloadDataProcess.on('error', (error) => {
+                console.log(error)
+            })
+            downloadDataProcess.stdout.on('data', (data) => {
+                console.log(data)
+            })
+            downloadDataProcess.on('close', (code) => {
+                resolve(code)
+            })
+        } catch (error) {
+            console.log({ error })
+        }
+    })
 
-
-    } catch (error) {
-        console.log({ error })
-    }
 
 }
 const CopyFile = async (fromDirectory, toDirectory) => {
