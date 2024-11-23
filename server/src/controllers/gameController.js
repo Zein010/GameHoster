@@ -48,7 +48,7 @@ const StartServer = async (req, res) => {
         TerminalService.StartService(`${username}.service`);
     } else {
 
-        const PID = TerminalService.StartCreatedServer(server, (pid) => { GameService.SetRunningServerPID(server.id, pid) })
+        const PID = TerminalService.StartCreatedServer(server)
     }
     await GameService.SetRunningServerPID(server.id, PID)
     res.json({ "msg": "Server started successfully, please wait for initialization to finish", config });
@@ -114,7 +114,7 @@ const CreateServer = async (req, res) => {
         TerminalService.StartService(`${username}.service`);
     } else {
 
-        TerminalService.StartCreatedServer(serverDetails, (pid) => { GameService.SetRunningServerPID(serverDetails.id, pid) })
+        TerminalService.StartCreatedServer(serverDetails)
     }
 
     res.json({ msg: "Game server created successfully", config });

@@ -188,7 +188,7 @@ const RunGameServer = (serverDetails) => {
         return false;
     }
 }
-const StartCreatedServer = (serverDetails, pidSetter) => {
+const StartCreatedServer = (serverDetails) => {
     const path = serverDetails.path;
     const scriptFile = serverDetails.scriptFile;
     const username = serverDetails.sysUser.username;
