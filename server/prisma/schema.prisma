@@ -42,7 +42,7 @@ model GameVersion {
   searchShScript       String?
   runScript            String?                @db.Text
   searchScript         String?
-  service              String?
+  service              String?                @db.Text
   runningServers       RunningServers[]
   runOnce              Json?
   getFilesSetup        GetFilesSetup[]
