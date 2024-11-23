@@ -85,9 +85,10 @@ const CreateServer = async (req, res) => {
     }
     if (gameVersion.runOnce) {
         console.log("Running once");
-        gameVersion.runOnce.forEach(script => {
-            TerminalService.RunScript(dirName, script.script, script.timeout || 0);
-        })
+        for (var i = 0; i <= gameVersion.runOnce.length; i++) {
+
+            await TerminalService.RunScript(dirName, runOnce[i].script, runOnce[i].timeout || 0);
+        }
         console.log("ran once");
     }
     if (gameVersion.service) {
