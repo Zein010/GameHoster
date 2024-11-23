@@ -87,7 +87,7 @@ model RunningServers {
   deleted       Boolean     @default(false)
   gameVersion   GameVersion @relation(fields: [gameVersionId], references: [id])
   path          String
-  scriptFile    String      @default("")
+  scriptFile    String?
   sysUserId     Int
   pid           Int         @default(0)
   config        Json?
