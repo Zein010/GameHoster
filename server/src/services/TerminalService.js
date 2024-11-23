@@ -480,9 +480,20 @@ const RunScript = async (pathName, script, autoCancelAfter = 0) => {
         const res = exec(command, { encoding: "utf-8" });
 
         res.stdout.on('data', (data) => {
-            console.log(data)
+            console.log({ data })
             resolve(data)
         });
+
+        res.stderr.on('data', (err) => {
+            console.log({ err })
+            resolve(data)
+        });
+        res.on("error", (data) => {
+            console.log({ data })
+        })
+        res.on("close", (code) => {
+            console.log({ code })
+        })
         if (autoCancelAfter != 0) {
             setTimeout(() => {
                 res.stdout.removeAllListeners('data');
