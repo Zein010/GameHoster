@@ -67,7 +67,9 @@ const CreateServer = async (req, res) => {
     await sysUserService.StoreSysUser(username);
     var scriptFile = "";
     if (gameVersion.cacheFile) {
+        console.log("Coppying file");
         await TerminalService.CopyFile(gameVersion.cacheFile, dirName);
+        console.log("Done copying files");
         scriptFile = gameVersion.scriptFile
     } else {
         if (gameVersion.downloadLink) {
@@ -86,12 +88,16 @@ const CreateServer = async (req, res) => {
         gameVersion.runOnce.forEach(script => {
             TerminalService.RunScript(dirName, script.script, script.timeout || 0);
         })
-
+        console.log("ran once");
     }
     if (gameVersion.service) {
+        console.log("creating service");
         TerminalService.CreateService(username, dirName, gameVersion.service);
+        console.log("created service");
     }
+    console.log("adding server");
     const serverDetails = await GameService.AddRunningServer(dirName, username, gameVersion.id, scriptFile)
+    console.log("added server");
     const config = GetServerStartOptions(gameVersion, "start")
     GameService.AppendToServerConfig(serverDetails.id, config);
     TerminalService.SetupRequiredFiles(dirName, gameVersion.getFilesSetup)
