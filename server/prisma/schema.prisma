@@ -36,7 +36,7 @@ model GameVersion {
   game                 Game                   @relation(fields: [gameId], references: [id])
   version              String
   downloadLink         String?
-  InstallScript        String?
+  installScript        String?
   cacheFile            String?
   scriptFile           String?
   searchShScript       String?
