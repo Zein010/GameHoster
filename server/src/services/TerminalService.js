@@ -481,12 +481,11 @@ const RunScript = async (pathName, script, autoCancelAfter = 0) => {
 
         res.stdout.on('data', (data) => {
             console.log({ data })
-            resolve(data)
         });
 
         res.stderr.on('data', (err) => {
             console.log({ err })
-            resolve(data)
+            resolve(err)
         });
         res.on("error", (data) => {
             console.log({ data })
