@@ -82,6 +82,7 @@ const CreateServer = async (req, res) => {
         GameService.SetGameVersionCache(gameVersion.id, `DownloadCache/${gameVersion.game.name}/${gameVersion.id}`)
     }
     if (gameVersion.runOnce) {
+        console.log("Running once");
         gameVersion.runOnce.forEach(script => {
             TerminalService.RunScript(dirName, script.script, script.timeout || 0);
         })
