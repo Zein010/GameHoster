@@ -234,13 +234,40 @@ const seed = async () => {
     console.log("Created minecraft file requirements")
 
 
-    await prisma.getFilesSetup.upsert({ where: { id: 1 }, create: { id: 1, gameVersionId: 2, fileName: "eula.txt", content: "eula=true" }, update: { fileName: "eula.txt", gameVersionId: 2, content: "eula=true" } });
+    await prisma.getFilesSetup.upsert({
+      where: { id: 5 },
+      create: { id: 5, gameVersionId: 1, fileName: "eula.txt", content: "eula=true" },
+      update: { fileName: "eula.txt", gameVersionId: 1, content: "eula=true" }
+    });
+    await prisma.getFilesSetup.upsert({
+      where: { id: 6 },
+      create: { id: 6, gameVersionId: 1, fileName: "server.properties", content: "" },
+      update: { fileName: "server.properties", gameVersionId: 1, content: "" }
+    });
 
-    await prisma.getFilesSetup.upsert({ where: { id: 2 }, create: { id: 2, gameVersionId: 2, fileName: "server.properties", content: "" }, update: { fileName: "server.properties", gameVersionId: 2, content: "" } });
+    await prisma.getFilesSetup.upsert({
+      where: { id: 1 },
+      create: { id: 1, gameVersionId: 2, fileName: "eula.txt", content: "eula=true" },
+      update: { fileName: "eula.txt", gameVersionId: 2, content: "eula=true" }
+    });
 
-    await prisma.getFilesSetup.upsert({ where: { id: 3 }, create: { id: 3, gameVersionId: 3, fileName: "eula.txt", content: "eula=true" }, update: { fileName: "eula.txt", gameVersionId: 2, content: "eula=true" } });
+    await prisma.getFilesSetup.upsert({
+      where: { id: 2 },
+      create: { id: 2, gameVersionId: 2, fileName: "server.properties", content: "" },
+      update: { fileName: "server.properties", gameVersionId: 2, content: "" }
+    });
 
-    await prisma.getFilesSetup.upsert({ where: { id: 4 }, create: { id: 4, gameVersionId: 3, fileName: "server.properties", content: "" }, update: { fileName: "server.properties", gameVersionId: 2, content: "" } });
+    await prisma.getFilesSetup.upsert({
+      where: { id: 3 },
+      create: { id: 3, gameVersionId: 3, fileName: "eula.txt", content: "eula=true" },
+      update: { fileName: "eula.txt", gameVersionId: 2, content: "eula=true" }
+    });
+
+    await prisma.getFilesSetup.upsert({
+      where: { id: 4 },
+      create: { id: 4, gameVersionId: 3, fileName: "server.properties", content: "" },
+      update: { fileName: "server.properties", gameVersionId: 2, content: "" }
+    });
 
 
 
