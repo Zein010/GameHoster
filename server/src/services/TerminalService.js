@@ -42,7 +42,7 @@ const DownloadServerData = (url, pathName) => {
     }
 }
 const DownloadServerDataByScript = async (script, pathName) => {
-    new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
 
         try {
             console.log(`cd ${pathName} && ${script.replaceAll("[path]", pathName)}`)
