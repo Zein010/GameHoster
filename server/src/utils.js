@@ -12,6 +12,9 @@ export const GetServerStartOptions = (gameVersion, type, predefSettings = {}) =>
         if (type == "start")
             config.seed = predefSettings.seed || generateJavaSeed()
     }
+    if (gameVersion.game.name == "Astroneer") {
+        config.port = port
+    }
     return config;
 }
 function getRandomNumber(min, max) {

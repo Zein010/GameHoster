@@ -190,6 +190,47 @@ const seed = async () => {
         },
       }
     });
+
+    await prisma.changeFileAfterSetup.upsert({
+      where: { id: 4 },
+      create: {
+        id: 3, gameVersionId: 4, actions: {
+          toReplace: [],
+          matchReplaceOrAppend: [{
+            fileName: "Astro/Saved/Config/WindowsServer/Engine.ini", data: [
+              { match: "[URL]\s*\nPort\s*=\s*\d+\s*\n[SystemSettings]\s*\nnet.AllowEncryption\s*=\s*False", replace: "[URL]\nPort=[port]\n[SystemSettings]\nnet.AllowEncryption=False" },
+            ],
+            fileName: "Astro/Saved/Config/WindowsServer/AstroServerSettings.ini", data: [
+              { match: "OwnerGuid\s*=\s*\d\s*", replace: "OwnerGuid=0" },
+            ]
+          }],
+          afterRestartMatchReplaceOrAppend: [
+            {
+              fileName: "server.properties", data: [
+                { match: "Port\s*=\s*\d+\s*", replace: "Port=[port]" }]
+            }
+          ]
+        },
+      }, update: {
+        gameVersionId: 4, actions: {
+          toReplace: [],
+          matchReplaceOrAppend: [{
+            fileName: "Astro/Saved/Config/WindowsServer/Engine.ini", data: [
+              { match: "[URL]\s*\nPort\s*=\s*\d+\s*\n[SystemSettings]\s*\nnet.AllowEncryption\s*=\s*False", replace: "[URL]\nPort=[port]\n[SystemSettings]\nnet.AllowEncryption=False" },
+            ],
+            fileName: "Astro/Saved/Config/WindowsServer/AstroServerSettings.ini", data: [
+              { match: "OwnerGuid\s*=\s*\d\s*", replace: "OwnerGuid=0" },
+            ]
+          }],
+          afterRestartMatchReplaceOrAppend: [
+            {
+              fileName: "Astro/Saved/Config/WindowsServer/Engine.ini", data: [
+                { match: "Port\s*=\s*\d+\s*", replace: "Port=[port]" }]
+            }
+          ]
+        },
+      },
+    })
     console.log("Created minecraft file requirements")
 
 
