@@ -44,8 +44,8 @@ const DownloadServerData = (url, pathName) => {
 const DownloadServerDataByScript = (script, pathName) => {
 
     try {
-
-        execSync(`cd ${pathName} && ${script}`, { encoding: "utf-8" })
+        console.log(`cd ${pathName} && ${script.replaceAll("[path]", pathName)}`)
+        execSync(`cd ${pathName} && ${script.replaceAll("[path]", pathName)}`, { encoding: "utf-8" })
         console.log("Download Completed")
 
 
@@ -62,7 +62,6 @@ const CopyFile = async (fromDirectory, toDirectory) => {
             resolve("Directory copied successfully!")
         });
     })
-
 }
 const SetupRequiredFiles = (path, files) => {
     files.forEach(file => {
