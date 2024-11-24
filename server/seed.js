@@ -200,6 +200,7 @@ const seed = async () => {
             fileName: "Astro/Saved/Config/WindowsServer/Engine.ini", data: [
               { match: "[URL]\s*\nPort\s*=\s*\d+\s*\n[SystemSettings]\s*\nnet.AllowEncryption\s*=\s*False", replace: "[URL]\nPort=[port]\n[SystemSettings]\nnet.AllowEncryption=False" },
             ],
+          }, {
             fileName: "Astro/Saved/Config/WindowsServer/AstroServerSettings.ini", data: [
               { match: "OwnerGuid\s*=\s*\d\s*", replace: "OwnerGuid=0" },
             ]
@@ -217,7 +218,8 @@ const seed = async () => {
           matchReplaceOrAppend: [{
             fileName: "Astro/Saved/Config/WindowsServer/Engine.ini", data: [
               { match: "[URL]\s*\nPort\s*=\s*\d+\s*\n[SystemSettings]\s*\nnet.AllowEncryption\s*=\s*False", replace: "[URL]\nPort=[port]\n[SystemSettings]\nnet.AllowEncryption=False" },
-            ],
+            ]
+          }, {
             fileName: "Astro/Saved/Config/WindowsServer/AstroServerSettings.ini", data: [
               { match: "OwnerGuid\s*=\s*\d\s*", replace: "OwnerGuid=0" },
             ]
