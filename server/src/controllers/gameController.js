@@ -109,6 +109,7 @@ const CreateServer = async (req, res) => {
     await TerminalService.OwnFile(dirName, username)
 
     await TerminalService.SetupServerAfterStart(dirName, gameVersion.changeFileAfterSetup, config);
+    await TerminalService.OwnFile(dirName, username)
     if (gameVersion.service) {
         TerminalService.StartService(`${username}.service`);
     } else {

@@ -144,6 +144,7 @@ const SetupServerConfigForRestart = (path, data, config) => {
 }
 const SetupServerAfterStart = async (path, data, config) => {
     var content = "";
+    console.log({ data });
     for (var j = 0; j < data.length; j++) {
         for (var i = 0; i < data[j].actions.toReplace.length; i++) {
             content = fs.readFileSync(path + "/" + data[j].actions.toReplace[i].fileName, { encoding: "utf-8" });
@@ -169,6 +170,7 @@ const SetupServerAfterStart = async (path, data, config) => {
                 }
                 content = content.replaceAll(replaceOrAppend.search, replaceOrAppend.replace)
             })
+            console.log({content})
             fs.truncateSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, 0);
             fs.writeFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, content, { encoding: 'utf-8', flag: 'w' });
         }
