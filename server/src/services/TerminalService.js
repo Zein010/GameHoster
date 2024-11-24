@@ -43,8 +43,7 @@ const DownloadServerData = (url, pathName) => {
 }
 const DownloadServerDataByScript = async (script, pathName) => {
     return new Promise((resolve, reject) => {
-        let directory = pathLib.resolve();;
-        console.log({ directory })
+        let directory = pathLib.resolve();
         directory = pathLib.join(directory, pathName);
 
         try {
@@ -506,8 +505,11 @@ const StartService = (service) => {
 
 }
 const CreateService = (name, path, service) => {
+
+    let directory = pathLib.resolve();
+    directory = pathLib.join(directory, path);
     const serviceFilePath = `/etc/systemd/system/${name}.service`;
-    const serviceContent = service.replaceAll("[path]", path).replaceAll("[sysuser]", name);
+    const serviceContent = service.replaceAll("[path]", directory).replaceAll("[sysuser]", name);
     console.log(serviceContent);
     try {
         // Create the service file
