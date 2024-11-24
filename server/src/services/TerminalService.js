@@ -19,8 +19,9 @@ const CreateNewDirectory = (config) => {
 const CreateUser = async (username) => {
     var res = null;
     try {
-        res = execSync(`sudo groupadd  ${username}`)
-        res = execSync(`sudo useradd -g ${username} ${username}`)
+        execSync(`sudo groupadd  ${username}`)
+        execSync(`sudo useradd -g ${username} ${username}`)
+        execSync(`sudo usermod -a -G wine ${username}`)
     } catch (Error) {
         return false;
     }
@@ -144,9 +145,7 @@ const SetupServerConfigForRestart = (path, data, config) => {
 }
 const SetupServerAfterStart = async (path, data, config) => {
     var content = "";
-    console.log({ data });
     for (var j = 0; j < data.length; j++) {
-        console.log({ something: data[j].actions.matchReplaceOrAppend });
         for (var i = 0; i < data[j].actions.toReplace.length; i++) {
             content = fs.readFileSync(path + "/" + data[j].actions.toReplace[i].fileName, { encoding: "utf-8" });
             data[j].actions.toReplace[i].data.forEach(toReplace => {
@@ -171,7 +170,6 @@ const SetupServerAfterStart = async (path, data, config) => {
                 }
                 content = content.replaceAll(replaceOrAppend.search, replaceOrAppend.replace)
             })
-            console.log({ content })
             fs.truncateSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, 0);
             fs.writeFileSync(path + "/" + data[j].actions.matchReplaceOrAppend[i].fileName, content, { encoding: 'utf-8', flag: 'w' });
         }
