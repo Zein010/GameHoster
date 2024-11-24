@@ -145,8 +145,8 @@ const SetupServerConfigForRestart = (path, data, config) => {
 const SetupServerAfterStart = async (path, data, config) => {
     var content = "";
     console.log({ data });
-    console.log({ something: data[j].actions.matchReplaceOrAppend });
     for (var j = 0; j < data.length; j++) {
+        console.log({ something: data[j].actions.matchReplaceOrAppend });
         for (var i = 0; i < data[j].actions.toReplace.length; i++) {
             content = fs.readFileSync(path + "/" + data[j].actions.toReplace[i].fileName, { encoding: "utf-8" });
             data[j].actions.toReplace[i].data.forEach(toReplace => {
