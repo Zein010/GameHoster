@@ -5,6 +5,8 @@ import { PlayArrow, Settings, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-m
 import { notification } from '../Utils'
 import AddIcon from '@mui/icons-material/Add';
 import { Link } from 'react-router-dom'
+import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
+
 function Servers() {
     const [servers, setServers] = useState<{
         id: number
@@ -19,6 +21,7 @@ function Servers() {
     const [newOpen, setNewOpen] = useState(false)
     const [newDetails, setNewDetails] = useState<{ gameID: number, versionID: number }>({ gameID: 0, versionID: 0 });
     const [refresh, setRefresh] = useState(false)
+    const auth = useAuthUser()
     useEffect(() => {
         const fetchData = async () => {
 

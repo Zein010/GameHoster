@@ -12,6 +12,7 @@ import Checkbox from '@mui/joy/Checkbox';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import { ArrowUpward, Download, UploadFile } from '@mui/icons-material';
+import { notification } from '../Utils';
 const Item = styled(Sheet)(({ theme }) => ({
     // Use prop if provided, fallback to #fff
     ...theme.typography['body-sm'],
@@ -39,7 +40,7 @@ export default function FileManager() {
     const [confirmOpen, setConfirmOpen] = useState(false)
 
     const navigate = useNavigate();
-    const [confirmContent, setConfirmContent] = useState({ button: "", text: "", action: () => { }, buttonColor: "primary" })
+    const [confirmContent, setConfirmContent] = useState<{ button: string, text: string, action: () => void, buttonColor: "primary" | "danger" }>({ button: "", text: "", action: () => { }, buttonColor: "primary" })
     const currentPath = remainingPath || ""
     const fileCheckBoxClicked = (file: string, add: boolean) => {
 
@@ -140,6 +141,9 @@ export default function FileManager() {
             setRefresh(!refresh)
             setCreateOpen(false)
             setCreateName("")
+            notification((await response.json()).msg, (await response.json()).success ? "success" : "error")
+        } else {
+            notification((await response.json()).msg, "error")
         }
 
 
@@ -159,9 +163,12 @@ export default function FileManager() {
             },
             body: JSON.stringify({ path: currentPath, files: selectedFiles })
         })
+        const responseContent = await response.json()
         if (response.ok) {
             setRefresh(!refresh)
             setSelectFiles([])
+
+            notification(responseContent.msg, responseContent.success ? "success" : "error")
         }
 
     }
@@ -333,7 +340,7 @@ export default function FileManager() {
                         {confirmContent.text}
                     </Typography>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mt: 2 }}>
-                        <Button onClick={() => { setConfirmOpen(false); confirmContent.action() }} size='sm' sx={{ mr: 2, color: confirmContent.buttonColor }} >{confirmContent.button}</Button>
+                        <Button onClick={() => { setConfirmOpen(false); confirmContent.action() }} size='sm' sx={{ mr: 2 }} color={`${confirmContent.buttonColor}`} >{confirmContent.button}</Button>
                         <Button size='sm' onClick={() => setConfirmOpen(false)} color='neutral'>Cancel</Button>
 
                     </Box>

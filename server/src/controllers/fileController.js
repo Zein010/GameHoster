@@ -48,8 +48,10 @@ const NewFile = async (req, res) => {
     const { serverId } = req.params
     const { name, path } = req.body
     const server = await GameService.GetServer(Number(serverId))
-    const created = FileService.NewFile(pathLib.join(server.path, path), name);
-    res.json({ created })
+    const result = FileService.NewFile(pathLib.join(server.path, path), name);
+    if (!result.status)
+        return res.status(400).json({ "msg": result.msg })
+    res.json({ success: result.status, msg: result.msg })
 }
 const Download = async (req, res) => {
 
@@ -91,7 +93,7 @@ const Delete = async (req, res) => {
 
         FileService.Delete(pathLib.join(server.path, path, file));
     })
-    res.json({ deleted: true })
+    res.json({ success: true, msg: "Files deleted successfully" })
 }
 const Upload = async (req, res) => {
     try {

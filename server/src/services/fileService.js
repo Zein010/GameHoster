@@ -36,13 +36,17 @@ const NewFolder = (path, name) => {
     }
 }
 const NewFile = (path, name) => {
+    if (fs.existsSync(path + "/" + name))
+        return { status: false, msg: "File already exists" }
     try {
 
         fs.writeFileSync(path + "/" + name, "");
-        return true
+
+        return { status: true, msg: "File created successfully" }
     } catch (error) {
         console.log({ error })
-        return false
+
+        return { status: false, msg: "Failed to create file" }
     }
 }
 const IsTextFile = (filePath) => {
