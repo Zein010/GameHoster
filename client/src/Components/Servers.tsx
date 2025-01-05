@@ -1,11 +1,12 @@
 import { Box, Button, Modal, ModalClose, Select, Sheet, Table, Typography, Option } from '@mui/joy'
 import { useEffect, useState } from 'react'
 import "../index.css"
-import { PlayArrow, Settings, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
+import { ElevatorSharp, PlayArrow, Settings, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
 import { notification } from '../Utils'
 import AddIcon from '@mui/icons-material/Add';
 import { Link } from 'react-router-dom'
 import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
+import useApiRequests from './API.tsx'
 
 function Servers() {
     const [servers, setServers] = useState<{
@@ -21,18 +22,15 @@ function Servers() {
     const [newOpen, setNewOpen] = useState(false)
     const [newDetails, setNewDetails] = useState<{ gameID: number, versionID: number }>({ gameID: 0, versionID: 0 });
     const [refresh, setRefresh] = useState(false)
-    const auth = useAuthUser()
+    const requests = useApiRequests()
     useEffect(() => {
         const fetchData = async () => {
 
-            const serversResponse = await fetch(import.meta.env.VITE_API + '/Game/Servers', {
-                method: 'GET',
-                headers: {
-                    'content-type': 'application/json;charset=UTF-8',
-                }
-            })
-            if (serversResponse.ok) {
-                setServers((await serversResponse.json()).data)
+            const serversResponse = await requests.getGameServers()
+            if (serversResponse.status == 200) {
+                setServers(serversResponse.data.data)
+            } else {
+
             }
             const gameResponse = await fetch(import.meta.env.VITE_API + '/Game', {
                 method: 'GET',
