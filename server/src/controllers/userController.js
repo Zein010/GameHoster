@@ -14,6 +14,7 @@ const Login = async (req, res) => {
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     const refresh = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '5h' });
+    await UserService.AddLoginAttempt(user, req.ip)
     res.json({ "msg": "Login Success", data: { user, token, refresh } });
 }
 

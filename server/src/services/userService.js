@@ -17,5 +17,9 @@ const GetUser = async (username, tpassword) => {
     return result
 
 }
-const UserService = { GetUser };
+const AddLoginAttempt = async (user, ip) => {
+    await prisma.userLoginHistory.create({ data: { user: { connect: { id: user.id } }, ip } })
+
+}
+const UserService = { GetUser, AddLoginAttempt };
 export default UserService
