@@ -26,7 +26,7 @@ const GetVersions = async (req, res) => {
     res.json({ data });
 }
 const GetServers = async (req, res) => {
-    const data = await GameService.GetServers();
+    const data = await GameService.GetServers({ userId: req.user.id });
     res.json({ data });
 }
 const GetServer = async (req, res) => {

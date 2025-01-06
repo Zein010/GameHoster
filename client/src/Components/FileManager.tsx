@@ -13,6 +13,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 import { ArrowUpward, Download, UploadFile } from '@mui/icons-material';
 import { notification } from '../Utils';
+import useApiRequests from './API';
 const Item = styled(Sheet)(({ theme }) => ({
     // Use prop if provided, fallback to #fff
     ...theme.typography['body-sm'],
@@ -25,6 +26,7 @@ const Item = styled(Sheet)(({ theme }) => ({
 }));
 
 export default function FileManager() {
+    const requests = useApiRequests();
     const [files, setFiles] = useState<{ name: string; isDirectory: boolean, extension: string, textEditable: boolean, size: number, createdAt: string, modifiedAt: string }[]>([])
     const [uploadOpen, setUploadOpen] = useState(false)
     const [uploadFiles, setUploadFiles] = useState<File[]>([])
@@ -61,16 +63,11 @@ export default function FileManager() {
     }, [fileRowsRef])
     useEffect(() => {
         const fetchFiles = async () => {
-            const response = await fetch(import.meta.env.VITE_API + `/Files/${id}`, {
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/json;charset=UTF-8',
-                }
-                , body: JSON.stringify({ path: currentPath })
-            })
-            if (response.ok) {
+            const response = await requests.getFiles(id, currentPath)
 
-                const data = await response.json()
+            if (response.status = 200) {
+
+                const data = response.data
 
                 const sortedFiles = data.files.sort((a: { name: string; isDirectory: boolean; }, b: { name: string; isDirectory: boolean; }) => {
                     // First, sort by isDirectory so directories come first
@@ -130,20 +127,14 @@ export default function FileManager() {
     };
     const sendCreate = async () => {
 
-        const response = await fetch(import.meta.env.VITE_API + `/Files/${id}/${createType}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ name: createName, path: currentPath })
-        })
-        if (response.ok) {
+        const response = await requests.createFile(id, currentPath, createType, createName)
+        if (response.status == 200 && response.data.success) {
             setRefresh(!refresh)
             setCreateOpen(false)
             setCreateName("")
-            notification((await response.json()).msg, (await response.json()).success ? "success" : "error")
+            notification(response.data.msg, response.data.success ? "success" : "error")
         } else {
-            notification((await response.json()).msg, "error")
+            notification(response.data.msg, "error")
         }
 
 
