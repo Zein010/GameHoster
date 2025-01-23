@@ -1,12 +1,12 @@
 import { Box, Button, Modal, ModalClose, Select, Sheet, Table, Typography, Option } from '@mui/joy'
 import { useEffect, useState } from 'react'
-import "../index.css"
+import "../../index.css"
 import { ElevatorSharp, PlayArrow, Settings, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
-import { notification } from '../Utils'
+import { notification } from '../../Utils.ts'
 import AddIcon from '@mui/icons-material/Add';
 import { Link } from 'react-router-dom'
 import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
-import useApiRequests from './API.tsx'
+import useApiRequests from '../API.tsx'
 
 function Servers() {
     const [servers, setServers] = useState<{

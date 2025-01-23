@@ -2,7 +2,8 @@
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import { ToastContainer } from 'react-toastify';
-import Servers from './Components/Servers.tsx'
+import Servers from './Components/Dashboard/Servers.tsx'
+import Profile from './Components/Dashboard/Profile.tsx'
 import Terminal from './Components/Terminal.tsx'
 import Players from './Components/Players.tsx'
 import 'react-toastify/dist/ReactToastify.css';
@@ -15,6 +16,7 @@ import AuthProvider from 'react-auth-kit';
 import createStore from 'react-auth-kit/createStore';
 import RequireAuth from '@auth-kit/react-router/RequireAuth'
 import TextEditor from './Components/TextEditor.tsx';
+import Dashboard from './Dashboard.tsx';
 
 const store = createStore({
   authName: '_auth',
@@ -28,7 +30,12 @@ createRoot(document.getElementById('root')!).render(
       <Routes>
         <Route path="/" key={"Login"} element={<Login />} />
 
-        <Route path="/Servers" key={"Main"} element={<RequireAuth fallbackPath='/'><Servers /></RequireAuth>} />
+        <Route path="/Dashboard" key={"Main"} element={<RequireAuth fallbackPath='/'><Dashboard><Outlet /></Dashboard></RequireAuth>} >
+          <Route path="Servers" key={"Servers"} element={<Servers />} />
+          <Route path="Profile" key={"Servers"} element={<Profile />} />
+          <Route path="Friends" key={"Servers"} element={<Servers />} />
+
+        </Route>
 
 
         <Route path="/server/:id" key={"Server"} element={<RequireAuth fallbackPath='/'><Server ><Outlet /></Server></RequireAuth>} >

@@ -79,7 +79,7 @@ export default function Login() {
                     },
                     userState: resJson.data.user
                 })) {
-                    window.location.href = "/Servers";
+                    window.location.href = "Dashboard/Servers";
                     // Redirect or do-something
                 } else {
                     //Throw error

@@ -27,13 +27,13 @@ const useApiRequests = () => {
     })
 
 
-
-
-
+    const getProfile = () => axios.get(import.meta.env.VITE_API + `/user/profile`, {
+        headers: { Authorization: authHeader }
+    })
 
 
     return {
-        getGameServers, getFiles, createFile
+        getGameServers, getFiles, createFile, getProfile
     }
 }
 export default useApiRequests

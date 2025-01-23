@@ -18,5 +18,8 @@ const Login = async (req, res) => {
     res.json({ "msg": "Login Success", data: { user, token, refresh } });
 }
 
-const UserController = { Login };
+const Profile = async (req, res) => {
+    return res.status(200).json({ success: true, user: req.user });
+}
+const UserController = { Login, Profile };
 export default UserController

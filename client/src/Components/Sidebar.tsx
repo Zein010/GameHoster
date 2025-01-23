@@ -31,8 +31,8 @@ export default function Sidebar() {
   const auth = useAuthUser<{ username: string, email: string }>()
   const signOut = useSignOut()
 
-  const isActive = (path: string) => location.pathname === path;
   const navigate = useNavigate();
+  const isActive = (path: string) => location.pathname === path;
   const { id } = useParams();
   const handleSignOut = async () => {
     signOut();
