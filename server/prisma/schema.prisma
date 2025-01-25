@@ -20,6 +20,8 @@ model User {
   email            String             @unique @default("")
   username         String             @unique
   password         String
+  icon             String?
+  bio              String             @default("") @db.VarChar(300)
   verified         Boolean            @default(false)
   verifiedAt       DateTime?
   verifiedFrom     String?
