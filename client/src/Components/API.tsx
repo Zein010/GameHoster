@@ -32,9 +32,12 @@ const useApiRequests = () => {
         axios.get(import.meta.env.VITE_API + `/user/profile`, {
             headers: { Authorization: authHeader },
         });
-
+    const getEnabled2FA = () =>
+        axios.get(import.meta.env.VITE_API + `/user/profile/2fa`, {
+            headers: { Authorization: authHeader },
+        });
     const updateProfile = (profileData: { username: string; email: string; firstName: string; lastName: string; phone: string }) =>
-         axios.put(import.meta.env.VITE_API + `/user/profile`, profileData, {
+        axios.put(import.meta.env.VITE_API + `/user/profile`, profileData, {
             headers: { Authorization: authHeader },
         });
     return {
@@ -43,6 +46,7 @@ const useApiRequests = () => {
         createFile,
         getProfile,
         updateProfile,
+        getEnabled2FA,
     };
 };
 export default useApiRequests;

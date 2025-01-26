@@ -13,7 +13,7 @@ const GetUser = async (username, tpassword) => {
     if (!bcrypt.compareSync(tpassword, user.password)) {
         return null
     }
-    const { password, ...result } = user
+    const { password, enabled2FA, ...result } = user
     return result
 
 }
@@ -23,7 +23,7 @@ const GetUserByID = async (id) => {
     if (!user) {
         return null
     }
-    const { password, ...result } = user
+    const { password, enabled2FA, ...result } = user
     return result
 }
 const GetUserByEmail = async (email) => {
@@ -32,8 +32,16 @@ const GetUserByEmail = async (email) => {
     if (!user) {
         return null
     }
-    const { password, ...result } = user
+    const { password, enabled2FA, ...result } = user
     return result
+}
+const GetUser2FA = async (userID) => {
+
+    const user = await prisma.user.findUnique({ where: { id: userID } });
+    if (!user) {
+        return null
+    }
+    return user.enabled2FA || { email: false, app: false }
 }
 const AddLoginAttempt = async (user, ip) => {
     await prisma.userLoginHistory.create({ data: { user: { connect: { id: user.id } }, ip } })
@@ -42,5 +50,5 @@ const AddLoginAttempt = async (user, ip) => {
 const UpdateUser = async (newData, id) => {
     return await prisma.user.update({ where: { id }, data: newData })
 }
-const UserService = { GetUser, AddLoginAttempt, GetUserByID, UpdateUser, GetUserByEmail };
+const UserService = { GetUser, AddLoginAttempt, GetUserByID, UpdateUser, GetUserByEmail, GetUser2FA };
 export default UserService

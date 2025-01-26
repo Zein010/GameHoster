@@ -21,7 +21,6 @@ export default function Sidebar() {
 
     const navigate = useNavigate();
     const isActive = (path: string) => location.pathname === path;
-
     const handleSignOut = async () => {
         signOut();
         navigate("/");

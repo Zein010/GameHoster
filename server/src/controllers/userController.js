@@ -6,6 +6,9 @@ import { isArray } from "util";
 import TerminalService from "../services/TerminalService.js";
 import UserService from "../services/userService.js";
 import jwt from "jsonwebtoken";
+import e from "express";
+import twofactor from "node-2fa";
+const Temp2FASecrets = {}
 const Login = async (req, res) => {
     const { username, password } = req.body
     const user = await UserService.GetUser(username, password);
@@ -46,5 +49,39 @@ const UpdateProfile = async (req, res) => {
     else return res.status(400).json({ "msg": "User not updated" })
 
 }
-const UserController = { Login, Profile, UpdateProfile };
+const GetEnabled2FA = async (req, res) => {
+    const user = req.user;
+    const user2FA = await UserService.GetUser2FA(user.id)
+    if (!user2FA) {
+        return res.status(404).json({ "msg": "User not found" })
+
+    }
+    const enabled2FA = {};
+    Object.keys(user2FA).forEach(key => {
+        enabled2FA[key] = user2FA[key] ? true : false
+
+    })
+    return res.status(200).json({ "success": true, "msg": "Enabled 2FA", data: enabled2FA })
+
+}
+const Generate2FASecret = async (req, res) => {
+    const user = await UserService.GetUserByID(req.user.id)
+    const Old2FA = await UserService.GetUser2FA(user.id)
+    if (Old2FA.app) {
+        // verifiy if provided get request works with the stored 2fa code
+        const token = req.query.token
+        if (!token) {
+            return res.status(400).json({ "msg": "Code not provided" })
+        }
+        if (!twofactor.verifyToken(Old2FA.code, code)) {
+            return res.status(400).json({ "msg": "Invalid 2FA Code" })
+        }
+    }
+    const code = twofactor.generateSecret({ name: "Zyxnware", account: user.email })
+    Temp2FASecrets[user.id] = code
+    return res.status(200).json({ "success": true, "msg": "2FA Secret Generated", data: code })
+
+}
+
+const UserController = { Login, Profile, UpdateProfile, GetEnabled2FA, Generate2FASecret };
 export default UserController
