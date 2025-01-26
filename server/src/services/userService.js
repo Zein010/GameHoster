@@ -26,9 +26,21 @@ const GetUserByID = async (id) => {
     const { password, ...result } = user
     return result
 }
+const GetUserByEmail = async (email) => {
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+        return null
+    }
+    const { password, ...result } = user
+    return result
+}
 const AddLoginAttempt = async (user, ip) => {
     await prisma.userLoginHistory.create({ data: { user: { connect: { id: user.id } }, ip } })
 
 }
-const UserService = { GetUser, AddLoginAttempt, GetUserByID };
+const UpdateUser = async (newData, id) => {
+    return await prisma.user.update({ where: { id }, data: newData })
+}
+const UserService = { GetUser, AddLoginAttempt, GetUserByID, UpdateUser, GetUserByEmail };
 export default UserService

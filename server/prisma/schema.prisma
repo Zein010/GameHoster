@@ -25,6 +25,7 @@ model User {
   verified         Boolean            @default(false)
   verifiedAt       DateTime?
   verifiedFrom     String?
+  phone            String             @default("")
   createdAt        DateTime           @default(now())
   RunningServers   RunningServers[]
   UserLoginHistory UserLoginHistory[]

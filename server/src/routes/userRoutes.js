@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.post("/Login", UserController.Login);
 router.get("/profile", authMiddleware.authenticateToken, UserController.Profile);
+router.put("/profile", authMiddleware.authenticateToken, UserController.UpdateProfile);
 
 
 export default router;
