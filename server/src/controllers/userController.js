@@ -78,6 +78,7 @@ const Generate2FASecret = async (req, res) => {
         }
     }
     const code = twofactor.generateSecret({ name: "Zyxnware", account: user.email })
+    code.qrCodeUrl=twofactor.generateAuth
     Temp2FASecrets[user.id] = code
     return res.status(200).json({ "success": true, "msg": "2FA Secret Generated", data: code })
 

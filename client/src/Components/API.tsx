@@ -40,6 +40,11 @@ const useApiRequests = () => {
         axios.put(import.meta.env.VITE_API + `/user/profile`, profileData, {
             headers: { Authorization: authHeader },
         });
+    const getNew2FACode = (code: string) =>
+        axios.get(import.meta.env.VITE_API + `/user/profile/2fa/Setup`, {
+            headers: { Authorization: authHeader },
+            params: { code },
+        });
     return {
         getGameServers,
         getFiles,
@@ -47,6 +52,7 @@ const useApiRequests = () => {
         getProfile,
         updateProfile,
         getEnabled2FA,
+        getNew2FACode,
     };
 };
 export default useApiRequests;
