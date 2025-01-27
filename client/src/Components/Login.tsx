@@ -1,36 +1,23 @@
-import * as React from 'react';
-import { CssVarsProvider, extendTheme, useColorScheme } from '@mui/joy/styles';
+import { CssVarsProvider, useColorScheme } from '@mui/joy/styles';
 import GlobalStyles from '@mui/joy/GlobalStyles';
 import CssBaseline from '@mui/joy/CssBaseline';
 import Box from '@mui/joy/Box';
-import Button from '@mui/joy/Button';
-import FormControl from '@mui/joy/FormControl';
-import FormLabel from '@mui/joy/FormLabel';
 import IconButton, { IconButtonProps } from '@mui/joy/IconButton';
-import Input from '@mui/joy/Input';
 import Typography from '@mui/joy/Typography';
 import Stack from '@mui/joy/Stack';
 import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
-import useSignIn from 'react-auth-kit/hooks/useSignIn';
-import { notification } from '../Utils';
+import SignIn from './Login/SignIn';
+import { useEffect, useState } from 'react';
+import Show2FAOptions from './Login/Show2FAOptions';
 
-
-interface FormElements extends HTMLFormControlsCollection {
-    email: HTMLInputElement;
-    password: HTMLInputElement;
-    persistent: HTMLInputElement;
-}
-interface SignInFormElement extends HTMLFormElement {
-    readonly elements: FormElements;
-}
-
+import AuthApp2FA from './Login/AuthApp2FA';
 function ColorSchemeToggle(props: IconButtonProps) {
     const { onClick, ...other } = props;
     const { mode, setMode } = useColorScheme();
-    const [mounted, setMounted] = React.useState(false);
+    const [mounted, setMounted] = useState(false);
 
-    React.useEffect(() => setMounted(true), []);
+    useEffect(() => setMounted(true), []);
 
     return (
         <IconButton
@@ -51,45 +38,13 @@ function ColorSchemeToggle(props: IconButtonProps) {
 
 
 export default function Login() {
-    const signIn = useSignIn();
-    const submitForm = async (event: any) => {
-        {
-
-
-            event.preventDefault();
-            const formElements = event.currentTarget.elements;
-            const data = {
-                username: formElements.email.value,
-                password: formElements.password.value,
-            };
-            const response = await fetch(import.meta.env.VITE_API + '/User/Login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            })
-            if (response.ok) {
-                const resJson = await response.json();
-
-                if (signIn({
-                    auth: {
-                        token: resJson.data.token,
-                        type: 'Bearer'
-                    },
-                    userState: resJson.data.user
-                })) {
-                    window.location.href = "Dashboard/Servers";
-                    // Redirect or do-something
-                } else {
-                    //Throw error
-                }
-            } else {
-                notification((await response.json()).msg, "error")
-            }
-
-        }
-    }
+    const [loginState, setLoginState] = useState<"loggedOut" | "2faRequired" | "2FAApp" | "2FAEmail">("loggedOut");
+    const loginStateComponentMapper = {
+        "loggedOut": <SignIn setLoginState={setLoginState} />,
+        "2faRequired": <Show2FAOptions setLoginState={setLoginState} />,
+        "2FAApp": <AuthApp2FA setLoginState={setLoginState} />,
+        "2FAEmail": <SignIn setLoginState={setLoginState} />
+    };
     return (
         <CssVarsProvider disableTransitionOnChange>
             <CssBaseline />
@@ -164,32 +119,7 @@ export default function Login() {
 
 
                         <Stack sx={{ gap: 4, mt: 2 }}>
-                            <form
-                                onSubmit={(e) => { submitForm(e) }}
-                            >
-                                <FormControl required>
-                                    <FormLabel>Email</FormLabel>
-                                    <Input type="email" name="email" />
-                                </FormControl>
-                                <FormControl required>
-                                    <FormLabel>Password</FormLabel>
-                                    <Input type="password" name="password" />
-                                </FormControl>
-                                <Stack sx={{ gap: 4, mt: 2 }}>
-                                    <Box
-                                        sx={{
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-
-                                    </Box>
-                                    <Button type="submit" fullWidth>
-                                        Sign in
-                                    </Button>
-                                </Stack>
-                            </form>
+                            {loginStateComponentMapper[loginState]}
                         </Stack>
                     </Box>
                     <Box component="footer" sx={{ py: 3 }}>

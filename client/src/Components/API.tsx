@@ -45,6 +45,18 @@ const useApiRequests = () => {
             headers: { Authorization: authHeader },
             params: { code },
         });
+
+    const validateNew2FACode = (code: string) =>
+        axios.post(import.meta.env.VITE_API + `/user/profile/2fa/Setup`, { code }, {
+            headers: { Authorization: authHeader },
+
+        });
+
+    const authenticate2FA = (code: string) =>
+        axios.post(import.meta.env.VITE_API + `/user/profile/2fa/`, { code }, {
+            headers: { Authorization: authHeader },
+
+        });
     return {
         getGameServers,
         getFiles,
@@ -52,7 +64,7 @@ const useApiRequests = () => {
         getProfile,
         updateProfile,
         getEnabled2FA,
-        getNew2FACode,
+        getNew2FACode, validateNew2FACode, authenticate2FA
     };
 };
 export default useApiRequests;

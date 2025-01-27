@@ -33,6 +33,6 @@ app.use("/User", UserRoutes);
 // Setup socket routes
 setupSocketRoutes(io);
 
-server.listen(3001, () => {
-  console.log("Server started on port 3000");
+server.listen(process.env.SERVERPORT, () => {
+  console.log(`Server started on port ${process.env.SERVERPORT }`);
 });

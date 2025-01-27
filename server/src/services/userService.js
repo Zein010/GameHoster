@@ -13,7 +13,7 @@ const GetUser = async (username, tpassword) => {
     if (!bcrypt.compareSync(tpassword, user.password)) {
         return null
     }
-    const { password, enabled2FA, ...result } = user
+    const { password, ...result } = user
     return result
 
 }
@@ -50,5 +50,12 @@ const AddLoginAttempt = async (user, ip) => {
 const UpdateUser = async (newData, id) => {
     return await prisma.user.update({ where: { id }, data: newData })
 }
-const UserService = { GetUser, AddLoginAttempt, GetUserByID, UpdateUser, GetUserByEmail, GetUser2FA };
+const Update2FAApp = async (newSecret, id) => {
+    const current2FA = await GetUser2FA(id);
+    current2FA.app = {};
+    current2FA.app.secret = newSecret;
+    current2FA.app.time = new Date().getTime() / 1000;
+    return await prisma.user.update({ data: { enabled2FA: current2FA }, where: { id } })
+}
+const UserService = { GetUser, AddLoginAttempt, GetUserByID, UpdateUser, GetUserByEmail, GetUser2FA, Update2FAApp };
 export default UserService

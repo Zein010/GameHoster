@@ -1,24 +1,26 @@
-import GameService from "../services/gameService.js";
-import FileService from "../services/fileService.js";
-import pathLib from "path";
-import { fstat } from "fs";
-import { isArray } from "util";
-import TerminalService from "../services/TerminalService.js";
 import UserService from "../services/userService.js";
 import jwt from "jsonwebtoken";
-import e from "express";
 import twofactor from "node-2fa";
-const Temp2FASecrets = {}
+
+const Temp2FASecrets = {};
 const Login = async (req, res) => {
     const { username, password } = req.body
     const user = await UserService.GetUser(username, password);
     if (!user)
         return res.status(404).json({ "msg": "User not found" })
-
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    const refresh = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '5h' });
+    const required2FA = [];
+    if (user.enabled2FA) {
+        Object.keys(user.enabled2FA).forEach(authOption => {
+            if (user.enabled2FA[authOption]) {
+                required2FA.push(authOption)
+            }
+        })
+    }
+    user.enabled2FA = required2FA.length > 0 ? required2FA : false;
     await UserService.AddLoginAttempt(user, req.ip)
-    res.json({ "msg": "Login Success", data: { user, token, refresh } });
+    const token = jwt.sign({ id: user.id, locked: required2FA.length > 0 ? true : false }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const refresh = jwt.sign({ id: user.id, locked: required2FA.length > 0 ? true : false }, process.env.JWT_REFRESH_SECRET, { expiresIn: '5h' });
+    res.json({ "msg": "Login Success" + (required2FA.length > 0 ? ", 2FA Required" : ""), data: { user, token, refresh } });
 }
 
 const Profile = async (req, res) => {
@@ -78,11 +80,58 @@ const Generate2FASecret = async (req, res) => {
         }
     }
     const code = twofactor.generateSecret({ name: "Zyxnware", account: user.email })
-    code.qrCodeUrl=twofactor.generateAuth
+    code.qrCodeUrl = twofactor.generateAuth
     Temp2FASecrets[user.id] = code
+    Temp2FASecrets[user.id].time = new Date().getTime() / 1000;
     return res.status(200).json({ "success": true, "msg": "2FA Secret Generated", data: code })
 
 }
+const ValidateNew2FA = async (req, res) => {
+    const user = req.user;
+    if (!Temp2FASecrets[user.id]) {
+        return res.status(400).json({ success: false, msg: "Something went wrong, please try again" });
+    }
+    if (!Temp2FASecrets[user.id].time + 300 >= new Date().getTime() / 1000) {
+        delete Temp2FASecrets[user.id]
+        return res.status(400).json({ success: false, msg: "Too long to process, kindly try again, but faster" });
+    }
 
-const UserController = { Login, Profile, UpdateProfile, GetEnabled2FA, Generate2FASecret };
+    const verification = twofactor.verifyToken(Temp2FASecrets[user.id].secret, req.body.code);
+    if (!verification) {
+        return res.status(400).json({ success: false, msg: "Invalid code, kindly try again, or rescan the QR code and try" });
+
+    }
+    console.log(verification.delta);
+    if (verification.delta == 0 || verification.delta == 1 || verification.delta == -1) {
+        UserService.Update2FAApp(Temp2FASecrets[user.id].secret, user.id);
+        return res.status(200).json({ success: true, msg: "2FA has been setup on your profile" });
+    } else {
+
+        return res.status(400).json({ success: false, msg: "Code expired, kindly enter a new one" });
+    }
+
+
+}
+
+const Authenticate2FAAppCode = async (req, res) => {
+    const user = req.user;
+    const code = req.body.code
+    const user2FA = await UserService.GetUser2FA(user.id);
+    if (user2FA.app) {
+        const tokenVerification = twofactor.verifyToken(user2FA.app.secret, code);
+        console.log(tokenVerification)
+        if (!tokenVerification) {
+            return res.status(400).json({ success: false, msg: "Code invalid, kindly try again" })
+        }
+        if (tokenVerification.delta >= -1 && tokenVerification.delta <= 1) {
+            const token = jwt.sign({ id: user.id, locked: false }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            const refresh = jwt.sign({ id: user.id, locked: false }, process.env.JWT_REFRESH_SECRET, { expiresIn: '5h' });
+            const cleanUser = UserService.GetUserByID(user.id);
+            return res.status(200).json({ success: true, msg: "Logging in", data: { token, refresh, user: cleanUser } });
+        }
+        return res.status(400).json({ success: false, msg: "Code expired, kindly try a new code" });
+
+    }
+}
+const UserController = { Login, Profile, UpdateProfile, GetEnabled2FA, Generate2FASecret, ValidateNew2FA, Authenticate2FAAppCode };
 export default UserController
