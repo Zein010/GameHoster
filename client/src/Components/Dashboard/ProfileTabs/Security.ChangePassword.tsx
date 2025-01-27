@@ -1,5 +1,5 @@
 import { RemoveRedEye } from "@mui/icons-material";
-import { Box, Card, Divider, FormControl, FormLabel, Input, Stack, Switch, Textarea, Typography } from "@mui/joy";
+import { Box, Card, Divider, FormControl, FormLabel, Input, Stack, Typography } from "@mui/joy";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { useState } from "react";
 function ChangePassword() {
@@ -23,11 +23,11 @@ function ChangePassword() {
                     </FormControl>
                 </Stack>
                 <Stack direction={{ md: "column", lg: "row" }}>
-                    <FormControl sx={{ px: 2, mb: 2, width: { md: "50%" } }}>
+                    <FormControl sx={{ px: 2, mb: 2, width: { lg: "50%" } }}>
                         <FormLabel>New Password</FormLabel>
                         <Input size="sm" type="text" placeholder="New Password" endDecorator={showPasswords.new ? <VisibilityOffIcon onClick={() => ChangeShowPassword("new", false)} /> : <RemoveRedEye onClick={() => ChangeShowPassword("new", true)} />} />
                     </FormControl>
-                    <FormControl sx={{ px: 2, mb: 2, width: { md: "50%" } }}>
+                    <FormControl sx={{ px: 2, mb: 2, width: { lg: "50%" } }}>
                         <FormLabel>Confirm Password</FormLabel>
                         <Input size="sm" type="text" placeholder="Confirm Password" endDecorator={showPasswords.confirm ? <VisibilityOffIcon onClick={() => ChangeShowPassword("confirm", false)} /> : <RemoveRedEye onClick={() => ChangeShowPassword("confirm", true)} />} />
                     </FormControl>

@@ -4,7 +4,7 @@ import useApiRequests from "../../API";
 
 import { QRCodeSVG } from "qrcode.react";
 import { notification } from "../../../Utils";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 function Authentication() {
     const requests = useApiRequests();
     const [enabled2FA, setEnabled2FA] = useState<{ email: boolean; app: boolean }>({ email: false, app: false });
@@ -47,8 +47,15 @@ function Authentication() {
             const response = await requests.validateNew2FACode(value);
             notification(response.data.msg, "success");
             setRefreshEnabled2FA(!refreshEnabled2FA);
-        } catch (e: AxiosError) {
-            notification(e.response.data.msg, "error");
+        } catch (e) {
+            if (axios.isAxiosError(e)) {
+                const axiosError = e as AxiosError<{ msg: string }>;
+                if (axiosError.response && axiosError.response.data) {
+                    notification(axiosError.response.data.msg, "error");
+                } else {
+                    notification("An unexpected error occurred", "error");
+                }
+            }
         }
     };
     return (

@@ -1,45 +1,44 @@
-import { Box, Button, FormControl, FormLabel, Input, Stack } from '@mui/joy'
-import { notification } from '../../Utils';
+import { Button, FormControl, FormLabel, Input, Link, Stack } from "@mui/joy";
+import { notification } from "../../Utils";
 
-import useSignIn from 'react-auth-kit/hooks/useSignIn';
-import { Dispatch, SetStateAction } from 'react';
-function SignIn({ setLoginState }: { setLoginState: Dispatch<SetStateAction<"loggedOut" | "2faRequired" | "2FAApp" | "2FAEmail">> }) {
-
-
-
+import useSignIn from "react-auth-kit/hooks/useSignIn";
+import { Dispatch, FormEvent, SetStateAction } from "react";
+function SignIn({ setLoginState }: { setLoginState: Dispatch<SetStateAction<"loggedOut" | "2faRequired" | "2FAApp" | "2FAEmail" | "signUp">> }) {
     const signIn = useSignIn();
-    const submitForm = async (event: any) => {
+    const submitForm = async (event: FormEvent<HTMLFormElement>) => {
         {
-
-
             event.preventDefault();
+
             const formElements = event.currentTarget.elements;
+            const emailInput = formElements.namedItem("email") as HTMLInputElement;
+            const passwordInput = formElements.namedItem("password") as HTMLInputElement;
             const data = {
-                username: formElements.email.value,
-                password: formElements.password.value,
+                username: emailInput.value,
+                password: passwordInput.value,
             };
-            const response = await fetch(import.meta.env.VITE_API + '/User/Login', {
-                method: 'POST',
+
+            const response = await fetch(import.meta.env.VITE_API + "/User/Login", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify(data),
-            })
+            });
             if (response.ok) {
                 const resJson = await response.json();
 
-                if (signIn({
-                    auth: {
-                        token: resJson.data.token,
-                        type: 'Bearer'
-                    },
-                    userState: resJson.data.user
-                })) {
+                if (
+                    signIn({
+                        auth: {
+                            token: resJson.data.token,
+                            type: "Bearer",
+                        },
+                        userState: resJson.data.user,
+                    })
+                ) {
                     if (resJson.data.user.enabled2FA) {
-
-                        setLoginState("2faRequired")
+                        setLoginState("2faRequired");
                     } else {
-
                         window.location.href = "Dashboard/Servers";
                     }
                     // Redirect or do-something
@@ -47,15 +46,24 @@ function SignIn({ setLoginState }: { setLoginState: Dispatch<SetStateAction<"log
                     //Throw error
                 }
             } else {
-                notification((await response.json()).msg, "error")
+                notification((await response.json()).msg, "error");
             }
-
         }
-    }
+    };
     return (
         <form
-            onSubmit={(e) => { submitForm(e) }}
+            onSubmit={(e) => {
+                submitForm(e);
+            }}
         >
+            <Link
+                component="button"
+                onClick={() => {
+                    setLoginState("signUp");
+                }}
+            >
+                Don't have an account?, sign up now
+            </Link>
             <FormControl required>
                 <FormLabel>Email</FormLabel>
                 <Input type="email" name="email" />
@@ -64,22 +72,13 @@ function SignIn({ setLoginState }: { setLoginState: Dispatch<SetStateAction<"log
                 <FormLabel>Password</FormLabel>
                 <Input type="password" name="password" />
             </FormControl>
-            <Stack sx={{ gap: 4, mt: 2 }}>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                    }}
-                >
-
-                </Box>
+            <Stack>
                 <Button type="submit" fullWidth>
                     Sign in
                 </Button>
             </Stack>
         </form>
-    )
+    );
 }
 
-export default SignIn
+export default SignIn;

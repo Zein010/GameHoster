@@ -26,7 +26,7 @@ model User {
   verifiedAt       DateTime?
   verifiedFrom     String?
   phone            String             @default("")
-  enabled2FA       Json?              @default("{\"email\": false, \"phone\": false, \"app\": false}")
+  enabled2FA       Json?              
   createdAt        DateTime           @default(now())
   RunningServers   RunningServers[]
   UserLoginHistory UserLoginHistory[]
