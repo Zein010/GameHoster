@@ -70,6 +70,7 @@ const Generate2FASecret = async (req, res) => {
     const user = await UserService.GetUserByID(req.user.id)
     const Old2FA = await UserService.GetUser2FA(user.id)
     if (Old2FA.app) {
+
         // verifiy if provided get request works with the stored 2fa code
         const token = req.query.token
         if (!token) {
@@ -101,7 +102,6 @@ const ValidateNew2FA = async (req, res) => {
         return res.status(400).json({ success: false, msg: "Invalid code, kindly try again, or rescan the QR code and try" });
 
     }
-    console.log(verification.delta);
     if (verification.delta == 0 || verification.delta == 1 || verification.delta == -1) {
         UserService.Update2FAApp(Temp2FASecrets[user.id].secret, user.id);
         return res.status(200).json({ success: true, msg: "2FA has been setup on your profile" });
@@ -119,7 +119,6 @@ const Authenticate2FAAppCode = async (req, res) => {
     const user2FA = await UserService.GetUser2FA(user.id);
     if (user2FA.app) {
         const tokenVerification = twofactor.verifyToken(user2FA.app.secret, code);
-        console.log(tokenVerification)
         if (!tokenVerification) {
             return res.status(400).json({ success: false, msg: "Code invalid, kindly try again" })
         }
