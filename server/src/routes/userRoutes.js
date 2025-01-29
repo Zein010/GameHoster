@@ -10,6 +10,7 @@ router.get("/profile/2fa", authMiddleware.authenticateToken, UserController.GetE
 router.post("/profile/2fa", authMiddleware.authenticateLockedToken, UserController.Authenticate2FAAppCode);
 router.get("/profile", authMiddleware.authenticateToken, UserController.Profile);
 router.put("/profile", authMiddleware.authenticateToken, UserController.UpdateProfile);
+router.post("/signUp", UserController.SignUp);
 
 
 export default router;

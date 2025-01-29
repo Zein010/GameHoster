@@ -132,5 +132,39 @@ const Authenticate2FAAppCode = async (req, res) => {
 
     }
 }
-const UserController = { Login, Profile, UpdateProfile, GetEnabled2FA, Generate2FASecret, ValidateNew2FA, Authenticate2FAAppCode };
+const SignUp = async (req, res) => {
+    const { username, firstName, lastName, email, phone, password, passwordConfirm } = req.body
+    const ip = req.ip
+    const ipRequests = await UserService.GetIPRegistrationRequests(ip);
+    if (ipRequests.length > 0) {
+        return res.status(400).json({
+            success: false, errors: [
+                { name: "custom", msg: "Registration limit reached" }]
+        })
+
+    }
+    if (passwordConfirm !== password) {
+        return res.status(400).json({
+            success: false, errors: [
+                { name: "passwordConfirm", msg: "Password and password confirm must match" },
+                { name: "password", msg: "Password and password confirm must match" }
+            ]
+        })
+    }
+
+    const matches = await UserService.findMatch([
+        { field: "username", value: username },
+        { field: "email", value: email },
+        { field: "phone", value: phone },
+    ]);
+    if (matches.length > 0) {
+        const resErrors = [];
+        matches.forEach(match => {
+            resErrors.push({ "name": match, msg: `There already exists a using the same ${match}` });
+        })
+        return res.status(400).json({ success: false, resErrors });
+    }
+
+}
+const UserController = { SignUp, Login, Profile, UpdateProfile, GetEnabled2FA, Generate2FASecret, ValidateNew2FA, Authenticate2FAAppCode };
 export default UserController

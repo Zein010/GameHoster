@@ -26,10 +26,11 @@ model User {
   verifiedAt       DateTime?
   verifiedFrom     String?
   phone            String             @default("")
-  enabled2FA       Json?              
+  enabled2FA       Json?
   createdAt        DateTime           @default(now())
   RunningServers   RunningServers[]
   UserLoginHistory UserLoginHistory[]
+  userRegistration userRegistration[]
 }
 
 model UserLoginHistory {
@@ -126,4 +127,13 @@ model ChangeFileAfterSetup {
   gameVersionId Int
   gameVersion   GameVersion @relation(fields: [gameVersionId], references: [id])
   actions       Json
+}
+
+model userRegistration {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  IP        String
+  createdAt DateTime @default(now())
+  
 }
