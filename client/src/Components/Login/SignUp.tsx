@@ -13,8 +13,6 @@ function SignUp({ setLoginState }: { setLoginState: Dispatch<SetStateAction<"log
         [key: string]: string;
     }>({});
     const GetError = ({ inputName }: { inputName: string }): JSX.Element => {
-        console.log(errors);
-        console.log(inputName);
         try {
             if (errors[inputName]) {
                 return (
@@ -33,6 +31,7 @@ function SignUp({ setLoginState }: { setLoginState: Dispatch<SetStateAction<"log
         {
             event.preventDefault();
             setErrors({});
+            const initialErrors = {};
             const formElements = event.currentTarget.elements;
             const usernameInput = formElements.namedItem("username") as HTMLInputElement;
             const firstNameInput = formElements.namedItem("firstName") as HTMLInputElement;
@@ -52,11 +51,16 @@ function SignUp({ setLoginState }: { setLoginState: Dispatch<SetStateAction<"log
             };
 
             if (data.password !== data.passwordConfirm) {
-                setErrors((old) => ({ ...old, passwordConfirm: "Password and password confirm must match", password: "Password and password confirm must match" }));
+                initialErrors.passwordConfirm = "Password and password confirm must match";
+                initialErrors.password = "Password and password confirm must match";
             }
             const errorRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
             if (!errorRegex.test(data.email)) {
-                setErrors((old) => ({ ...old, email: "Email is not valid" }));
+                initialErrors.email = "Email is not valid";
+            }
+            setErrors(initialErrors);
+            if (Object.keys(initialErrors).length > 0) {
+                return;
             }
             const response = await fetch(import.meta.env.VITE_API + "/User/signUp", {
                 method: "POST",
@@ -70,7 +74,8 @@ function SignUp({ setLoginState }: { setLoginState: Dispatch<SetStateAction<"log
                 console.log(resJson);
             } else {
                 const resJson = await response.json();
-                setErrors((old) => ({ ...old, ...resJson.errors }));
+
+                setErrors(resJson.errors);
             }
         }
     };

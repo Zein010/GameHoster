@@ -64,7 +64,7 @@ function Authentication() {
                 <Typography level="title-md">Advanced</Typography>
             </Box>
             <Divider />
-            <Stack sx={{ my: 1 }} spacing={2}>
+            <Stack sx={{ my: 1, px: 2 }} spacing={2}>
                 <Stack spacing={2}>
                     <Stack direction="row" sx={{ justifyContent: "space-between" }} spacing={2}>
                         <FormLabel>2FA Authentication By Email</FormLabel>
