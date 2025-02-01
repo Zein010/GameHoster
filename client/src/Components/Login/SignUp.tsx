@@ -1,9 +1,8 @@
 import { Email, InfoOutlined, Password, Person, Phone, RemoveRedEye } from "@mui/icons-material";
-import { Button, FormControl, FormLabel, Input, Link, Stack } from "@mui/joy";
+import { Button, FormControl, FormHelperText, FormLabel, Input, Link, Stack } from "@mui/joy";
 import { Dispatch, FormEvent, SetStateAction, useState } from "react";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { notification } from "../../Utils";
-import { FormHelperText } from "@mui/material";
 
 function SignUp({ setLoginState }: { setLoginState: Dispatch<SetStateAction<"loggedOut" | "2faRequired" | "2FAApp" | "2FAEmail" | "signUp">> }) {
     const [hidePasswords, setHidePasswords] = useState<{ password: boolean; passwordConfirm: boolean }>({ password: true, passwordConfirm: true });
@@ -11,27 +10,29 @@ function SignUp({ setLoginState }: { setLoginState: Dispatch<SetStateAction<"log
         setHidePasswords((old) => ({ ...old, [password]: status }));
     };
     const [errors, setErrors] = useState<{
-        [key: string]: string
+        [key: string]: string;
     }>({});
-    const GetError = ({ inputName }: { inputName: string }) => {
+    const GetError = ({ inputName }: { inputName: string }): JSX.Element => {
+        console.log(errors);
+        console.log(inputName);
         try {
-
             if (errors[inputName]) {
-                return <FormHelperText>
-                    <InfoOutlined />
-                    {errors[inputName]}
-                </FormHelperText>
+                return (
+                    <FormHelperText sx={{ color: "red", mt: 1 }}>
+                        <InfoOutlined sx={{ color: "red" }} />
+                        {errors[inputName]}
+                    </FormHelperText>
+                );
             }
-            return <></>
-
+            return <></>;
         } catch (e) {
-            return <></>
+            return <></>;
         }
-    }
+    };
     const submitForm = async (event: FormEvent<HTMLFormElement>) => {
         {
             event.preventDefault();
-
+            setErrors({});
             const formElements = event.currentTarget.elements;
             const usernameInput = formElements.namedItem("username") as HTMLInputElement;
             const firstNameInput = formElements.namedItem("firstName") as HTMLInputElement;
@@ -51,11 +52,12 @@ function SignUp({ setLoginState }: { setLoginState: Dispatch<SetStateAction<"log
             };
 
             if (data.password !== data.passwordConfirm) {
-                setErrors({ "passwordConfirm": "Password and password confirm must match", "password": "Password and password confirm must match" })
-                return;
-
+                setErrors((old) => ({ ...old, passwordConfirm: "Password and password confirm must match", password: "Password and password confirm must match" }));
             }
-            return;
+            const errorRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+            if (!errorRegex.test(data.email)) {
+                setErrors((old) => ({ ...old, email: "Email is not valid" }));
+            }
             const response = await fetch(import.meta.env.VITE_API + "/User/signUp", {
                 method: "POST",
                 headers: {
@@ -66,9 +68,9 @@ function SignUp({ setLoginState }: { setLoginState: Dispatch<SetStateAction<"log
             if (response.ok) {
                 const resJson = await response.json();
                 console.log(resJson);
-
             } else {
-                notification((await response.json()).msg, "error");
+                const resJson = await response.json();
+                setErrors((old) => ({ ...old, ...resJson.errors }));
             }
         }
     };
@@ -86,31 +88,32 @@ function SignUp({ setLoginState }: { setLoginState: Dispatch<SetStateAction<"log
                 <FormControl>
                     <FormLabel>Username</FormLabel>
                     <Input required type="text" name="username" startDecorator={<Person />} />
+                    <GetError inputName="username" />
                 </FormControl>
-                <GetError inputName="username" />
                 <FormControl>
                     <FormLabel>First Name</FormLabel>
                     <Input required type="text" name="firstName" />
+                    <GetError inputName="firstName" />
                 </FormControl>
-                <GetError inputName="firstName" />
                 <FormControl>
                     <FormLabel>Last Name</FormLabel>
                     <Input required type="text" name="lastName" />
+                    <GetError inputName="lastName" />
                 </FormControl>
-                <GetError inputName="lastName" />
                 <FormControl>
                     <FormLabel>Email</FormLabel>
                     <Input required type="text" name="email" startDecorator={<Email />} />
+                    <GetError inputName="email" />
                 </FormControl>
-                <GetError inputName="email" />
                 <FormControl>
                     <FormLabel>Phone</FormLabel>
                     <Input required type="text" name="phone" startDecorator={<Phone />} />
+                    <GetError inputName="phone" />
                 </FormControl>
-                <GetError inputName="phone" />
                 <FormControl>
                     <FormLabel>Password</FormLabel>
-                    <Input required
+                    <Input
+                        required
                         type={hidePasswords.password ? "password" : "text"}
                         name="password"
                         startDecorator={<Password />}
@@ -130,12 +133,13 @@ function SignUp({ setLoginState }: { setLoginState: Dispatch<SetStateAction<"log
                             )
                         }
                     />
+                    <GetError inputName="password" />
                 </FormControl>
 
-                <GetError inputName="password" />
                 <FormControl>
                     <FormLabel>Confirm Password</FormLabel>
-                    <Input required
+                    <Input
+                        required
                         type={hidePasswords.passwordConfirm ? "password" : "text"}
                         name="passwordConfirm"
                         startDecorator={<Password />}
@@ -155,8 +159,8 @@ function SignUp({ setLoginState }: { setLoginState: Dispatch<SetStateAction<"log
                             )
                         }
                     />
+                    <GetError inputName="passwordConfirm" />
                 </FormControl>
-                <GetError inputName="passwordConfirm" />
 
                 <Button type="submit" variant="outlined" fullWidth>
                     Sign Up

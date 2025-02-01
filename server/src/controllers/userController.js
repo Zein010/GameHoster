@@ -145,25 +145,36 @@ const SignUp = async (req, res) => {
     }
     if (passwordConfirm !== password) {
         return res.status(400).json({
-            success: false, errors: [
-                { name: "passwordConfirm", msg: "Password and password confirm must match" },
-                { name: "password", msg: "Password and password confirm must match" }
-            ]
+            success: false, errors: {
+                passwordConfirm: "Password and password confirm must match",
+                password: "Password and password confirm must match",
+            }
         })
     }
 
-    const matches = await UserService.findMatch([
+    const matches = await UserService.FindMatch([
         { field: "username", value: username },
         { field: "email", value: email },
         { field: "phone", value: phone },
     ]);
     if (matches.length > 0) {
-        const resErrors = [];
+        const resErrors = {};
         matches.forEach(match => {
-            resErrors.push({ "name": match, msg: `There already exists a using the same ${match}` });
+            resErrors[match] = `There already exists a user using the same ${match}`;
         })
-        return res.status(400).json({ success: false, resErrors });
+        return res.status(400).json({ success: false, errors: resErrors });
     }
+
+
+    const user = await UserService.CreateUser({ username, firstName, lastName, email, phone, password });
+    await UserService.AddIpRegistrationRequests(ip, user.id)
+    if (user) {
+        const token = jwt.sign({ id: user.id, locked: false }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const refresh = jwt.sign({ id: user.id, locked: false }, process.env.JWT_REFRESH_SECRET, { expiresIn: '5h' });
+        const cleanUser = UserService.GetUserByID(user.id);
+        return res.status(200).json({ success: true, msg: "User created successfully", data: { token, refresh, user: cleanUser } });
+    }
+
 
 }
 const UserController = { SignUp, Login, Profile, UpdateProfile, GetEnabled2FA, Generate2FASecret, ValidateNew2FA, Authenticate2FAAppCode };
