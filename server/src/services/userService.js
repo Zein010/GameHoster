@@ -57,5 +57,34 @@ const Update2FAApp = async (newSecret, id) => {
     current2FA.app.time = new Date().getTime() / 1000;
     return await prisma.user.update({ data: { enabled2FA: current2FA }, where: { id } })
 }
-const UserService = { GetUser, AddLoginAttempt, GetUserByID, UpdateUser, GetUserByEmail, GetUser2FA, Update2FAApp };
+const FindMatch = async (fieldsAndValues) => {
+    const condition = [];
+    fieldsAndValues.forEach((fieldAndValue) => {
+        condition.push({ [fieldAndValue.field]: fieldAndValue.value })
+    })
+    if (condition.length == 0) return [];
+    const matches = await prisma.user.findMany({ where: { OR: condition } })
+    const existingMatches = [];
+    matches.forEach(match => {
+        fieldsAndValues.forEach(fieldAndValue => { if (match[fieldAndValue.field] == fieldAndValue.value) existingMatches.push(fieldAndValue.field) })
+    })
+    return existingMatches
+}
+const GetIPRegistrationRequests = async (ip, timeFrame = "today") => {
+    let time = new Date().toISOString();
+    if (timeFrame == "today") {
+        let time = Date.now() - (24 * 60 * 60 * 1000);
+        time = new Date(time).toISOString();
+    }
+
+    return await prisma.userRegistration.findMany({ where: { IP: { equals: ip }, createdAt: { gte: time } } })
+}
+const AddIpRegistrationRequests = async (ip, userID) => {
+
+    return await prisma.userRegistration.create({ data: { IP: ip, user: { connect: { id: userID } } } })
+}
+const CreateUser = async (user) => {
+    return await prisma.user.create({ data: user })
+}
+const UserService = { GetUser, AddLoginAttempt, GetUserByID, UpdateUser, GetUserByEmail, GetUser2FA, Update2FAApp, FindMatch, GetIPRegistrationRequests, AddIpRegistrationRequests, CreateUser };
 export default UserService
