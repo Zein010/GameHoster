@@ -175,7 +175,22 @@ const SignUp = async (req, res) => {
         return res.status(200).json({ success: true, msg: "User created successfully", data: { token, refresh, user: cleanUser } });
     }
 
+}
+const ChangePassword = async (req, res) => {
+    const user = req.user;
+    const passwords = req.body;
+    if (passwords.password !== passwords.passwordConfirm) {
+        return res.status(400).json({ success: false, msg: "Password and password confirm must match" });
+    }
+    const verify = await UserService.ValidateUserPassword(user.id, passwords.oldPassword);
+    if (!verify) {
+        return res.status(400).json({ success: false, msg: "Invalid old password" });
+    }
+    const updatedUser = await UserService.SetUserPassword(user.id, passwords.password);
+    if (updatedUser) {
+        return res.status(200).json({ success: true, msg: "Password changed successfully" });
+    }
 
 }
-const UserController = { SignUp, Login, Profile, UpdateProfile, GetEnabled2FA, Generate2FASecret, ValidateNew2FA, Authenticate2FAAppCode };
+const UserController = { SignUp, Login, Profile, UpdateProfile, GetEnabled2FA, Generate2FASecret, ValidateNew2FA, Authenticate2FAAppCode, ChangePassword };
 export default UserController

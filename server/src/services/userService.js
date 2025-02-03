@@ -17,6 +17,15 @@ const GetUser = async (username, tpassword) => {
     return result
 
 }
+const SetUserPassword = async (userId, password) => {
+
+    return prisma.user.update({ where: { id: userId }, data: { password: bcrypt.hashSync(password, 10) } })
+}
+const ValidateUserPassword = async (userID, password) => {
+    const user = await prisma.user.findUnique({ where: { id: userID } });
+
+    return bcrypt.compareSync(password, user.password)
+}
 const GetUserByID = async (id) => {
 
     const user = await prisma.user.findUnique({ where: { id } });
@@ -48,6 +57,18 @@ const AddLoginAttempt = async (user, ip) => {
 
 }
 const UpdateUser = async (newData, id) => {
+    const user = await prisma.user.findUnique({ where: { id } })
+    const changes = {};
+    Object.keys(newData).forEach(key => {
+        if (user[key] !== newData[key]) {
+
+            changes[key] = { old: user[key], new: newData[key], key: key }
+        }
+    })
+    for (let i = 0; i < Object.keys(changes).length; i++) {
+
+        await prisma.userProfileChangeLogs.create({ data: { user: { connect: { id } }, change: Object.values(changes)[i] } })
+    }
     return await prisma.user.update({ where: { id }, data: newData })
 }
 const Update2FAApp = async (newSecret, id) => {
@@ -86,5 +107,6 @@ const AddIpRegistrationRequests = async (ip, userID) => {
 const CreateUser = async (user) => {
     return await prisma.user.create({ data: user })
 }
-const UserService = { GetUser, AddLoginAttempt, GetUserByID, UpdateUser, GetUserByEmail, GetUser2FA, Update2FAApp, FindMatch, GetIPRegistrationRequests, AddIpRegistrationRequests, CreateUser };
+
+const UserService = { GetUser, AddLoginAttempt, ValidateUserPassword, GetUserByID, UpdateUser, GetUserByEmail, GetUser2FA, SetUserPassword, Update2FAApp, FindMatch, GetIPRegistrationRequests, AddIpRegistrationRequests, CreateUser };
 export default UserService

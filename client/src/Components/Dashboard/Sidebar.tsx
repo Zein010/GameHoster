@@ -23,7 +23,7 @@ export default function Sidebar() {
     const isActive = (path: string) => location.pathname === path;
     const handleSignOut = async () => {
         signOut();
-        navigate("/");
+        navigate("/Login");
     };
     return (
         <Sheet
