@@ -3,7 +3,7 @@ import sysUserService from "../services/sysUserService.js";
 import TerminalService from "../services/TerminalService.js";
 
 import { GetServerStartOptions } from "../utils.js";
-const StartRustServer = async (gameVersion) => {
+const StartRustServer = async (gameVersion, user) => {
 
     const rand = parseInt((Math.random() * 10000) % 10000);
     const dirName = `GameServer/${gameVersion.game.dirName}-${rand}`;
