@@ -5,6 +5,7 @@ import net from "net"
 import pathLib from "path";
 import { promiseHooks } from "v8";
 const RunningServers = {};
+const RustStartingServers = {};
 const CreateNewDirectory = (config) => {
     const PathArr = config.name.split("/");
     var currPath = "";
@@ -308,18 +309,18 @@ const DisplayUserLog = (path) => {
         return true;
     }
 }
-const DownloadRustServer = (username, dirName) => {
+const DownloadRustServer = (serverDetails, username, dirName) => {
     return new Promise((resolve, reject) => {
         const command = `sudo -u ${username} /usr/games/steamcmd +@sSteamCmdForcePlatformType linux +force_install_dir ${dirName} +login anonymous +app_update 258550 +quit`
-        const ls = spawn(command, { shell: true });
-
-        ls.stdout.on('data', (data) => {
+        RustStartingServers[serverDetails.id] = spawn(command, { shell: true });
+        RustStartingServers[serverDetails.id].stdout.on('data', (data) => {
         });
 
-        ls.stderr.on('data', (data) => {
+        RustStartingServers[serverDetails.id].stderr.on('data', (data) => {
         });
 
-        ls.on('close', (code) => {
+        RustStartingServers[serverDetails.id].on('close', (code) => {
+            delete RustStartingServers[serverDetails.id];
             resolve(true);
         });
     })
@@ -365,6 +366,9 @@ WantedBy=multi-user.target`
     // we need to enable the service
     execSync(`sudo systemctl enable ${username}.service`);
 
+}
+const StartRustServer = (username) => {
+    exec(`sudo systemctl start ${username}.service`);
 }
 const TerminalToSocket = (serverId, socket) => {
     if (!RunningServers[serverId]) {
@@ -596,5 +600,5 @@ const CreateService = (name, path, service) => {
     }
 };
 
-const TerminalService = { DownloadRustServer, CreateRustStartService, StartService, CreateService, RunScript, GetLog, CreateZip, DownloadServerDataByScript, GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
+const TerminalService = { DownloadRustServer, StartRustServer, CreateRustStartService, StartService, CreateService, RunScript, GetLog, CreateZip, DownloadServerDataByScript, GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService

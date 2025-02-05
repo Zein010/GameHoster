@@ -18,12 +18,19 @@ const StartRustServer = async (gameVersion) => {
     // we need to run the rust server create script
     // 
 
-    const creatingPromise = TerminalService.DownloadRustServer(username, dirName);
-    creatingPromise.then(() => {
+    const serverDetails = await GameService.AddRunningServer(dirName, username, gameVersion.id, "", user.id)
+    const creatingPromise = TerminalService.DownloadRustServer(serverDetails, username, dirName);
+    creatingPromise.then(async () => {
         // here the server is created, now we need to create the service, and run it
-        TerminalService.CreateRustStartService(username, dirName, GetServerStartOptions(gameVersion));
+        const config = GetServerStartOptions(gameVersion);
+        TerminalService.CreateRustStartService(username, dirName, config);
+        await GameService.AppendToServerConfig(serverDetails.id, config);
+        GameService.StartRustServer(username);
+    }).catch(() => {
+
     })
 }
+
 const StartMinecraftVanillaServer = async (gameVersion, user) => {
 
     const rand = parseInt((Math.random() * 10000) % 10000);
