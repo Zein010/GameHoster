@@ -329,7 +329,7 @@ const DownloadRustServer = (username, dirName) => {
 }
 const CreateRustStartService = (username, dirName, config) => {
     // i want to create a file named username.service in /etc/systemd/system/
-
+    let correctDirName = pathLib.resolve(dirName);
     const serviceContent = `[Unit]
 Description=Rust Dedicated Server
 Wants=network-online.target
@@ -337,7 +337,7 @@ After=network-online.target
 
 [Service]
 Environment=SteamAppId=258550
-Environment=LD_LIBRARY_PATH=${dirName}:$LD_LIBRARY_PATH
+Environment=LD_LIBRARY_PATH=${correctDirName}:$LD_LIBRARY_PATH
 Type=simple
 TimeoutSec=900
 Restart=on-failure
@@ -345,9 +345,9 @@ RestartSec=10
 KillSignal=SIGINT
 User=rust
 Group=rust
-WorkingDirectory=${dirName}
-ExecStartPre=/usr/games/steamcmd +@sSteamCmdForcePlatformType linux +force_install_dir ${dirName} +login anonymous +app_update 258550 +quit
-ExecStart=${dirName}/RustDedicated -batchmode \
+WorkingDirectory=${correctDirName}
+ExecStartPre=/usr/games/steamcmd +@sSteamCmdForcePlatformType linux +force_install_dir ${correctDirName} +login anonymous +app_update 258550 +quit
+ExecStart=${correctDirName}/RustDedicated -batchmode \
     +server.port ${config.serverPort} \
     +server.level "Procedural Map" \
     +server.seed ${config.seed} \
