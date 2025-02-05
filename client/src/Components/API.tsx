@@ -67,8 +67,14 @@ const useApiRequests = () => {
         axios.post(import.meta.env.VITE_API + `/user/changePassword`, passwords, {
             headers: { Authorization: authHeader },
         });
+    const createServer = (versionID: number) =>
+        axios.get(import.meta.env.VITE_API + `/Game/CreateServer/${versionID}`, {
+            headers: { Authorization: authHeader },
+        });
+
     return {
         getGameServers,
+        createServer,
         getFiles,
         createFile,
         getProfile,

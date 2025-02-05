@@ -3,6 +3,7 @@ import TerminalService from "../services/TerminalService.js";
 import sysUserService from "../services/sysUserService.js";
 import { GetServerStartOptions } from "../utils.js";
 import RCONService from "../services/RCONService.js";
+import GameStarterService from "../services/gameStarterService.js";
 
 
 const GetAll = async (req, res) => {
@@ -62,61 +63,16 @@ const DisplayLog = async (req, res) => {
 }
 const CreateServer = async (req, res) => {
     const { versionId } = req.params
+    const user = req.user
     const gameVersion = await GameService.GetVersion(parseInt(versionId))
-    const rand = parseInt((Math.random() * 10000) % 10000);
-    const dirName = `GameServer/${gameVersion.game.dirName}-${rand}`;
-    const username = `${gameVersion.game.dirName}-${rand}`;
-    TerminalService.CreateNewDirectory({ name: dirName })
-    await TerminalService.CreateUser(username);
-    await sysUserService.StoreSysUser(username);
-    var scriptFile = "";
-    if (gameVersion.cacheFile) {
-        console.log("Copying file");
-        await TerminalService.CopyFile(gameVersion.cacheFile, dirName);
-        console.log("Done copying files");
-        scriptFile = gameVersion.scriptFile
-    } else {
-        if (gameVersion.downloadLink) {
+    let config = null;
+    if (gameVersion.version.startsWith("Vanilla") && gameVersion.gameId == 1) {
+        config = await GameStarterService.StartMinecraftVanillaServer(gameVersion, user)
+    } else if (gameVersion.gameId == 2) {
+        config = await GameStarterService.StartRustServer(gameVersion, user)
 
-            scriptFile = TerminalService.DownloadServerData(gameVersion.downloadLink, dirName);
-        }
-        if (gameVersion.installScript) {
-            await TerminalService.DownloadServerDataByScript(gameVersion.installScript, dirName);
-            scriptFile = gameVersion.scriptFile
-        }
-        await TerminalService.CacheFile(dirName, `${gameVersion.game.name}/${gameVersion.id}`);
-        GameService.SetGameVersionCache(gameVersion.id, `DownloadCache/${gameVersion.game.name}/${gameVersion.id}`)
+
     }
-    if (gameVersion.runOnce) {
-        console.log("Running once");
-        for (var i = 0; i < gameVersion.runOnce.length; i++) {
-
-            await TerminalService.RunScript(dirName, gameVersion.runOnce[i].script, gameVersion.runOnce[i].timeout || 0);
-        }
-        console.log("ran once");
-    }
-    if (gameVersion.service) {
-        console.log("creating service");
-        TerminalService.CreateService(username, dirName, gameVersion.service);
-        console.log("created service");
-    }
-    console.log("adding server");
-    const serverDetails = await GameService.AddRunningServer(dirName, username, gameVersion.id, scriptFile)
-    console.log("added server");
-    const config = GetServerStartOptions(gameVersion, "start")
-    GameService.AppendToServerConfig(serverDetails.id, config);
-    TerminalService.SetupRequiredFiles(dirName, gameVersion.getFilesSetup)
-    await TerminalService.OwnFile(dirName, username)
-
-    await TerminalService.SetupServerAfterStart(dirName, gameVersion.changeFileAfterSetup, config);
-    await TerminalService.OwnFile(dirName, username)
-    if (gameVersion.service) {
-        TerminalService.StartService(`${username}.service`);
-    } else {
-
-        TerminalService.StartCreatedServer(serverDetails)
-    }
-
     res.json({ msg: "Game server created successfully", config });
 }
 const CheckServerRunning = async (req, res) => {
@@ -127,7 +83,7 @@ const CheckServerRunning = async (req, res) => {
         return res.status(404).json({ "msg": "Server not found" })
     }
     const status = await TerminalService.CheckUserHasProcess(server.sysUser.username, server.gameVersion.searchScript);
-    res.json({ status, gameVersion: server.gameVersion, config: server.config.startData.length > 0 ? server.config.startData[server.config.startData.length - 1] : {} });
+    res.json({ status, gameVersion: server.gameVersion, config: server.config && server.config.startData.length > 0 ? server.config.startData[server.config.startData.length - 1] : {} });
 }
 const StopServer = async (req, res) => {
     const { serverId } = req.params

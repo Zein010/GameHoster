@@ -30,8 +30,8 @@ const SetRunningServerPID = async (id, pid) => {
 const DeleteServer = async (id) => {
     return await prisma.runningServers.update({ where: { id }, data: { deleted: true, deletedAt: new Date() } })
 }
-const AddRunningServer = async (path, username, gameVersionId, scriptFile) => {
-    const temp = await prisma.runningServers.create({ data: { path, scriptFile, gameVersion: { connect: { id: gameVersionId } }, sysUser: { connect: { username } } } })
+const AddRunningServer = async (path, username, gameVersionId, scriptFile, userId) => {
+    const temp = await prisma.runningServers.create({ data: { path, scriptFile, user: { connect: { id: userId } }, gameVersion: { connect: { id: gameVersionId } }, sysUser: { connect: { username } } } })
     return await prisma.runningServers.findUnique({ where: { id: temp.id }, include: { gameVersion: true, sysUser: true } });
 }
 const SetGameVersionCache = async (id, cacheFile) => {

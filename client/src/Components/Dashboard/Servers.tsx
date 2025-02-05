@@ -1,137 +1,140 @@
-import { Box, Button, Modal, ModalClose, Select, Sheet, Table, Typography, Option } from '@mui/joy'
-import { useEffect, useState } from 'react'
-import "../../index.css"
-import { PlayArrow, Settings, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
-import { notification } from '../../Utils.ts'
-import AddIcon from '@mui/icons-material/Add';
-import { Link } from 'react-router-dom'
-import useApiRequests from '../API.tsx'
+import { Box, Button, Modal, ModalClose, Select, Sheet, Table, Typography, Option } from "@mui/joy";
+import { useEffect, useState } from "react";
+import "../../index.css";
+import { PlayArrow, Settings, SignalWifiStatusbar4Bar, Stop } from "@mui/icons-material";
+import { notification } from "../../Utils.ts";
+import AddIcon from "@mui/icons-material/Add";
+import { Link } from "react-router-dom";
+import useApiRequests from "../API.tsx";
+import { isAxiosError } from "axios";
 
 function Servers() {
-    const [servers, setServers] = useState<{
-        id: number
-        createdAt: string
-        sysUser: { username: string }
-        gameVersion: { version: string, game: { name: string } },
-        config: null | { startData: { port: number }[] }
-    }[]>([])
+    const [servers, setServers] = useState<
+        {
+            id: number;
+            createdAt: string;
+            sysUser: { username: string };
+            gameVersion: { version: string; game: { name: string } };
+            config: null | { startData: { port: number }[] };
+        }[]
+    >([]);
     const [actionsDisabled, setActionsDisabled] = useState<{ [key: string]: { [key: number]: boolean } }>({ start: {}, stop: {} });
-    const [globalDisabled, setGlobalDisabled] = useState<boolean>(false)
-    const [games, setGames] = useState<{ id: number, name: string, gameVersion: { id: number, version: string }[] }[]>([])
-    const [newOpen, setNewOpen] = useState(false)
-    const [newDetails, setNewDetails] = useState<{ gameID: number, versionID: number }>({ gameID: 0, versionID: 0 });
-    const [refresh, setRefresh] = useState(false)
-    const requests = useApiRequests()
+    const [globalDisabled, setGlobalDisabled] = useState<boolean>(false);
+    const [games, setGames] = useState<{ id: number; name: string; gameVersion: { id: number; version: string }[] }[]>([]);
+    const [newOpen, setNewOpen] = useState(false);
+    const [newDetails, setNewDetails] = useState<{ gameID: number; versionID: number }>({ gameID: 0, versionID: 0 });
+    const [refresh, setRefresh] = useState(false);
+    const requests = useApiRequests();
     useEffect(() => {
         const fetchData = async () => {
-
-            const serversResponse = await requests.getGameServers()
+            const serversResponse = await requests.getGameServers();
             if (serversResponse.status == 200) {
-                setServers(serversResponse.data.data)
+                setServers(serversResponse.data.data);
             }
-            const gameResponse = await fetch(import.meta.env.VITE_API + '/Game', {
-                method: 'GET',
+            const gameResponse = await fetch(import.meta.env.VITE_API + "/Game", {
+                method: "GET",
                 headers: {
-                    'content-type': 'application/json;charset=UTF-8',
-                }
-            })
+                    "content-type": "application/json;charset=UTF-8",
+                },
+            });
             if (gameResponse.ok) {
-                setGames((await gameResponse.json()).data)
+                setGames((await gameResponse.json()).data);
             }
-        }
-        fetchData()
-
-    }, [refresh])
+        };
+        fetchData();
+    }, [refresh]);
 
     const setActionDisabledState = (id: number, value: { [key: string]: boolean }) => {
-
         setActionsDisabled((obj) => {
-            Object.keys(value).forEach(k => {
-
-                obj[k][id] = value[k]
-            })
-            return obj
-        })
-    }
+            Object.keys(value).forEach((k) => {
+                obj[k][id] = value[k];
+            });
+            return obj;
+        });
+    };
     const startSever = async (serverId: number) => {
-        setGlobalDisabled(true)
+        setGlobalDisabled(true);
         const serverOn = await checkStatus(serverId, false, false);
         if (serverOn) {
-            notification('Server already running', "success")
+            notification("Server already running", "success");
 
-            setGlobalDisabled(false)
+            setGlobalDisabled(false);
             return;
         }
-        const response = await fetch(import.meta.env.VITE_API + `/Game/StartServer/${serverId}`)
+        const response = await fetch(import.meta.env.VITE_API + `/Game/StartServer/${serverId}`);
         if (response.ok) {
-            notification('Server is running', "success")
+            notification("Server is running", "success");
             await checkStatus(serverId, false, false);
-
         } else {
-            notification((await response.json()).msg, "error")
+            notification((await response.json()).msg, "error");
         }
-        setGlobalDisabled(false)
-
-    }
+        setGlobalDisabled(false);
+    };
     const stopServer = async (serverId: number) => {
-        setGlobalDisabled(true)
+        setGlobalDisabled(true);
         const serverOn = await checkStatus(serverId, false, false);
         if (!serverOn) {
-            notification('Server already off', "success")
+            notification("Server already off", "success");
 
-            setGlobalDisabled(false)
+            setGlobalDisabled(false);
             return;
         }
-        const response = await fetch(import.meta.env.VITE_API + `/Game/StopServer/${serverId}`)
+        const response = await fetch(import.meta.env.VITE_API + `/Game/StopServer/${serverId}`);
         if (response.ok) {
-            notification('Server is stopped', "success")
+            notification("Server is stopped", "success");
             await checkStatus(serverId, false, false);
-
         } else {
-            notification((await response.json()).msg, "error")
+            notification((await response.json()).msg, "error");
         }
-        setGlobalDisabled(false)
-    }
+        setGlobalDisabled(false);
+    };
     const checkStatus = async (serverId: number, HideButtons: boolean = true, showAlert: boolean = true) => {
-        if (HideButtons)
-            setGlobalDisabled(true)
+        if (HideButtons) setGlobalDisabled(true);
         let serverOn = false;
-        const response = await fetch(import.meta.env.VITE_API + `/Game/CheckServer/${serverId}`)
+        const response = await fetch(import.meta.env.VITE_API + `/Game/CheckServer/${serverId}`);
         if (response.ok) {
             if ((await response.json()).status) {
-                if (showAlert)
-                    notification('Server is running', "success")
+                if (showAlert) notification("Server is running", "success");
                 setActionDisabledState(serverId, { start: true, stop: false });
                 serverOn = true;
             } else {
-                if (showAlert)
-                    notification('Server is not running', "error")
+                if (showAlert) notification("Server is not running", "error");
 
                 setActionDisabledState(serverId, { start: false, stop: true });
                 serverOn = false;
             }
-            if (HideButtons)
-                setGlobalDisabled(false)
-
+            if (HideButtons) setGlobalDisabled(false);
         }
-        return serverOn
-    }
+        return serverOn;
+    };
     const createServer = async () => {
+        setNewOpen(false);
+        try {
+            await requests.createServer(newDetails.versionID);
 
-        setNewOpen(false)
-        const response = await fetch(import.meta.env.VITE_API + `/Game/CreateServer/${newDetails.versionID}`)
-        if (response.ok) {
-            setRefresh(!refresh)
+            setRefresh(!refresh);
+        } catch (e: any) {
+            if (isAxiosError(e)) {
+            }
         }
-    }
+    };
 
     return (
         <Sheet className="mx-10 px-3 mt-6">
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 2 }}>
-
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", pt: 2 }}>
                 <Typography level="h3">Servers</Typography>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Button startDecorator={<AddIcon />} onClick={() => { setNewDetails({ gameID: 0, versionID: 0 }); setNewOpen(true) }} sx={{ px: 1 }} size="sm">Server</Button>
+                <Box sx={{ display: "flex", gap: 1 }}>
+                    <Button
+                        startDecorator={<AddIcon />}
+                        onClick={() => {
+                            setNewDetails({ gameID: 0, versionID: 0 });
+                            setNewOpen(true);
+                        }}
+                        sx={{ px: 1 }}
+                        size="sm"
+                    >
+                        Server
+                    </Button>
                 </Box>
             </Box>
             <Table stripe="odd">
@@ -148,62 +151,101 @@ function Servers() {
                 </thead>
 
                 <tbody>
-                    {servers.map(server =>
-                    (<tr>
-                        <td>{server.id}</td>
-                        <td>{server.createdAt}</td>
-                        <td>{server.sysUser.username}</td>
-                        <td>{server.gameVersion.game.name}</td>
-                        <td>{server.gameVersion.version}</td>
-                        <td>{server.config?.startData && server.config?.startData.length > 0 && server.config.startData[server.config.startData.length - 1].port}</td>
-                        <td>
-                            <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled} onClick={() => { checkStatus(server.id) }} color="success"><SignalWifiStatusbar4Bar /></Button>
-                            <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.start[server.id]} onClick={() => { startSever(server.id) }} color="success"><PlayArrow /></Button>
-                            <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.stop[server.id]} onClick={() => { stopServer(server.id) }} color="danger"><Stop /></Button>
-                            <Link to={`/server/${server.id}`}>
-                                <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} color="primary"><Settings />
+                    {servers.map((server) => (
+                        <tr>
+                            <td>{server.id}</td>
+                            <td>{server.createdAt}</td>
+                            <td>{server.sysUser.username}</td>
+                            <td>{server.gameVersion.game.name}</td>
+                            <td>{server.gameVersion.version}</td>
+                            <td>{server.config?.startData && server.config?.startData.length > 0 && server.config.startData[server.config.startData.length - 1].port}</td>
+                            <td>
+                                <Button
+                                    sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }}
+                                    disabled={globalDisabled}
+                                    onClick={() => {
+                                        checkStatus(server.id);
+                                    }}
+                                    color="success"
+                                >
+                                    <SignalWifiStatusbar4Bar />
                                 </Button>
-                            </Link>
-                        </td>
-                    </tr>)
-                    )}
+                                <Button
+                                    sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }}
+                                    disabled={globalDisabled || actionsDisabled.start[server.id]}
+                                    onClick={() => {
+                                        startSever(server.id);
+                                    }}
+                                    color="success"
+                                >
+                                    <PlayArrow />
+                                </Button>
+                                <Button
+                                    sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }}
+                                    disabled={globalDisabled || actionsDisabled.stop[server.id]}
+                                    onClick={() => {
+                                        stopServer(server.id);
+                                    }}
+                                    color="danger"
+                                >
+                                    <Stop />
+                                </Button>
+                                <Link to={`/server/${server.id}`}>
+                                    <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} color="primary">
+                                        <Settings />
+                                    </Button>
+                                </Link>
+                            </td>
+                        </tr>
+                    ))}
                 </tbody>
             </Table>
-            <Modal
-                aria-labelledby="modal-title"
-                aria-describedby="modal-desc"
-                open={newOpen}
-                onClose={() => setNewOpen(false)}
-                sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-            >
-                <Sheet
-                    variant="outlined"
-                    sx={{ minWidth: 400, borderRadius: 'md', p: 3, boxShadow: 'lg' }}
-                >
+            <Modal aria-labelledby="modal-title" aria-describedby="modal-desc" open={newOpen} onClose={() => setNewOpen(false)} sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                <Sheet variant="outlined" sx={{ minWidth: 400, borderRadius: "md", p: 3, boxShadow: "lg" }}>
                     <ModalClose variant="plain" sx={{ m: 1 }} />
 
                     <Typography id="modal-desc " sx={{ mb: 2 }} textColor="text.tertiary">
                         Create New Server
                     </Typography>
                     <Select placeholder="Select server" onChange={(_, newValue) => setNewDetails({ gameID: Number(newValue), versionID: 0 })}>
-                        {games.map(game => (<Option key={game.id} value={game.id}>{game.name}</Option>))}
-
+                        {games.map((game) => (
+                            <Option key={game.id} value={game.id}>
+                                {game.name}
+                            </Option>
+                        ))}
                     </Select>
-                    {newDetails.gameID != 0 ? <Select onChange={(_, newValue) => setNewDetails((oldDetails) => ({ ...oldDetails, versionID: Number(newValue) }))} placeholder="Select version..." sx={{ mt: 2 }}>
-                        {games.filter(game => game.id == newDetails.gameID)[0].gameVersion.map(version => (<Option value={version.id}>{version.version}</Option>))}
+                    {newDetails.gameID != 0 ? (
+                        <Select onChange={(_, newValue) => setNewDetails((oldDetails) => ({ ...oldDetails, versionID: Number(newValue) }))} placeholder="Select version..." sx={{ mt: 2 }}>
+                            {games
+                                .filter((game) => game.id == newDetails.gameID)[0]
+                                .gameVersion.map((version) => (
+                                    <Option value={version.id}>{version.version}</Option>
+                                ))}
+                        </Select>
+                    ) : (
+                        ""
+                    )}
 
-                    </Select> : ""}
-
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mt: 2 }}>
-                        <Button color="success" size='sm' onClick={() => { createServer() }} sx={{ mr: 2 }} > Create</Button>
-                        <Button size='sm' onClick={() => setNewOpen(false)} color='neutral'>Cancel</Button>
-
+                    <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1, mt: 2 }}>
+                        <Button
+                            color="success"
+                            size="sm"
+                            onClick={() => {
+                                createServer();
+                            }}
+                            sx={{ mr: 2 }}
+                        >
+                            {" "}
+                            Create
+                        </Button>
+                        <Button size="sm" onClick={() => setNewOpen(false)} color="neutral">
+                            Cancel
+                        </Button>
                     </Box>
                 </Sheet>
-            </Modal >
-        </Sheet >
-
-    )
+            </Modal>
+        </Sheet>
+    );
 }
 
-export default Servers
+export default Servers;

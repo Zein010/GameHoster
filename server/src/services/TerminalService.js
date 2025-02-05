@@ -16,13 +16,20 @@ const CreateNewDirectory = (config) => {
         }
     }
 }
-const CreateUser = async (username) => {
+const CreateUser = async (usercreateData) => {
     var res = null;
     try {
-        execSync(`sudo groupadd  ${username}`)
-        execSync(`sudo useradd -g ${username} ${username}`)
-        execSync(`sudo usermod -a -G wine ${username}`)
+        execSync(`sudo groupadd  ${usercreateData.username}`)
+        if (usercreateData.dirName) {
+            let dirName = usercreateData.dirName ? pathLib.resolve(usercreateData.dirName) : null;
+
+            console.log(`sudo useradd -g ${usercreateData.username} -m -d ${dirName} ${usercreateData.username}`)
+            execSync(`sudo useradd -g ${usercreateData.username} -m -d ${dirName} ${usercreateData.username}`)
+        } else {
+            execSync(`sudo useradd -g ${usercreateData.username} ${usercreateData.username}`)
+        }
     } catch (Error) {
+        console.log(Error)
         return false;
     }
 }
@@ -301,6 +308,66 @@ const DisplayUserLog = (path) => {
         return true;
     }
 }
+const DownloadRustServer = (username, dirName) => {
+    return new Promise((resolve, reject) => {
+        const command = `sudo -u ${username} /usr/games/steamcmd +@sSteamCmdForcePlatformType linux +force_install_dir ${dirName} +login anonymous +app_update 258550 +quit`
+        const ls = spawn(command, { shell: true });
+
+        ls.stdout.on('data', (data) => {
+            console.log(`stdout: ${data}`);
+        });
+
+        ls.stderr.on('data', (data) => {
+            console.error(`stderr: ${data}`);
+        });
+
+        ls.on('close', (code) => {
+            resolve(true);
+        });
+    })
+
+}
+const CreateRustStartService = (username, dirName, config) => {
+    // i want to create a file named username.service in /etc/systemd/system/
+
+    const serviceContent = `[Unit]
+Description=Rust Dedicated Server
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Environment=SteamAppId=258550
+Environment=LD_LIBRARY_PATH=${dirName}:$LD_LIBRARY_PATH
+Type=simple
+TimeoutSec=900
+Restart=on-failure
+RestartSec=10
+KillSignal=SIGINT
+User=rust
+Group=rust
+WorkingDirectory=${dirName}
+ExecStartPre=/usr/games/steamcmd +@sSteamCmdForcePlatformType linux +force_install_dir ${dirName} +login anonymous +app_update 258550 +quit
+ExecStart=${dirName}/RustDedicated -batchmode \
+    +server.port ${config.serverPort} \
+    +server.level "Procedural Map" \
+    +server.seed ${config.seed} \
+    +server.worldsize ${config.worldSize} \
+    +server.maxplayers ${config.players} \
+    +server.hostname "${config.serverName}" \
+    +server.description "${config.serverDescription}" \
+    +server.identity "${config.internalServerName}" \
+    +rcon.port ${config.rconPort} \
+    +rcon.password "${config.rconPassword}" \
+    +rcon.web 1
+
+[Install]
+WantedBy=multi-user.target`
+
+    fs.writeFileSync(`/etc/systemd/system/${username}.service`, serviceContent);
+    // we need to enable the service
+    execSync(`sudo systemctl enable ${username}.service`);
+
+}
 const TerminalToSocket = (serverId, socket) => {
     if (!RunningServers[serverId]) {
         console.log("Server down")
@@ -531,5 +598,5 @@ const CreateService = (name, path, service) => {
     }
 };
 
-const TerminalService = { StartService, CreateService, RunScript, GetLog, CreateZip, DownloadServerDataByScript, GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
+const TerminalService = { DownloadRustServer, CreateRustStartService, StartService, CreateService, RunScript, GetLog, CreateZip, DownloadServerDataByScript, GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService

@@ -58,7 +58,7 @@ const Download = async (req, res) => {
     const { serverId } = req.params
     const { files, path } = req.body
     const server = await GameService.GetServer(Number(serverId))
-    const zippedFile = await TerminalService.CreateZip(files, server.path, path);
+    const zippedFile = TerminalService.CreateZip(files, server.path, path);
     if (zippedFile.fileName) {
         const file = pathLib.join(server.path, path, zippedFile.fileName);
 
