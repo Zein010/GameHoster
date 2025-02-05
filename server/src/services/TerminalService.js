@@ -314,11 +314,9 @@ const DownloadRustServer = (username, dirName) => {
         const ls = spawn(command, { shell: true });
 
         ls.stdout.on('data', (data) => {
-            console.log(`stdout: ${data}`);
         });
 
         ls.stderr.on('data', (data) => {
-            console.error(`stderr: ${data}`);
         });
 
         ls.on('close', (code) => {
@@ -343,8 +341,8 @@ TimeoutSec=900
 Restart=on-failure
 RestartSec=10
 KillSignal=SIGINT
-User=rust
-Group=rust
+User=${username}
+Group=${username}
 WorkingDirectory=${correctDirName}
 ExecStartPre=/usr/games/steamcmd +@sSteamCmdForcePlatformType linux +force_install_dir ${correctDirName} +login anonymous +app_update 258550 +quit
 ExecStart=${correctDirName}/RustDedicated -batchmode \
