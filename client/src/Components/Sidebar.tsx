@@ -7,7 +7,7 @@ import Typography from '@mui/joy/Typography';
 import Sheet from '@mui/joy/Sheet';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import TerminalIcon from '@mui/icons-material/Terminal';
-import ColorSchemeToggle from './ColorSchemeToggle';
+import ColorSchemeToggle from './ColorSchemeToggle.tsx';
 import { closeSidebar, notification } from '../Utils.ts';
 import PersonIcon from '@mui/icons-material/Person';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -19,9 +19,10 @@ import { PlayArrow, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
 import useSignOut from 'react-auth-kit/hooks/useSignOut';
+import useApiRequests from './API.tsx';
 
 export default function Sidebar() {
-
+  const requests=useApiRequests();
   const [port, setPort] = useState(0)
   const [gameVersion, setGameVersion] = useState<null | { version: string, id: number, game: { name: string, id: number } }>(null)
   const [actionsDisabled, setActionsDisabled] = useState<{ start: boolean, stop: boolean }>({ start: false, stop: false });
@@ -47,13 +48,13 @@ export default function Sidebar() {
       setGlobalDisabled(false)
       return;
     }
-    const response = await fetch(import.meta.env.VITE_API + `/Game/StartServer/${id}`)
-    if (response.ok) {
+    const response=await requests.startGameServer(parseInt(id!));
+    if (response.status==200) {
       notification('Server is running', "success")
       await checkStatus();
 
     } else {
-      notification((await response.json()).msg, "error")
+      notification(response.data.msg, "error")
     }
     setGlobalDisabled(false)
 
@@ -67,21 +68,24 @@ export default function Sidebar() {
       setGlobalDisabled(false)
       return;
     }
-    const response = await fetch(import.meta.env.VITE_API + `/Game/StopServer/${id}`)
-    if (response.ok) {
+    const response=await requests.stopGameServer(parseInt(id!));
+    if (response.status==200) {
       notification('Server is stopped', "success")
       await checkStatus();
 
     } else {
-      notification((await response.json()).msg, "error")
+      notification( response.data.msg, "error")
     }
     setGlobalDisabled(false)
   }
   const checkStatus = async () => {
     var serverOn = false;
-    const response = await fetch(import.meta.env.VITE_API + `/Game/CheckServer/${id}`)
-    if (response.ok) {
-      const resdata = await response.json()
+    if(id==null){
+      return
+    }
+    const response = await requests.checkGameServerStatus(parseInt(id));
+    if (response.status==200) {
+      const resdata = await response.data
       if (resdata.status) {
         setActionsDisabled({ start: true, stop: false });
         serverOn = true;

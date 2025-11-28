@@ -71,7 +71,6 @@ export default function Login() {
             })
             if (response.ok) {
                 const resJson = await response.json();
-
                 if (signIn({
                     auth: {
                         token: resJson.data.token,

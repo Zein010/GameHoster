@@ -63,7 +63,7 @@ export default function FileManager() {
     }, [fileRowsRef])
     useEffect(() => {
         const fetchFiles = async () => {
-            const response = await requests.getFiles(id, currentPath)
+            const response = await requests.getFiles(id!, currentPath)
 
             if (response.status = 200) {
 
@@ -127,7 +127,7 @@ export default function FileManager() {
     };
     const sendCreate = async () => {
 
-        const response = await requests.createFile(id, currentPath, createType, createName)
+        const response = await requests.createFile(id!, currentPath, createType, createName)
         if (response.status == 200 && response.data.success) {
             setRefresh(!refresh)
             setCreateOpen(false)

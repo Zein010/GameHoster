@@ -1,0 +1,3 @@
+VITE_API=[ServerIP|ServerHost:ServerPort]
+VITE_PORT=[ClientPort]
+VITE_HOST=[ClientHost]

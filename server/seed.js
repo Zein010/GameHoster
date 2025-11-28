@@ -1,18 +1,24 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Role } from "@prisma/client";
 const prisma = new PrismaClient();
 import bcrypt from "bcrypt";
 const seed = async () => {
   try {
     await prisma.user.upsert({
       where: { id: 1 },
-      create: { id: 1, username: "zzzxxx", firstName: "zzz", lastName: "xxx", email: "zzz@xxx.com", password: bcrypt.hashSync("123123aA@", 10) },
-      update: { username: "zzzxxx", email: "zzz@xxx.com", password: bcrypt.hashSync("123123aA@", 10) },
+      create: { id: 1, username: "zzzxxx", firstName: "zzz", lastName: "xxx", email: "zzz@xxx.com", password: bcrypt.hashSync("123123aA@", 10),role: Role.ADMIN },
+      update: { username: "zzzxxx", email: "zzz@xxx.com", password: bcrypt.hashSync("123123aA@", 10) ,role: Role.ADMIN},
     });
+    
     console.log("Created Default User")
     await prisma.game.upsert({
       where: { id: 1 },
       create: { id: 1, name: "Minecraft", dirName: "minecraft" },
       update: { name: "Minecraft", dirName: "minecraft" },
+    });
+    await prisma.server.upsert({
+      where: { id: 1},
+      create: { id: 1, url: "localhost:"+process.env.SERVER_PORT,deleted:false,apiKey:null },
+      update: {  url: "localhost:"+process.env.SERVER_PORT,deleted:false,apiKey:null },
     });
     console.log("Created Minecraft Server")
     await prisma.game.upsert({
@@ -35,14 +41,14 @@ const seed = async () => {
 
     await prisma.gameVersion.upsert({
       where: { id: 2 },
-      create: { id: 2, searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "", version: "Forge-1.21.3", cacheFile: "DownloadCache/Minecraft/2", scriptFile: "forge-1.21.3-53.0.9-shim.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
-      update: { searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "", version: "Forge-1.21.3", cacheFile: "DownloadCache/Minecraft/2", scriptFile: "forge-1.21.3-53.0.9-shim.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
+      create: { id: 2, searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "https://maven.minecraftforge.net/net/minecraftforge/forge/1.21.3-53.1.0/forge-1.21.3-53.1.0-installer.jar", version: "Forge-1.21.3", cacheFile:null, scriptFile: "forge-1.21.3-53.0.9-shim.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
+      update: { searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "https://maven.minecraftforge.net/net/minecraftforge/forge/1.21.3-53.1.0/forge-1.21.3-53.1.0-installer.jar", version: "Forge-1.21.3", cacheFile: null, scriptFile: "forge-1.21.3-53.0.9-shim.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
     });
 
     await prisma.gameVersion.upsert({
       where: { id: 3 },
-      create: { id: 3, searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "", version: "Forge-1.21.1", cacheFile: "DownloadCache/Minecraft/3", scriptFile: "forge-1.21.1-52.0.26-shim.jar", runScript: "java -Xmx2024M -Xms2024M -jar  [{fileName}] nogui" },
-      update: { searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "", version: "Forge-1.21.1", cacheFile: "DownloadCache/Minecraft/3", scriptFile: "forge-1.21.1-52.0.26-shim.jar", runScript: "java -Xmx2024M -Xms2024M -jar  [{fileName}] nogui" },
+      create: { id: 3, searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "https://maven.minecraftforge.net/net/minecraftforge/forge/1.21.1-52.1.6/forge-1.21.1-52.1.6-installer.jar", version: "Forge-1.21.1", cacheFile:null, scriptFile: "forge-1.21.1-52.0.26-shim.jar", runScript: "java -Xmx2024M -Xms2024M -jar  [{fileName}] nogui" },
+      update: { searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "https://maven.minecraftforge.net/net/minecraftforge/forge/1.21.1-52.1.6/forge-1.21.1-52.1.6-installer.jar", version: "Forge-1.21.1", cacheFile: null, scriptFile: "forge-1.21.1-52.0.26-shim.jar", runScript: "java -Xmx2024M -Xms2024M -jar  [{fileName}] nogui" },
     });
 
     await prisma.gameVersion.upsert({

@@ -21,7 +21,7 @@ const CreateUser = async (username) => {
     try {
         execSync(`sudo groupadd  ${username}`)
         execSync(`sudo useradd -g ${username} ${username}`)
-        execSync(`sudo usermod -a -G wine ${username}`)
+        // execSync(`sudo usermod -a -G wine ${username}`)
     } catch (Error) {
         return false;
     }
@@ -193,36 +193,53 @@ const StartCreatedServer = (serverDetails) => {
     const scriptFile = serverDetails.scriptFile;
     const username = serverDetails.sysUser.username;
     const gameVersion = serverDetails.gameVersion;
-
+    const absolutePath = pathLib.resolve(process.cwd(), path);
 
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
 
     const outFile = fs.openSync(path + '/outlog', 'a'); // Open in append mode ('a')
-
+    const scriptToRun = `cd "${absolutePath}" && ${script}`;
     try {
         // Create a detached process with its own process group
-        const command = `cd "${path}" && /bin/su ${username} -c 'cd "${path}" && ${script}'`;
-
-        const ls = spawn('sh', ['-c', command], {
-            detached: true,
-            stdio: ['pipe', 'pipe', 'pipe'], // Changed to pipe for debugging
-            shell: true,
-            cwd: "/var/www/GameHoster/server", // Set working directory explicitly
-        });
+const ls = spawn(
+    "/bin/su",
+    [
+        "-l",        
+        username,
+        "-c",
+      scriptToRun
+    ],
+    {
+        // Execute the command in the target user's home directory by default
+        // The cwd option here will be ignored by `su -l`, as it uses the user's home directory.
+        // If you need a specific directory, you must add 'cd ...' to the command string.
+        detached: true,
+        stdio: ['pipe', 'pipe', 'pipe'],
+        shell: false
+    }
+);
+        // Capture stdout
         ls.stdout.on("data", (data) => {
             fs.writeSync(outFile, data.toString());
         });
 
+        // Capture stderr
         ls.stderr.on("data", (data) => {
             fs.writeSync(outFile, data.toString());
         });
+
+        ls.on("error", (err) => {
+            console.error("Failed to start subprocess:", err);
+        });
+
+        ls.unref();
         RunningServers[serverDetails.id] = ls
         // ls.unref();
         // Don't wait for the child to exit
         ls.on('error', (err) => {
             console.error('Failed to start subprocess:', err);
         });
-
+        console.log(`Server process id ${ls.pid}`)
         return ls.pid;
     } catch (error) {
         console.error('Error starting server:', error);
@@ -237,8 +254,8 @@ const CacheFile = async (DirectoryFrom, versionID) => {
 
 }
 const OwnFile = async (name, username) => {
-    execSync(`chown -R ${username}:${username} ${name} `, { encoding: "utf-8" })
-    execSync(`chmod -R 755  ${name} `, { encoding: "utf-8" })
+    execSync(`sudo chown -R ${username}:${username} ${name} `, { encoding: "utf-8" })
+    execSync(`sudo chmod -R 755  ${name} `, { encoding: "utf-8" })
     await PrismaService.SetUserAccess(username, name)
 }
 const DeleteDir = (path) => {

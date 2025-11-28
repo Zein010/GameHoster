@@ -3,6 +3,7 @@ import TerminalService from "../services/TerminalService.js";
 import sysUserService from "../services/sysUserService.js";
 import { GetServerStartOptions } from "../utils.js";
 import RCONService from "../services/RCONService.js";
+import { Role } from "@prisma/client";
 
 
 const GetAll = async (req, res) => {
@@ -26,7 +27,7 @@ const GetVersions = async (req, res) => {
     res.json({ data });
 }
 const GetServers = async (req, res) => {
-    const data = await GameService.GetServers({ userId: req.user.id });
+    const data = await GameService.GetServers(req.user.role==Role.ADMIN?null:{ userId: req.user.id });
     res.json({ data });
 }
 const GetServer = async (req, res) => {
@@ -71,13 +72,13 @@ const CreateServer = async (req, res) => {
     await sysUserService.StoreSysUser(username);
     var scriptFile = "";
     if (gameVersion.cacheFile) {
+        
         console.log("Copying file");
-        await TerminalService.CopyFile(gameVersion.cacheFile, dirName);
+        await TerminalService.CopyFile(gameVersion.cacheFile, dirName).catch((err)=>console.log(err));
         console.log("Done copying files");
         scriptFile = gameVersion.scriptFile
     } else {
         if (gameVersion.downloadLink) {
-
             scriptFile = TerminalService.DownloadServerData(gameVersion.downloadLink, dirName);
         }
         if (gameVersion.installScript) {
@@ -87,33 +88,24 @@ const CreateServer = async (req, res) => {
         await TerminalService.CacheFile(dirName, `${gameVersion.game.name}/${gameVersion.id}`);
         GameService.SetGameVersionCache(gameVersion.id, `DownloadCache/${gameVersion.game.name}/${gameVersion.id}`)
     }
-    if (gameVersion.runOnce) {
-        console.log("Running once");
-        for (var i = 0; i < gameVersion.runOnce.length; i++) {
-
-            await TerminalService.RunScript(dirName, gameVersion.runOnce[i].script, gameVersion.runOnce[i].timeout || 0);
-        }
-        console.log("ran once");
-    }
-    if (gameVersion.service) {
-        console.log("creating service");
-        TerminalService.CreateService(username, dirName, gameVersion.service);
-        console.log("created service");
-    }
     console.log("adding server");
     const serverDetails = await GameService.AddRunningServer(dirName, username, gameVersion.id, scriptFile)
     console.log("added server");
     const config = GetServerStartOptions(gameVersion, "start")
+    console.log("Appending to server config");
     GameService.AppendToServerConfig(serverDetails.id, config);
+    console.log("Setting up required files");
     TerminalService.SetupRequiredFiles(dirName, gameVersion.getFilesSetup)
     await TerminalService.OwnFile(dirName, username)
 
     await TerminalService.SetupServerAfterStart(dirName, gameVersion.changeFileAfterSetup, config);
+    console.log("Owning new Files");
     await TerminalService.OwnFile(dirName, username)
     if (gameVersion.service) {
         TerminalService.StartService(`${username}.service`);
     } else {
 
+    console.log("Starting created server");
         TerminalService.StartCreatedServer(serverDetails)
     }
 

@@ -29,17 +29,10 @@ function Servers() {
             const serversResponse = await requests.getGameServers()
             if (serversResponse.status == 200) {
                 setServers(serversResponse.data.data)
-            } else {
-
             }
-            const gameResponse = await fetch(import.meta.env.VITE_API + '/Game', {
-                method: 'GET',
-                headers: {
-                    'content-type': 'application/json;charset=UTF-8',
-                }
-            })
-            if (gameResponse.ok) {
-                setGames((await gameResponse.json()).data)
+            const gameResponse = await requests.getGames();
+             if (gameResponse.status == 200) {
+                setGames(gameResponse.data.data)
             }
         }
         fetchData()
@@ -65,13 +58,13 @@ function Servers() {
             setGlobalDisabled(false)
             return;
         }
-        const response = await fetch(import.meta.env.VITE_API + `/Game/StartServer/${serverId}`)
-        if (response.ok) {
+        const response= await requests.startGameServer(serverId);
+        if (response.status==200) {
             notification('Server is running', "success")
             await checkStatus(serverId, false, false);
 
         } else {
-            notification((await response.json()).msg, "error")
+            notification(response.data.msg, "error")
         }
         setGlobalDisabled(false)
 
@@ -85,13 +78,14 @@ function Servers() {
             setGlobalDisabled(false)
             return;
         }
-        const response = await fetch(import.meta.env.VITE_API + `/Game/StopServer/${serverId}`)
-        if (response.ok) {
+        const response=await requests.stopGameServer(serverId);
+
+        if (response.status==200) {
             notification('Server is stopped', "success")
             await checkStatus(serverId, false, false);
 
         } else {
-            notification((await response.json()).msg, "error")
+            notification( response.data.msg, "error")
         }
         setGlobalDisabled(false)
     }
@@ -99,9 +93,9 @@ function Servers() {
         if (HideButtons)
             setGlobalDisabled(true)
         var serverOn = false;
-        const response = await fetch(import.meta.env.VITE_API + `/Game/CheckServer/${serverId}`)
-        if (response.ok) {
-            if ((await response.json()).status) {
+        const response = await requests.checkGameServerStatus(serverId);
+        if (response.status==200) {
+            if ( response.data.status) {
                 if (showAlert)
                     notification('Server is running', "success")
                 setActionDisabledState(serverId, { start: true, stop: false });
@@ -122,15 +116,16 @@ function Servers() {
     const createServer = async () => {
 
         setNewOpen(false)
-        const response = await fetch(import.meta.env.VITE_API + `/Game/CreateServer/${newDetails.versionID}`)
-        if (response.ok) {
+        const response=await requests.createServer(newDetails.versionID)
+        if (response.status==200) {
             setRefresh(!refresh)
         }
     }
 
     return (
-        <Sheet className="mx-10 px-3 mt-6">
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 2 }}>
+    
+       <>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 
                 <Typography level="h3">Servers</Typography>
                 <Box sx={{ display: 'flex', gap: 1 }}>
@@ -204,7 +199,7 @@ function Servers() {
                     </Box>
                 </Sheet>
             </Modal >
-        </Sheet >
+       </>
 
     )
 }

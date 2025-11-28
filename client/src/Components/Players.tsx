@@ -6,25 +6,21 @@ import NotInterestedIcon from '@mui/icons-material/NotInterested';
 import { useParams } from 'react-router-dom';
 import RemoveModeratorIcon from '@mui/icons-material/RemoveModerator';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import useApiRequests from './API';
 export default function Players() {
 
     const [players, setPlayers] = useState<{ name: string, uuid: string }[]>([]);
     const [bannedPlayers, setBannedPlayers] = useState<{ playerName: string, reason: string }[]>([]);
     const [refresh, setRefresh] = useState(false);
-
+    const requests=useApiRequests();
     const { id } = useParams();
     useEffect(() => {
 
         const fetchData = async () => {
 
-            const resPlayers = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/GetPlayers`, {
-                method: 'Get',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            if (resPlayers.ok) {
-                const log = await resPlayers.json();
+            const resPlayers =await requests.getGamePlayers(parseInt(id!))
+            if (resPlayers.status==200) {
+                const log =  resPlayers.data;
                 const regex = /(\w+)\s\(([\da-fA-F-]+)\)/g;
                 let match;
                 const newPlayers = []
@@ -33,14 +29,9 @@ export default function Players() {
                 }
                 setPlayers(newPlayers)
             }
-            const resBanned = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/GetBanned`, {
-                method: 'Get',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            if (resBanned.ok) {
-                const newBannedPlayers = (await resBanned.json()).output;
+            const resBanned = await requests.getGameBannedPlayers(parseInt(id!))
+            if (resBanned.status==200) {
+                const newBannedPlayers =  resBanned.data.output;
 
                 setBannedPlayers(newBannedPlayers)
             }
@@ -49,66 +40,38 @@ export default function Players() {
 
     }, [refresh, id])
     const kickPlayer = async (playerName: string) => {
-        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/Kick`, {
-            method: 'Post',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ playerName })
-        })
-        if (response.ok) {
+        const response =await requests.sendCommand(parseInt(id!),"kick",{playerName}); 
+        if (response.status=200) {
             setRefresh(!refresh)
         }
 
     }
     const banPlayer = async (playerName: string) => {
-        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/Ban`, {
-            method: 'Post',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ playerName })
-        })
-        if (response.ok) {
+        const response =await requests.sendCommand(parseInt(id!),"Ban",{playerName}); 
+        if (response.status=200) {
             setRefresh(!refresh)
         }
 
     }
     const opPlayer = async (playerName: string) => {
-        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/OP`, {
-            method: 'Post',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ playerName })
-        })
-        if (response.ok) {
+        const response =await requests.sendCommand(parseInt(id!),"OP",{playerName}); 
+        if (response.status=200) {
             setRefresh(!refresh)
         }
+       
 
     }
     const deopPlayer = async (playerName: string) => {
-        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/DEOP`, {
-            method: 'Post',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ playerName })
-        })
-        if (response.ok) {
+        const response =await requests.sendCommand(parseInt(id!),"DEOP",{playerName}); 
+        if (response.status=200) {
             setRefresh(!refresh)
         }
 
     }
     const unban = async (playerName: string) => {
-        const response = await fetch(import.meta.env.VITE_API + `/Game/Command/${id}/Unban`, {
-            method: 'Post',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ playerName })
-        })
-        if (response.ok) {
+        const response =await requests.sendCommand(parseInt(id!),"Unban",{playerName}); 
+       
+        if (response.status=200) {
             setRefresh(!refresh)
         }
 
@@ -124,7 +87,7 @@ export default function Players() {
                 <Grid container spacing={2} sx={{ flexGrow: 1 }}>
                     {players.length > 0 ? players.map(player => {
                         return (
-                            <Box >
+                            <Box key={player.uuid}>
                                 <Card variant="soft" sx={{ boxShadow: "lg" }} >
                                     <CardContent>
                                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "space-between" }}>
@@ -164,9 +127,9 @@ export default function Players() {
             <Card variant="outlined" sx={{ bgcolor: '#2d2d2d', color: '#d1d5db', p: 2 }}>
 
                 <Grid container spacing={2} sx={{ flexGrow: 1 }}>
-                    {bannedPlayers.length > 0 ? bannedPlayers.map(player => {
+                    {bannedPlayers.length > 0 ? bannedPlayers.map((player,i) => {
                         return (
-                            <Box  >
+                            <Box key={i} >
                                 <Card variant="soft" sx={{ boxShadow: "lg" }} >
                                     <CardContent>
                                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: "space-between" }}>

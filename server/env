@@ -1,0 +1,5 @@
+DATABASE_URL="[ConnectionString]"
+JWT_SECRET="[JwtSecret]"
+JWT_REFRESH_SECRET="[JwtRefresh]"
+SERVER_PORT=[SERVER_PORT]
+SERVER_ID=1

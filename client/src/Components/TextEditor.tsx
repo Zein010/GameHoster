@@ -3,9 +3,11 @@ import "../index.css"
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { Cancel, Restore, Save } from '@mui/icons-material';
+import useApiRequests from './API';
 // Connect to the server with a purpose query parameter
 
 export default function TextEditor() {
+    const requests=useApiRequests();
     const { id, "*": currentPath } = useParams<{ id: string, "*": string }>();
     const contentFieldRef = useRef<HTMLTextAreaElement>(null);
     const [content, setContent] = useState<string>("")
@@ -13,16 +15,10 @@ export default function TextEditor() {
     useEffect(() => {
         const fetcData = async () => {
 
-            const response = await fetch(import.meta.env.VITE_API + `/Files/${id}/GetContent`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ path: currentPath, serverId: id })
-            })
-            if (response.ok) {
-                const data = await response.json()
-                setContent(data.content)
+            const response =await  requests.getFileContent(parseInt(id!),{ path: currentPath, serverId: id })
+          
+            if (response.status==200) {
+                setContent(response.data.content)
             }
         }
         if (currentPath) {
@@ -30,15 +26,9 @@ export default function TextEditor() {
         }
     }, [currentPath])
     const saveContent = async () => {
-
-        const response = await fetch(import.meta.env.VITE_API + `/Files/${id}/SaveContent`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ path: currentPath, content: contentFieldRef.current?.value, serverId: id })
-        })
-        if (response.ok) {
+        const response=await requests.saveFileContent(parseInt(id!),{ path: currentPath, content: contentFieldRef.current?.value, serverId: id })
+      
+        if (response.status==200) {
             navigate(`/server/${id}/Files/${currentPath?.split("/").slice(0, currentPath?.split("/").length - 1).join("/")}`)
         }
     }
