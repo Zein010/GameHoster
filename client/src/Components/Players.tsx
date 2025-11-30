@@ -18,7 +18,7 @@ export default function Players() {
 
         const fetchData = async () => {
 
-            const resPlayers =await requests.getGamePlayers(parseInt(id!))
+            const resPlayers =await requests.commandManager.getGamePlayers(parseInt(id!))
             if (resPlayers.status==200) {
                 const log =  resPlayers.data;
                 const regex = /(\w+)\s\(([\da-fA-F-]+)\)/g;
@@ -29,7 +29,7 @@ export default function Players() {
                 }
                 setPlayers(newPlayers)
             }
-            const resBanned = await requests.getGameBannedPlayers(parseInt(id!))
+            const resBanned = await requests.commandManager.getGameBannedPlayers(parseInt(id!))
             if (resBanned.status==200) {
                 const newBannedPlayers =  resBanned.data.output;
 
@@ -40,21 +40,21 @@ export default function Players() {
 
     }, [refresh, id])
     const kickPlayer = async (playerName: string) => {
-        const response =await requests.sendCommand(parseInt(id!),"kick",{playerName}); 
+        const response =await requests.commandManager.sendCommand(parseInt(id!),"kick",{playerName}); 
         if (response.status=200) {
             setRefresh(!refresh)
         }
 
     }
     const banPlayer = async (playerName: string) => {
-        const response =await requests.sendCommand(parseInt(id!),"Ban",{playerName}); 
+        const response =await requests.commandManager.sendCommand(parseInt(id!),"Ban",{playerName}); 
         if (response.status=200) {
             setRefresh(!refresh)
         }
 
     }
     const opPlayer = async (playerName: string) => {
-        const response =await requests.sendCommand(parseInt(id!),"OP",{playerName}); 
+        const response =await requests.commandManager.sendCommand(parseInt(id!),"OP",{playerName}); 
         if (response.status=200) {
             setRefresh(!refresh)
         }
@@ -62,14 +62,14 @@ export default function Players() {
 
     }
     const deopPlayer = async (playerName: string) => {
-        const response =await requests.sendCommand(parseInt(id!),"DEOP",{playerName}); 
+        const response =await requests.commandManager.sendCommand(parseInt(id!),"DEOP",{playerName}); 
         if (response.status=200) {
             setRefresh(!refresh)
         }
 
     }
     const unban = async (playerName: string) => {
-        const response =await requests.sendCommand(parseInt(id!),"Unban",{playerName}); 
+        const response =await requests.commandManager.sendCommand(parseInt(id!),"Unban",{playerName}); 
        
         if (response.status=200) {
             setRefresh(!refresh)

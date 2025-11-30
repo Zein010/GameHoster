@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import { API_BASE_URL } from '../Config/app.config';
 // Connect to the server with a purpose query parameter
 export default function Terminal() {
     const { id } = useParams();
@@ -12,7 +13,7 @@ export default function Terminal() {
     const [currentCommandIndex, setCurrentCommandIndex] = useState(0);
     const commandsDiv = useRef<HTMLDivElement>(null);
     useEffect(() => {
-        setTerminalSocket(io(import.meta.env.VITE_API, { query: { purpose: "terminal", serverId: id } }));
+        setTerminalSocket(io(API_BASE_URL, { query: { purpose: "terminal", serverId: id } }));
 
 
     }, [id])

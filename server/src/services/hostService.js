@@ -13,7 +13,7 @@ const GetHost = async (serverId) => {
 
 
 const GetHosts = async (filters) => {
-    return await prisma.server.findMany({ where: { deleted: false },select:{id:true,url:true,deleted:true} });
+    return await prisma.server.findMany({ where: { deleted: false },select:{id:true,url:true,deleted:true,frontendUrl:true} });
 }
 const HostService = {GetHost ,GetHosts};
 export default HostService

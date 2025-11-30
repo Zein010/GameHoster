@@ -17,8 +17,14 @@ const seed = async () => {
     });
     await prisma.server.upsert({
       where: { id: 1},
-      create: { id: 1, url: "localhost:"+process.env.SERVER_PORT,deleted:false,apiKey:null },
-      update: {  url: "localhost:"+process.env.SERVER_PORT,deleted:false,apiKey:null },
+      create: { id: 1, url: "localhost:"+process.env.SERVER_PORT,deleted:false,apiKey:null,frontendUrl:"1.localhost" },
+      update: {  url: "localhost:"+process.env.SERVER_PORT,deleted:false,apiKey:null ,frontendUrl:"1.localhost"},
+    });
+    
+    await prisma.server.upsert({
+      where: { id: 2},
+      create: { id: 2, url: "localhost:8081",deleted:false,apiKey:null,frontendUrl:"2.localhost" },
+      update: {  url: "localhost:8081",deleted:false,apiKey:null ,frontendUrl:"2.localhost"},
     });
     console.log("Created Minecraft Server")
     await prisma.game.upsert({

@@ -34,10 +34,10 @@ createRoot(document.getElementById('root')!).render(
           <Route path="" key={"Servers"} element={<Servers />} />
         </Route>
 
-        <Route path="/Hosts" key={"Main"} element={<RequireAuth fallbackPath='/'><Hosts /></RequireAuth>} >
-            <Route path=":id/Servers" element={<Servers />} />
+        <Route path="/Hosts" key={"Hosts"} element={<RequireAuth fallbackPath='/'><Home /></RequireAuth>} >
+          <Route path="" key={"Hosts"} element={<Hosts />} />
+          <Route path=":id/Servers" key={"Host-Servers"} element={<Servers />} />
         </Route>
-
 
         <Route path="/server/:id" key={"Server"} element={<RequireAuth fallbackPath='/'><Server ></Server></RequireAuth>} >
           <Route path="" key={"Terminal"} element={<Terminal />} />

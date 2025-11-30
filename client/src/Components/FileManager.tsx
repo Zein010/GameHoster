@@ -14,6 +14,7 @@ import axios from 'axios';
 import { ArrowUpward, Download, UploadFile } from '@mui/icons-material';
 import { notification } from '../Utils';
 import useApiRequests from './API';
+import { API_BASE_URL } from '../Config/app.config';
 const Item = styled(Sheet)(({ theme }) => ({
     // Use prop if provided, fallback to #fff
     ...theme.typography['body-sm'],
@@ -63,7 +64,7 @@ export default function FileManager() {
     }, [fileRowsRef])
     useEffect(() => {
         const fetchFiles = async () => {
-            const response = await requests.getFiles(id!, currentPath)
+            const response = await requests.fileManager.getFiles(id!, currentPath)
 
             if (response.status = 200) {
 
@@ -102,7 +103,7 @@ export default function FileManager() {
 
         })
         formData.append('path', currentPath);
-        axios.post(import.meta.env.VITE_API + `/Files/${id}/Upload`, formData, {
+        axios.post(API_BASE_URL + `/Files/${id}/Upload`, formData, {
             headers: {
                 'content-type': 'multipart/form-data',
             },
@@ -127,7 +128,7 @@ export default function FileManager() {
     };
     const sendCreate = async () => {
 
-        const response = await requests.createFile(id!, currentPath, createType, createName)
+        const response = await requests.fileManager.createFile(id!, currentPath, createType, createName)
         if (response.status == 200 && response.data.success) {
             setRefresh(!refresh)
             setCreateOpen(false)
@@ -146,8 +147,7 @@ export default function FileManager() {
     }
     const DeleteFiles = async () => {
 
-
-        const response = await fetch(import.meta.env.VITE_API + `/Files/${id}/Delete`, {
+        const response = await fetch(API_BASE_URL + `/Files/${id}/Delete`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -177,7 +177,7 @@ export default function FileManager() {
 
         try {
             // Make the API request to start the download
-            const response = await fetch(import.meta.env.VITE_API + `/Files/${id}/Download`, {
+            const response = await fetch(API_BASE_URL + `/Files/${id}/Download`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

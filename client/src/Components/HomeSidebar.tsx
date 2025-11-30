@@ -20,7 +20,7 @@ export default function HomeSideBar() {
   const auth = useAuthUser<{ username: string, email: string }>()
   const signOut = useSignOut()
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => location.pathname.endsWith(path) ;
   const navigate = useNavigate();
   const handleSignOut = async () => {
     signOut();
@@ -94,12 +94,12 @@ export default function HomeSideBar() {
           flexDirection: 'column',
         }}
       >
-        <Link href={`/server`} underline="none" sx={{ gap: 1, backgroundColor: isActive(`/server`) ? 'background.level2' : "", py: .5, px: 1, borderRadius: 10 }} >
+        <Link href={`/Servers`} underline="none" sx={{ gap: 1, backgroundColor: isActive(`/Servers`) ? 'background.level2' : "", py: .5, px: 1, borderRadius: 10 }} >
           <TerminalIcon />
           <Typography level="title-sm">Servers</Typography>
         </Link>
 
-        <Link href={`/server`} underline="none" sx={{ gap: 1, backgroundColor: isActive(`/server`) ? 'background.level2' : "", py: .5, px: 1, borderRadius: 10 }}>
+        <Link href={`/Hosts`} underline="none" sx={{ gap: 1, backgroundColor: isActive(`/Hosts`) ? 'background.level2' : "", py: .5, px: 1, borderRadius: 10 }}>
           <PersonIcon />
           <Typography level="title-sm">Hosts</Typography>
         </Link>

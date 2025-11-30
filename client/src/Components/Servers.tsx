@@ -4,11 +4,13 @@ import "../index.css"
 import { ElevatorSharp, PlayArrow, Settings, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
 import { notification } from '../Utils'
 import AddIcon from '@mui/icons-material/Add';
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
 import useApiRequests from './API.tsx'
 
 function Servers() {
+    const { id } =useParams();
+    
     const [servers, setServers] = useState<{
         id: number
         createdAt: string

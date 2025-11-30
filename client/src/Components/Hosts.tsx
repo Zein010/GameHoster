@@ -11,7 +11,7 @@ import useApiRequests from './API.tsx'
 function Hosts() {
     const [hosts, setHosts] = useState<{
         id: number
-        url: string
+        frontendUrl: string
         deleted:boolean
         current:boolean
     }[]>([])
@@ -32,8 +32,8 @@ function Hosts() {
 
 
     return (
-        <Sheet className="mx-10 px-3 mt-6">
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 2 }}>
+      <>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
 
                 <Typography level="h3">Hosts</Typography>
                 <Box sx={{ display: 'flex', gap: 1 }}>
@@ -44,7 +44,7 @@ function Hosts() {
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>URl</th>
+                        <th>FrontEnd Url</th>
                         <th>Deleted</th>
                         <th>Actions</th>
                     </tr>
@@ -54,10 +54,10 @@ function Hosts() {
                     {hosts.map(host =>
                     (<tr>
                         <td>{host.id}</td>
-                        <td>{host.url}</td>
+                        <td>{host.frontendUrl}</td>
                         <td>{host.deleted}</td>
                         <td>
-                            <Link to={`/Hosts/${host.id}/Servers`}>
+                            <Link to={`http://${host.frontendUrl}/Hosts/${host.id}/Servers`}>
                                 <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} color="primary"><Settings />
                                 </Button>
                             </Link>
@@ -66,9 +66,7 @@ function Hosts() {
                     )}
                 </tbody>
             </Table>
-          
-        </Sheet >
-
+            </>
     )
 }
 

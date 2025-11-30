@@ -15,7 +15,7 @@ import ArchiveIcon from '@mui/icons-material/Archive';
 import { useEffect, useState } from 'react';
 import { Button } from '@mui/joy';
 import FolderIcon from '@mui/icons-material/Folder';
-import { PlayArrow, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
+import { ArrowBack, ArrowBackIos, PlayArrow, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
 import useSignOut from 'react-auth-kit/hooks/useSignOut';
@@ -162,7 +162,8 @@ export default function Sidebar() {
         onClick={() => closeSidebar()}
       />
       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-
+        
+        <Link href={`/Servers`}><ArrowBackIos /></Link>
         <Typography level="title-lg">Zyxnware</Typography>
         <ColorSchemeToggle sx={{ ml: 'auto' }} />
       </Box>

@@ -14,6 +14,7 @@ import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
 import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 import useSignIn from 'react-auth-kit/hooks/useSignIn';
 import { notification } from '../Utils';
+import { API_BASE_URL } from '../Config/app.config';
 
 
 interface FormElements extends HTMLFormControlsCollection {
@@ -62,7 +63,7 @@ export default function Login() {
                 username: formElements.email.value,
                 password: formElements.password.value,
             };
-            const response = await fetch(import.meta.env.VITE_API + '/User/Login', {
+            const response = await fetch(API_BASE_URL + '/User/Login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

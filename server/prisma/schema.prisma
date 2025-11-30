@@ -81,6 +81,7 @@ model SysUser {
 model Server {
   id        Int       @id @default(autoincrement())
   url String //will contain domain:port  
+  frontendUrl String 
   deleted   Boolean   @default(false)
   apiKey String? 
   runningServers RunningServers[]
