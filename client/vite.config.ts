@@ -8,7 +8,6 @@ export default defineConfig(({  mode}) => {
 
   return {
     server: {
-      host: env.VITE_HOST,
       allowedHosts:env.VITE_ALLOWED_HOSTS.split(","),
       port: parseInt(env.VITE_PORT, 10),
     },
