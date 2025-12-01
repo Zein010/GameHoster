@@ -15,7 +15,7 @@ export default function TextEditor() {
     useEffect(() => {
         const fetcData = async () => {
 
-            const response =await  requests.getFileContent(parseInt(id!),{ path: currentPath, serverId: id })
+            const response =await  requests.fileManager.getFileContent(parseInt(id!),{ path: currentPath, serverId: id })
           
             if (response.status==200) {
                 setContent(response.data.content)
@@ -26,7 +26,7 @@ export default function TextEditor() {
         }
     }, [currentPath])
     const saveContent = async () => {
-        const response=await requests.saveFileContent(parseInt(id!),{ path: currentPath, content: contentFieldRef.current?.value, serverId: id })
+        const response=await requests.fileManager.saveFileContent(parseInt(id!),{ path: currentPath, content: contentFieldRef.current?.value, serverId: id })
       
         if (response.status==200) {
             navigate(`/server/${id}/Files/${currentPath?.split("/").slice(0, currentPath?.split("/").length - 1).join("/")}`)

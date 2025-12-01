@@ -1,5 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import { prisma,Role } from "./prisma.js";
 
 const StoreUser = async (username) => {
     return await prisma.sysUser.create({ data: { username } });

@@ -1,11 +1,11 @@
 
-import { PrismaClient } from "@prisma/client";
+
 import fs, { stat } from "fs";
 import pathLib from "path";
 import archiver from 'archiver';
 import formidable from "formidable";
 import { isText } from 'istextorbinary';
-const prisma = new PrismaClient();
+
 const List = (path) => {
 
     const files = fs.readdirSync(path);

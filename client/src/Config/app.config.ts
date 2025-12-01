@@ -7,7 +7,6 @@ const BACKEND_MAP:StringStringMap = {
   'localhost': 'http://localhost:8080',
   'default': 'http://localhost:8080',
 };
-
 function determineBackendUrl() {
   const currentDomain = window.location.hostname;
   
@@ -21,3 +20,4 @@ function determineBackendUrl() {
 
 // Export the final, resolved constant
 export const API_BASE_URL = determineBackendUrl();
+export const ALLOWED_HOSTS =Object.keys(BACKEND_MAP)

@@ -1,7 +1,8 @@
 
-import { PrismaClient } from "@prisma/client";
+
 import bcrypt from "bcrypt";
-const prisma = new PrismaClient();
+import { prisma,Role } from "./prisma.js";
+
 
 const GetUser = async (username, tpassword) => {
 

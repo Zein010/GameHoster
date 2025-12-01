@@ -7,6 +7,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { Link } from 'react-router-dom'
 import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
 import useApiRequests from './API.tsx'
+import { env } from 'process'
 
 function Hosts() {
     const [hosts, setHosts] = useState<{
@@ -57,7 +58,7 @@ function Hosts() {
                         <td>{host.frontendUrl}</td>
                         <td>{host.deleted}</td>
                         <td>
-                            <Link to={`http://${host.frontendUrl}/Hosts/${host.id}/Servers`}>
+                            <Link to={`http://${host.frontendUrl}:${import.meta.env.VITE_PORT}/Hosts/${host.id}/Servers`}>
                                 <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} color="primary"><Settings />
                                 </Button>
                             </Link>

@@ -1,6 +1,8 @@
-import { PrismaClient, Role } from "@prisma/client";
-const prisma = new PrismaClient();
+
+
 import bcrypt from "bcrypt";
+import { prisma,Role } from "./prisma.js";
+
 const seed = async () => {
   try {
     await prisma.user.upsert({

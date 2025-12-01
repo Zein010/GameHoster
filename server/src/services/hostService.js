@@ -1,7 +1,8 @@
 
-import { PrismaClient } from "@prisma/client";
+import { prisma,Role } from "./prisma.js";
+
 import bcrypt from "bcrypt";
-const prisma = new PrismaClient();
+
 
 const GetHost = async (serverId) => {
     const server = await prisma.server.findUnique({ where: {id:serverId } });

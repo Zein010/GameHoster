@@ -36,9 +36,15 @@ const authenticateAdmin = async (req, res, next) => {
         jwt.verify(token, process.env.JWT_SECRET, async (err, user) => {
             if (err) return res.sendStatus(403);  // Invalid token
             req.user = await UserService.GetUserByID(user.id)
-            if(req.user.role!=Role.ADMIN)
+            if(req.user!=null){
+
+                if(req.user.role!=Role.ADMIN)
+                    return res.status(403).json({ error: "Admin only endpoint" });
+                next();
+            }else{
+
                 return res.status(403).json({ error: "Admin only endpoint" });
-            next();
+            }
         });
     else{
         const apiKey = req.header("API-Key");
