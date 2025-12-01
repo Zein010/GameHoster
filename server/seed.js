@@ -255,11 +255,16 @@ const seed = async () => {
       create: { id: 5, gameVersionId: 1, fileName: "eula.txt", content: "eula=true" },
       update: { fileName: "eula.txt", gameVersionId: 1, content: "eula=true" }
     });
+    
+    console.log("Finished`");
+
     await prisma.getFilesSetup.upsert({
       where: { id: 6 },
       create: { id: 6, gameVersionId: 1, fileName: "server.properties", content: "" },
       update: { fileName: "server.properties", gameVersionId: 1, content: "" }
     });
+
+    console.log("Finished2");
 
     await prisma.getFilesSetup.upsert({
       where: { id: 1 },
@@ -267,11 +272,15 @@ const seed = async () => {
       update: { fileName: "eula.txt", gameVersionId: 2, content: "eula=true" }
     });
 
+    console.log("Finished3");
+
     await prisma.getFilesSetup.upsert({
       where: { id: 2 },
       create: { id: 2, gameVersionId: 2, fileName: "server.properties", content: "" },
       update: { fileName: "server.properties", gameVersionId: 2, content: "" }
     });
+
+    console.log("Finished4");
 
     await prisma.getFilesSetup.upsert({
       where: { id: 3 },
@@ -279,22 +288,14 @@ const seed = async () => {
       update: { fileName: "eula.txt", gameVersionId: 2, content: "eula=true" }
     });
 
+    console.log("Finished5");
+
     await prisma.getFilesSetup.upsert({
       where: { id: 4 },
       create: { id: 4, gameVersionId: 3, fileName: "server.properties", content: "" },
       update: { fileName: "server.properties", gameVersionId: 2, content: "" }
     });
-
-
-
-
-
-
-
-
-
-
-
+    console.log("Finished6");
 
   } catch (error) {
     console.log(error);
