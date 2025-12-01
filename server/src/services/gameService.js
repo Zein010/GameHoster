@@ -17,7 +17,7 @@ const GetServers = async (filters) => {
     if (filters && filters.userId) {
         whereCondition.userId = filters.userId
     }
-    return await prisma.runningServers.findMany({ where: {serverid:process.env.SERVER_ID, deleted: false, ...whereCondition }, include: { gameVersion: { include: { game: true } }, sysUser: true } });
+    return await prisma.runningServers.findMany({ where: {serverid:parseInt(process.env.SERVER_ID), deleted: false, ...whereCondition }, include: { gameVersion: { include: { game: true } }, sysUser: true } });
 }
 const GetServer = async (serverId) => {
     return await prisma.runningServers.findUnique({ where: { id: serverId, deleted: false }, include: { sysUser: true, gameVersion: { include: { game: true, getFilesSetup: true, changeFileAfterSetup: true } } } });
