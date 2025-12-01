@@ -1,4 +1,4 @@
-import { prisma,Role } from "./prisma.js";
+import { prisma } from "../../prisma.js";
 
 const GetAll = async () => {
     return await prisma.game.findMany({ select: { name: true, id: true, gameVersion: { select: { version: true, id: true } } } });

@@ -1,4 +1,4 @@
-import { prisma,Role } from "./prisma.js";
+import { prisma } from "../../prisma.js";
 
 
 const StoreSysUser = async (username) => {
