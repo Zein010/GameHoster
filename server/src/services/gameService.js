@@ -36,7 +36,7 @@ const SetGameVersionCache = async (id, cacheFile) => {
     const oldVersion=await prisma.gameVersion.findUnique({ where: { id } });
     const oldCacheData=oldVersion.cacheFile?JSON.parse(oldVersion.cacheFile):{};
     oldCacheData[process.env.SERVER_ID]=cacheFile;
-    await prisma.gameVersion.update({ where: { id }, data: { cacheFile:oldCacheData} });
+    await prisma.gameVersion.update({ where: { id }, data: { cacheFile:JSON.stringify(oldCacheData)} });
 }
 const AppendToServerConfig = async (id, config) => {
     const server = await prisma.runningServers.findUnique({ where: { id } })
