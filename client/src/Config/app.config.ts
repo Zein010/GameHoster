@@ -3,7 +3,7 @@ function determineBackendUrl() {
   if (!vite_domain_routing) return  import.meta.env.VITE_API;
 
   const routing = Object.fromEntries(
-    vite_domain_routing.split(',').map(pair => {
+    vite_domain_routing.split(',').map((pair:String) => {
       const [domain, backend] = pair.split('>');
       return [domain.trim(), backend.trim()];
     })
