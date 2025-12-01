@@ -1,3 +1,4 @@
 VITE_API=[ServerIP|ServerHost:ServerPort]
 VITE_PORT=[ClientPort]
 VITE_HOST=[ClientHost]
+VITE_DOMAIN_ROUTING=hostname1>backend1,hostname2>backend2

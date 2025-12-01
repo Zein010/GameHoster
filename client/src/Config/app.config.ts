@@ -1,23 +1,16 @@
-type StringStringMap = {
-  [key: string]: string;
-};
-const BACKEND_MAP:StringStringMap = {
-  '1.localhost': 'http://localhost:8080',
-  '2.localhost': 'http://localhost:8080',
-  'localhost': 'http://localhost:8080',
-  'default': 'http://localhost:8080',
-};
 function determineBackendUrl() {
+  const vite_domain_routing = import.meta.env.VITE_DOMAIN_ROUTING;
+  if (!vite_domain_routing) return  import.meta.env.VITE_API;
+
+  const routing = Object.fromEntries(
+    vite_domain_routing.split(',').map(pair => {
+      const [domain, backend] = pair.split('>');
+      return [domain.trim(), backend.trim()];
+    })
+  );
+
   const currentDomain = window.location.hostname;
-  
-  if (BACKEND_MAP[currentDomain]) {
-    return BACKEND_MAP[currentDomain];
-  }
-  
-  // Return the default URL if no specific domain is matched
-  return BACKEND_MAP.default;
+  return routing[currentDomain] || null;
 }
 
-// Export the final, resolved constant
 export const API_BASE_URL = determineBackendUrl();
-export const ALLOWED_HOSTS =Object.keys(BACKEND_MAP)
