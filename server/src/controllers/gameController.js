@@ -71,10 +71,10 @@ const CreateServer = async (req, res) => {
     await TerminalService.CreateUser(username);
     await sysUserService.StoreSysUser(username);
     var scriptFile = "";
-    if (gameVersion.cacheFile) {
+    if (gameVersion.cacheFile&&JSON.parse(gameVersion.cacheFile)[process.env.SERVER_ID]) {
         
         console.log("Copying file");
-        await TerminalService.CopyFile(gameVersion.cacheFile, dirName).catch((err)=>console.log(err));
+        await TerminalService.CopyFile(gameVersion.JSON.parse(gameVersion.cacheFile)[process.env.SERVER_ID], dirName).catch((err)=>console.log(err));
         console.log("Done copying files");
         scriptFile = gameVersion.scriptFile
     } else {
