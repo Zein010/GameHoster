@@ -211,7 +211,7 @@ const MoveToHost=async (req,res)=>{
        
         console.log(`http://${host.url}/Game/ReceiveServer/${serverId}/${copyToken}`);
         const res = await axios.post(`http://${host.url}/Game/ReceiveServer/${serverId}/${copyToken}`, outputFile.stream, {
-        headers: { "Content-Type": "application/octet-stream","X-filename":outputFile.name,"API-Key":host.apiKey },
+        headers: { "Content-Type": "application/octet-stream","X-filename":outputFile.name,"API-Key":host.apiKey,"UserID":req.user.id },
         maxBodyLength: Infinity, // important for large files
         });
         console.log("File sent:", res.data);
