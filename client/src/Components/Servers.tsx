@@ -1,7 +1,7 @@
 import { Box, Button, Modal, ModalClose, Select, Sheet, Table, Typography, Option } from '@mui/joy'
 import { useEffect, useState } from 'react'
 import "../index.css"
-import {  PlayArrow, Settings,  SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
+import {  PlayArrow, Settings,  SignalWifiStatusbar4Bar, Stop, StorageOutlined } from '@mui/icons-material'
 import { notification } from '../Utils'
 import AddIcon from '@mui/icons-material/Add';
 import { Link } from 'react-router-dom'
@@ -188,7 +188,7 @@ function Servers() {
                             <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={globalDisabled || actionsDisabled.start[server.id]||serverTransferInProgress==server.id} onClick={() => { startSever(server.id) }} color="success"><PlayArrow /></Button>
                             <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={globalDisabled || actionsDisabled.stop[server.id]||serverTransferInProgress==server.id} onClick={() => { stopServer(server.id) }} color="danger"><Stop /></Button>
 
-                            {(hosts!=null && hosts.length >1)?<Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={serverTransferInProgress==server.id} onClick={() => { setMoveToHostDetails({id:server.id,open:true,newHostId:0}) }} color="danger"><Stop /></Button>:null}
+                            {(hosts!=null && hosts.length >1)?<Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={serverTransferInProgress==server.id} onClick={() => { setMoveToHostDetails({id:server.id,open:true,newHostId:0}) }} color="primary"><StorageOutlined /></Button>:null}
                             <Link to={`/server/${server.id}`} >
                                 <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={serverTransferInProgress==server.id} color="primary"><Settings />
                                 </Button>
