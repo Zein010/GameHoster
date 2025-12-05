@@ -248,8 +248,8 @@ const ReceiveGameServer = async (req, res) => {
     await TerminalService.CreateUser(username);
     await sysUserService.StoreSysUser(username);
     // // the file is zip and needs to be unziped
-    await FileService.move(filePath,dirName);
-    await FileService.unzip(path.join(filePath,filename));
+    await FileService.Move(filePath,dirName);
+    await FileService.Unzip(path.join(filePath,filename));
     await TerminalService.OwnFile(filePath,username);
     await GameService.ChangeHostId(gameServer.id,process.env.SERVER_ID);
     await GameService.SetServerTransferingStatus(gameServer.id,false);
