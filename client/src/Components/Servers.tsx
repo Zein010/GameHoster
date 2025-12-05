@@ -25,6 +25,7 @@ function Servers() {
     const [refresh, setRefresh] = useState(false)
     const [moveToHostDetails,setMoveToHostDetails] = useState<{id:number,open:boolean,newHostId:number}>({id:0,open:false,newHostId:0})
     const requests = useApiRequests()
+    const [serverTransferInProgress,setServerTransferInProgress]=useState<number>(0);
     useEffect(() => {
         const fetchData = async () => {
 
@@ -102,16 +103,19 @@ function Servers() {
     }
     
     const moveToHost = async () => {
-
+        setServerTransferInProgress(Number(moveToHostDetails.id));
+        setMoveToHostDetails((old)=>({id:old.id,open:false,newHostId:old.newHostId}));
         const response =await requests.moveToHost(moveToHostDetails.id,moveToHostDetails.newHostId);
-            if(response.status==200){
-                notification( response.data.msg, "error")
-
-            }
+      
+        if(response.status==200){
+            notification( response.data.msg, "success")
+        }
 
         
         setRefresh(true);
         setMoveToHostDetails({id:0,open:false,newHostId:0});
+        setServerTransferInProgress(0);
+    
     }
     
     const checkStatus = async (serverId: number, HideButtons: boolean = true, showAlert: boolean = true) => {
@@ -180,13 +184,13 @@ function Servers() {
                         <td>{server.gameVersion.version}</td>
                         <td>{server.config?.startData && server.config?.startData.length > 0 && server.config.startData[server.config.startData.length - 1].port}</td>
                         <td>
-                            <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }}  size='sm' disabled={globalDisabled} onClick={() => { checkStatus(server.id) }} color="success"><SignalWifiStatusbar4Bar /></Button>
-                            <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={globalDisabled || actionsDisabled.start[server.id]} onClick={() => { startSever(server.id) }} color="success"><PlayArrow /></Button>
-                            <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={globalDisabled || actionsDisabled.stop[server.id]} onClick={() => { stopServer(server.id) }} color="danger"><Stop /></Button>
+                            <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }}  size='sm' disabled={globalDisabled||serverTransferInProgress==server.id} onClick={() => { checkStatus(server.id) }} color="success"><SignalWifiStatusbar4Bar /></Button>
+                            <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={globalDisabled || actionsDisabled.start[server.id]||serverTransferInProgress==server.id} onClick={() => { startSever(server.id) }} color="success"><PlayArrow /></Button>
+                            <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={globalDisabled || actionsDisabled.stop[server.id]||serverTransferInProgress==server.id} onClick={() => { stopServer(server.id) }} color="danger"><Stop /></Button>
 
-                            {(hosts!=null && hosts.length >1)?<Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' onClick={() => { setMoveToHostDetails({id:server.id,open:true,newHostId:0}) }} color="danger"><Stop /></Button>:null}
-                            <Link to={`/server/${server.id}`}>
-                                <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }}size='sm' color="primary"><Settings />
+                            {(hosts!=null && hosts.length >1)?<Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={serverTransferInProgress==server.id} onClick={() => { setMoveToHostDetails({id:server.id,open:true,newHostId:0}) }} color="danger"><Stop /></Button>:null}
+                            <Link to={`/server/${server.id}`} >
+                                <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={serverTransferInProgress==server.id} color="primary"><Settings />
                                 </Button>
                             </Link>
                         </td>
