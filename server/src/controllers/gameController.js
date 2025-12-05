@@ -231,30 +231,27 @@ const ReceiveGameServer = async (req, res) => {
  
     const filePath = path.resolve(`TempForReceive/${filename}`);
     
-    if (!fs.existsSync(filePath)) {
-    fs.mkdirSync(filePath, { recursive: true });
+    if (!fs.existsSync(path.resolve("TempForReceive"))) {
+    fs.mkdirSync(path.resolve("TempForReceive"), { recursive: true });
     }
-  const writeStream = fs.createWriteStream(filePath);
-  req.pipe(writeStream);
-
- 
-  writeStream.on("finish", () => {
-    res.send({ success: true, filePath });
-  });
-
-  writeStream.on("error", (err) => {
-    console.error(err);
-    print(err.message);
-    res.status(500).send({ success: false, error: err.message });
-  });
-    // const dirName = `GameServer/${gameServer.sysUser.username}`;
-    // const username = `${gameServer.sysUser.username}`;
-    // TerminalService.CreateNewDirectory({ name: dirName })
-    // await TerminalService.CreateUser(username);
-    // await sysUserService.StoreSysUser(username);
-    // req.pipe(fs.createWriteStream(`GameServer/${gameServer.sysUser.username}/${filename}`));
+    const writeStream = fs.createWriteStream(filePath);
+    req.pipe(writeStream);
+    writeStream.on("error", (err) => {
+        console.error(err);
+        console.log(err.message);
+        res.status(500).send({ success: false, error: err.message });
+    });
+    const dirName = `GameServer/${gameServer.sysUser.username}`;
+    const username = `${gameServer.sysUser.username}`;
+    TerminalService.CreateNewDirectory({ name: dirName })
+    await TerminalService.CreateUser(username);
+    await sysUserService.StoreSysUser(username);
     // // the file is zip and needs to be unziped
-    // await GameService.ChangeHostId(gameServer.id,process.env.SERVER_ID);
+    await TerminalService.move(filePath,dirName);
+    await TerminalService.unzip(path.join(filePath,filename));
+    await TerminalService.OwnFile(filePath);
+    await GameService.ChangeHostId(gameServer.id,process.env.SERVER_ID);
+    await GameService.SetServerTransferingStatus(gameServer.id,false);
 
     // req.on("end", () => res.send("File received"));
     // res.json({ output });
