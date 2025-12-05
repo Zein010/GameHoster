@@ -5,6 +5,7 @@ import pathLib from "path";
 import archiver from 'archiver';
 import formidable from "formidable";
 import { isText } from 'istextorbinary';
+import { exec } from "child_process";
 
 const List = (path) => {
 
