@@ -57,15 +57,18 @@ const useApiRequests = () => {
     const getFiles = (id: string, currentPath: string) => axios.post(API_BASE_URL + `/Files/${id}`, { path: currentPath }, {headers: { Authorization: authHeader }})
     const createFile = (id: string, currentPath: string, createType: string, createName: string) => axios.post(API_BASE_URL + `/Files/${id}/${createType}`, { name: createName, path: currentPath }, {headers: { Authorization: authHeader }})
     const saveFileContent=(serverId:number,body:any)=>axios.post(API_BASE_URL + `/Files/${serverId}/SaveContent`,body,{headers:{Authorization:authHeader}});
+    const downloadFile=(serverId:number,selectedFiles:string[],currentPath:string)=>axios.post(API_BASE_URL + `/Files/${serverId}/Download`,{ files: selectedFiles, path: currentPath },{headers:{Authorization:authHeader}});
+    const deleteFiles=(serverId:number,selectedFiles:string[],currentPath:string)=>axios.post(API_BASE_URL + `/Files/${serverId}/Delete`,{ files: selectedFiles, path: currentPath },{headers:{Authorization:authHeader}});
+   
     // -- End File Manager Actions
     
     // -- Start Managers
-    const fileManager={getFileContent,getFiles,saveFileContent,createFile}
+    const fileManager={getFileContent,getFiles,saveFileContent,createFile,downloadFile,deleteFiles}
     const commandManager={sendCommand,getGameBannedPlayers,getGamePlayers,};
     // -- End Managers
     
     return {
-        getGameServers,fileManager,commandManager, getGames,createServer,checkGameServerStatus,getGameLogs,startGameServer,stopGameServer,getHosts,moveToHost
+        getGameServers,fileManager,commandManager, getGames,createServer,checkGameServerStatus,getGameLogs,startGameServer,stopGameServer,getHosts,moveToHost,downloadFile
     }
 }
 export default useApiRequests

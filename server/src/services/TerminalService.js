@@ -480,7 +480,7 @@ function CreateZip(files, path, subPath) {
 
     const pathsString = validPaths.join(' ');
 
-    const command = `cd "${pathLib.join(path, subPath)}" &&  zip -r "${zipName}" ${pathsString}`;
+    const command = `cd "${pathLib.join(path, subPath)}" &&  sudo zip -r "${zipName}" ${pathsString}`;
 
     try {
 

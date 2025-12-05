@@ -213,10 +213,7 @@ const MoveToHost=async (req,res)=>{
     const outputFile= await TerminalService.ZipForTransfer(gameServer)
     try {
        
-         await axios.post(`http://${host.url}/Game/ReceiveServer/${serverId}/${copyToken}`, outputFile.stream, {
-        headers: { "Content-Type": "application/octet-stream","X-filename":outputFile.name,"API-Key":host.apiKey,"UserID":req.user.id },
-        maxBodyLength: Infinity, // important for large files
-        });
+        await axios.post(`http://${host.url}/Game/ReceiveServer/${serverId}/${copyToken}`, outputFile.stream, {headers: { "Content-Type": "application/octet-stream","X-filename":outputFile.name,"API-Key":host.apiKey,"UserID":req.user.id },maxBodyLength: Infinity, });
         res.status(200).json({msg:"Server moved successfully"});
     } catch (err) {
         res.status(500).json({msg:"Something went wrong, server not moved"+err});

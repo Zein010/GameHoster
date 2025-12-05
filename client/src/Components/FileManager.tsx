@@ -146,20 +146,13 @@ export default function FileManager() {
         setConfirmOpen(true)
     }
     const DeleteFiles = async () => {
-
-        const response = await fetch(API_BASE_URL + `/Files/${id}/Delete`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ path: currentPath, files: selectedFiles })
-        })
-        const responseContent = await response.json()
-        if (response.ok) {
+    const response=await requests.fileManager.deleteFiles(Number(id),selectedFiles,currentPath);
+        
+        if (response.status==200) {
             setRefresh(!refresh)
             setSelectFiles([])
 
-            notification(responseContent.msg, responseContent.success ? "success" : "error")
+            notification(response.data.msg, response.data.success ? "success" : "error")
         }
 
     }
@@ -173,77 +166,7 @@ export default function FileManager() {
         setClickedRowIndex(clickedRowIndex == rowID ? -1 : rowID)
     }
     const DownloadFiles = async () => {
-        setDownloadDisabled(true);
-
-        try {
-            // Make the API request to start the download
-            const response = await fetch(API_BASE_URL + `/Files/${id}/Download`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ files: selectedFiles, path: currentPath })
-            });
-
-            if (!response.ok) {
-                console.error("Failed to download the file. Server responded with:", response.statusText);
-                return;
-            }
-
-            // Get the Content-Disposition header for the filename
-            const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = 'downloaded_file'; // Default filename
-
-            if (contentDisposition && contentDisposition.includes('filename=')) {
-                filename = contentDisposition
-                    .split('filename=')[1]
-                    .replace(/['"]/g, '');
-            }
-
-            // Create a writable stream to write chunks to the file
-            const stream = response.body;
-            const reader = stream?.getReader();
-
-            // Create a file blob for the download
-            const writer = new WritableStream({
-                write(chunk) {
-                    // We accumulate chunks here (this part happens as we receive data)
-                    // We could do more processing on each chunk here if needed.
-                    const blob = new Blob([chunk]);
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = filename;
-                    document.body.appendChild(a);
-                    a.click();
-                    URL.revokeObjectURL(a.href);
-                    a.remove();
-                },
-                close() {
-                    console.log('Download complete!');
-                }
-            });
-
-            // Read chunks and pass them to the writer
-            const pump = () => {
-                reader?.read().then(({ done, value }) => {
-                    if (done) {
-                        writer.close();
-                        return;
-                    }
-                    writer.getWriter().write(value);
-                    pump();
-                }).catch(err => {
-                    console.error('Stream error:', err);
-                });
-            };
-
-            pump();
-
-        } catch (error) {
-            console.error("Error during file download:", error);
-        }
-
-        setDownloadDisabled(false);
+        notification("Download feature is not ready yet","error");
         setSelectFiles([]);
     };
     return (

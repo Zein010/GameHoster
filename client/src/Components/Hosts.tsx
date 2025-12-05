@@ -58,8 +58,8 @@ function Hosts() {
                         <td>{host.frontendUrl}</td>
                         <td>{host.deleted}</td>
                         <td>
-                            <Link to={`http://${host.frontendUrl}:${import.meta.env.VITE_PORT}/Hosts/${host.id}/Servers`}>
-                                <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} color="primary"><Settings />
+                            <Link to={`http://${host.frontendUrl}:${import.meta.env.VITE_PORT}`} >
+                                <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={host.current} color="primary"><Settings />
                                 </Button>
                             </Link>
                         </td>
