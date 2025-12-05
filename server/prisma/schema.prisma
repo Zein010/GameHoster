@@ -121,6 +121,8 @@ model RunningServers {
   userId        Int?
   user          User?       @relation(fields: [userId], references: [id])
   serverid Int
+  copyToken String?
+  transfering Boolean @default(false)
   server Server @relation(fields: [serverid], references: [id])
 }
 

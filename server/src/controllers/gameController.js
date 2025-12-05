@@ -4,8 +4,12 @@ import sysUserService from "../services/sysUserService.js";
 import { GetServerStartOptions } from "../utils.js";
 import RCONService from "../services/RCONService.js";
 import { Role } from "@prisma/client";
-
-
+import HostService from "../services/hostService.js";
+import crypto from "crypto";
+import { exec, execSync } from "child_process";
+import path from "path";
+import axios from "axios";
+import fs from "fs";
 const GetAll = async (req, res) => {
     const data = await GameService.GetAll();
     res.json({ data });
@@ -188,5 +192,64 @@ const GetLog = async (req, res) => {
 
     res.json({ output });
 }
-const GameController = { GetLog, BanPlayer, UnBanPlayer, KickPlayer, OPPlayer, DEOPPlayer, GetBannedPlayers, GetPlayers, OneCommand, DisplayLog, StopServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning };
+const MoveToHost=async (req,res)=>{
+    const {serverId,hostId}=req.params;
+    
+    const host=await HostService.GetHost(hostId);
+    const gameServer=await GameService.GetServer(serverId);
+    // stop the server before copying
+    const status = await TerminalService.CheckUserHasProcess(gameServer.sysUser.username, gameServer.gameVersion.searchScript);
+    if (status) {
+        TerminalService.StopUserProcesses(gameServer.sysUser.username, gameServer.gameVersion.searchScript);
+    }
+    // set server status to transfering
+    GameService.SetServerTransferingStatus(serverId,true);
+    const copyToken=  crypto.randomBytes(30).toString("base64").replace(/[^a-zA-Z0-9]/g, "").slice(0, 30);
+    await GameService.SetCopyToken(serverId,copyToken);
+    const outputFile= await TerminalService.ZipForTransfer(gameServer)
+    try {
+       
+        console.log(`http://${host.url}/Game/ReceiveServer/${serverId}/${copyToken}`);
+        const res = await axios.post(`http://${host.url}/Game/ReceiveServer/${serverId}/${copyToken}`, outputFile.stream, {
+        headers: { "Content-Type": "application/octet-stream","X-filename":outputFile.name,"API-Key":host.apiKey },
+        maxBodyLength: Infinity, // important for large files
+        });
+        console.log("File sent:", res.data);
+    } catch (err) {
+        console.error("Transfer failed:", err.message);
+    }
+}
+const ReceiveGameServer = async (req, res) => {
+    const filename = req.headers["x-filename"];
+    const { serverId,copyToken } = req.params
+    const gameServer=GameService.GetServer(serverId);
+    if(gameServer.copyToken!=copyToken){
+        console.log("Invalid copy token");
+        return res.status(403).json({error:"Invalid copy token"});
+    }
+  const filePath = path.resolve(`TempForReceive/${filename}`);
+  const writeStream = fs.createWriteStream(filePath);
+  req.pipe(writeStream);
+
+  writeStream.on("finish", () => {
+    res.send({ success: true, filePath });
+  });
+
+  writeStream.on("error", (err) => {
+    console.error(err);
+    res.status(500).send({ success: false, error: err.message });
+  });
+    // const dirName = `GameServer/${gameServer.sysUser.username}`;
+    // const username = `${gameServer.sysUser.username}`;
+    // TerminalService.CreateNewDirectory({ name: dirName })
+    // await TerminalService.CreateUser(username);
+    // await sysUserService.StoreSysUser(username);
+    // req.pipe(fs.createWriteStream(`GameServer/${gameServer.sysUser.username}/${filename}`));
+    // // the file is zip and needs to be unziped
+    // await GameService.ChangeHostId(gameServer.id,process.env.SERVER_ID);
+
+    // req.on("end", () => res.send("File received"));
+    // res.json({ output });
+}
+const GameController = {ReceiveGameServer,MoveToHost, GetLog, BanPlayer, UnBanPlayer, KickPlayer, OPPlayer, DEOPPlayer, GetBannedPlayers, GetPlayers, OneCommand, DisplayLog, StopServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning };
 export default GameController

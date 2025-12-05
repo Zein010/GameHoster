@@ -3,4 +3,6 @@ node_modules
 .env
 GameServer
 DownloadCache
+TempForTransfer
+TempForReceive
 package-lock.json

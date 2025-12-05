@@ -8,6 +8,8 @@ router.get("/", GameController.GetAll);
 router.get("/StartServer/:id", GameController.StartServer);
 router.get("/CheckLogs/:serverId", GameController.DisplayLog);
 router.get("/StopServer/:serverId", GameController.StopServer);
+router.get("/MoveToHost/:serverId/:hostId", GameController.MoveToHost);
+router.get("/ReceiveServer/:serverId/:copyToken", GameController.ReceiveGameServer);
 router.get("/CheckServer/:serverId", GameController.CheckServerRunning);
 router.get("/CreateServer/:versionId", GameController.CreateServer);
 router.get("/Version/:id", GameController.GetVersion);

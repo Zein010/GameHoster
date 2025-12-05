@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 
 
 const GetHost = async (serverId) => {
-    const server = await prisma.server.findUnique({ where: {id:serverId } });
+    const server = await prisma.server.findUnique({ where: {id:parseInt(serverId) } });
     if (!server) {
         return null
     }

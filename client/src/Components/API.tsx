@@ -41,6 +41,7 @@ const useApiRequests = () => {
     const checkGameServerStatus=(serverId:number)=>axios.get(API_BASE_URL + `/Game/CheckServer/${serverId}`,{headers:{Authorization:authHeader}})
     const startGameServer=(serverId:number)=>axios.get(API_BASE_URL + `/Game/StartServer/${serverId}`,{headers:{Authorization:authHeader}});
     const stopGameServer=(serverId:number)=>axios.get(API_BASE_URL + `/Game/StopServer/${serverId}`,{headers:{Authorization:authHeader}});
+    const moveToHost=(serverId:number,hostId:number)=>axios.get(API_BASE_URL + `/Game/MoveToHost/${serverId}/${hostId}`,{headers:{Authorization:authHeader}});
     
 
 
@@ -64,7 +65,7 @@ const useApiRequests = () => {
     // -- End Managers
     
     return {
-        getGameServers,fileManager,commandManager, getGames,createServer,checkGameServerStatus,getGameLogs,startGameServer,stopGameServer,getHosts
+        getGameServers,fileManager,commandManager, getGames,createServer,checkGameServerStatus,getGameLogs,startGameServer,stopGameServer,getHosts,moveToHost
     }
 }
 export default useApiRequests
