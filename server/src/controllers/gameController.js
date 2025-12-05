@@ -242,20 +242,21 @@ const ReceiveGameServer = async (req, res) => {
         console.log(err.message);
         res.status(500).send({ success: false, error: err.message });
     });
-    const dirName = `GameServer/${gameServer.sysUser.username}`;
-    const username = `${gameServer.sysUser.username}`;
-    TerminalService.CreateNewDirectory({ name: dirName })
-    await TerminalService.CreateUser(username);
-    await sysUserService.StoreSysUser(username);
-    // // the file is zip and needs to be unziped
-    await FileService.Move(filePath,dirName);
-    await FileService.Unzip(path.join(dirName,filename));
-    await TerminalService.OwnFile(filePath,username);
-    await GameService.ChangeHostId(gameServer.id,process.env.SERVER_ID);
-    await GameService.SetServerTransferingStatus(gameServer.id,false);
+    writeStream.on("finish",async ()=>{
 
-    // req.on("end", () => res.send("File received"));
-    // res.json({ output });
+        const dirName = `GameServer/${gameServer.sysUser.username}`;
+        const username = `${gameServer.sysUser.username}`;
+        TerminalService.CreateNewDirectory({ name: dirName })
+        await TerminalService.CreateUser(username);
+        await sysUserService.StoreSysUser(username);
+        // // the file is zip and needs to be unziped
+        await FileService.Move(filePath,dirName);
+        await FileService.Unzip(path.resolve(path.join(dirName,filename)));
+        await TerminalService.OwnFile(filePath,username);
+        await GameService.ChangeHostId(gameServer.id,process.env.SERVER_ID);
+        await GameService.SetServerTransferingStatus(gameServer.id,false);
+
+    })
 }
 const GameController = {ReceiveGameServer,MoveToHost, GetLog, BanPlayer, UnBanPlayer, KickPlayer, OPPlayer, DEOPPlayer, GetBannedPlayers, GetPlayers, OneCommand, DisplayLog, StopServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning };
 export default GameController
