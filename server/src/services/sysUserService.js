@@ -2,7 +2,15 @@ import { prisma } from "../../prisma.js";
 
 
 const StoreSysUser = async (username) => {
-    return await prisma.sysUser.create({ data: { username } })
+    try{
+        return await prisma.sysUser.create({ data: { username } })
+    }catch (err){
+      if (err instanceof Prisma.PrismaClientKnownRequestError) {
+        if (err.code === "P2002") {
+        return await prisma.sysUser.findFirst({where:{username}});
+        }
+      }
+    }
 }
 const GetAll = async () => {
     return await prisma.sysUser.findMany({ where: { deleted: false } });
