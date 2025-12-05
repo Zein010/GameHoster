@@ -198,6 +198,9 @@ const MoveToHost=async (req,res)=>{
     
     const host=await HostService.GetHost(hostId);
     const gameServer=await GameService.GetServer(serverId);
+    if(!gameServer.serverid==process.env.SERVER_ID){
+        return res.status(403).json({msg:"Server is already moved to a different host"});
+    }
     // stop the server before copying
     const status = await TerminalService.CheckUserHasProcess(gameServer.sysUser.username, gameServer.gameVersion.searchScript);
     if (status) {
@@ -210,14 +213,13 @@ const MoveToHost=async (req,res)=>{
     const outputFile= await TerminalService.ZipForTransfer(gameServer)
     try {
        
-        console.log(`http://${host.url}/Game/ReceiveServer/${serverId}/${copyToken}`);
         const res = await axios.post(`http://${host.url}/Game/ReceiveServer/${serverId}/${copyToken}`, outputFile.stream, {
         headers: { "Content-Type": "application/octet-stream","X-filename":outputFile.name,"API-Key":host.apiKey,"UserID":req.user.id },
         maxBodyLength: Infinity, // important for large files
         });
-        console.log("File sent:", res.data);
+        res.status(200).json({msg:"Server moved successfully"});
     } catch (err) {
-        console.error("Transfer failed:", err.message);
+        res.status(500).json({msg:"Something went wrong, server not moved"});
     }
 }
 const ReceiveGameServer = async (req, res) => {

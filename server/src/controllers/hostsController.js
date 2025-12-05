@@ -10,7 +10,7 @@ import HostService from "../services/hostService.js";
 
 const GetHosts = async (req, res) => {
     const data = await HostService.GetHosts();
-    res.json({ data });
+    res.json({ data:data.map(host=>{return {...host,current:host.id==process.env.SERVER_ID}}) });
 }
 const HostController = { GetHosts };
 export default HostController
