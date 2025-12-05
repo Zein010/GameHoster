@@ -23,7 +23,7 @@ const authenticateToken = async (req, res, next) => {
 
         if (apiKey!==server.apiKey) 
             return res.status(403).json({ error: "Invalid API key" });
-        req.user=await UserService.GetUser(parseInt(userId));
+        req.user=await UserService.GetUserByID(parseInt(userId));
         next();
     }
 
