@@ -222,7 +222,7 @@ const MoveToHost=async (req,res)=>{
 const ReceiveGameServer = async (req, res) => {
     const filename = req.headers["x-filename"];
     const { serverId,copyToken } = req.params
-    const gameServer=GameService.GetServer(serverId);
+    const gameServer=await GameService.GetServer(serverId);
     if(gameServer.copyToken!=copyToken){
         console.log("Invalid copy token");
         return res.status(403).json({error:"Invalid copy token"});
