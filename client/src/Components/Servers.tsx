@@ -1,16 +1,13 @@
 import { Box, Button, Modal, ModalClose, Select, Sheet, Table, Typography, Option } from '@mui/joy'
 import { useEffect, useState } from 'react'
 import "../index.css"
-import { ElevatorSharp, PlayArrow, Settings, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
+import {  PlayArrow, Settings,  SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
 import { notification } from '../Utils'
 import AddIcon from '@mui/icons-material/Add';
-import { Link, useParams } from 'react-router-dom'
-import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
+import { Link } from 'react-router-dom'
 import useApiRequests from './API.tsx'
 
 function Servers() {
-    const { id } =useParams();
-    
     const [servers, setServers] = useState<{
         id: number
         createdAt: string
@@ -23,7 +20,10 @@ function Servers() {
     const [games, setGames] = useState<{ id: number, name: string, gameVersion: { id: number, version: string }[] }[]>([])
     const [newOpen, setNewOpen] = useState(false)
     const [newDetails, setNewDetails] = useState<{ gameID: number, versionID: number }>({ gameID: 0, versionID: 0 });
+    const [hosts,setHosts] = useState<{id:number,frontendUrl:String,current:boolean }[]>();
+    const [refreshHosts,setRefreshHosts] = useState<boolean>(false);
     const [refresh, setRefresh] = useState(false)
+    const [moveToHostDetails,setMoveToHostDetails] = useState<{id:number,open:boolean,newHostId:number}>({id:0,open:false,newHostId:0})
     const requests = useApiRequests()
     useEffect(() => {
         const fetchData = async () => {
@@ -40,7 +40,16 @@ function Servers() {
         fetchData()
 
     }, [refresh])
+    useEffect(()=>{
+        const fetchHosts=async()=>{
+            const hostsRespose=await requests.getHosts();
+            if(hostsRespose.status==200){
+                setHosts(hostsRespose.data.data);
+            }
+        }
 
+        fetchHosts()
+    },[refreshHosts])
     const setActionDisabledState = (id: number, value: { [key: string]: boolean }) => {
 
         setActionsDisabled((obj) => {
@@ -92,10 +101,19 @@ function Servers() {
         setGlobalDisabled(false)
     }
     
-    const moveToHost = async (serverId: number,hostId:number) => {
-       await requests.moveToHost(serverId, hostId);
-       
+    const moveToHost = async () => {
+
+        const response =await requests.moveToHost(moveToHostDetails.id,moveToHostDetails.newHostId);
+            if(response.status==200){
+                notification( response.data.msg, "error")
+
+            }
+
+        
+        setRefresh(true);
+        setMoveToHostDetails({id:0,open:false,newHostId:0});
     }
+    
     const checkStatus = async (serverId: number, HideButtons: boolean = true, showAlert: boolean = true) => {
         if (HideButtons)
             setGlobalDisabled(true)
@@ -154,7 +172,7 @@ function Servers() {
 
                 <tbody>
                     {servers.map(server =>
-                    (<tr>
+                    (<tr key={server.id}>
                         <td>{server.id}</td>
                         <td>{server.createdAt}</td>
                         <td>{server.sysUser.username}</td>
@@ -162,12 +180,13 @@ function Servers() {
                         <td>{server.gameVersion.version}</td>
                         <td>{server.config?.startData && server.config?.startData.length > 0 && server.config.startData[server.config.startData.length - 1].port}</td>
                         <td>
-                            <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled} onClick={() => { checkStatus(server.id) }} color="success"><SignalWifiStatusbar4Bar /></Button>
-                            <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.start[server.id]} onClick={() => { startSever(server.id) }} color="success"><PlayArrow /></Button>
-                            <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.stop[server.id]} onClick={() => { stopServer(server.id) }} color="danger"><Stop /></Button>
-                            <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} disabled={globalDisabled || actionsDisabled.stop[server.id]} onClick={() => { moveToHost(server.id,2) }} color="danger"><Stop /></Button>
+                            <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }}  size='sm' disabled={globalDisabled} onClick={() => { checkStatus(server.id) }} color="success"><SignalWifiStatusbar4Bar /></Button>
+                            <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={globalDisabled || actionsDisabled.start[server.id]} onClick={() => { startSever(server.id) }} color="success"><PlayArrow /></Button>
+                            <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={globalDisabled || actionsDisabled.stop[server.id]} onClick={() => { stopServer(server.id) }} color="danger"><Stop /></Button>
+
+                            {(hosts!=null && hosts.length >1)?<Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' onClick={() => { setMoveToHostDetails({id:server.id,open:true,newHostId:0}) }} color="danger"><Stop /></Button>:null}
                             <Link to={`/server/${server.id}`}>
-                                <Button sx={{ mr: 1, mb: 1, size: "sm", py: 0, px: 1 }} color="primary"><Settings />
+                                <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }}size='sm' color="primary"><Settings />
                                 </Button>
                             </Link>
                         </td>
@@ -196,7 +215,7 @@ function Servers() {
 
                     </Select>
                     {newDetails.gameID != 0 ? <Select onChange={(_, newValue) => setNewDetails((oldDetails) => ({ ...oldDetails, versionID: Number(newValue) }))} placeholder="Select version..." sx={{ mt: 2 }}>
-                        {games.filter(game => game.id == newDetails.gameID)[0].gameVersion.map(version => (<Option value={version.id}>{version.version}</Option>))}
+                        {games.filter(game => game.id == newDetails.gameID)[0].gameVersion.map(version => (<Option key={version.id} value={version.id}>{version.version}</Option>))}
 
                     </Select> : ""}
 
@@ -207,6 +226,35 @@ function Servers() {
                     </Box>
                 </Sheet>
             </Modal >
+                    {hosts!=null&&hosts.length>1?
+             <Modal
+                aria-labelledby="modal-title"
+                aria-describedby="modal-desc"
+                open={moveToHostDetails.open}
+                onClose={() => setMoveToHostDetails({id:0,open:false,newHostId:0})}
+                sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+            >
+                <Sheet
+                    variant="outlined"
+                    sx={{ minWidth: 400, borderRadius: 'md', p: 3, boxShadow: 'lg' }}
+                >
+                    <ModalClose variant="plain" sx={{ m: 1 }} />
+
+                    <Typography id="modal-desc " sx={{ mb: 2 }} textColor="text.tertiary">
+                        Move to host
+                    </Typography>
+                    <Select placeholder="Select host" onChange={(_, newValue) => setMoveToHostDetails({id:moveToHostDetails.id,open:moveToHostDetails.open,newHostId:Number(newValue) })}>
+                        {hosts!.map(host => !host.current?(<Option key={host.id} value={host.id}>{host.frontendUrl}</Option>):null)}
+
+                    </Select>
+                   
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mt: 2 }}>
+                        <Button color="success" size='sm' onClick={() => { moveToHost() }} sx={{ mr: 2 }} > Create</Button>
+                        <Button size='sm' onClick={() => setMoveToHostDetails({id:0,open:false,newHostId:0})} color='neutral'>Cancel</Button>
+
+                    </Box>
+                </Sheet>
+            </Modal >:null}
        </>
 
     )
