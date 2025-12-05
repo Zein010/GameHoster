@@ -556,6 +556,5 @@ const CreateService = (name, path, service) => {
         console.error(`Error creating the service file: ${error.message}`);
     }
 };
-
 const TerminalService = { ZipForTransfer,StartService, CreateService, RunScript, GetLog, CreateZip, DownloadServerDataByScript, GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService

@@ -119,6 +119,23 @@ const Zip = async (path, files, subPath) => {
 
 
 }
+
+
+
+ const Unzip = async (zipPath, outputDir) => {
+  return new Promise((resolve, reject) => {
+    // If no output dir provided → extract next to the zip file
+    const targetDir = outputDir || zipPath.replace(/\/[^\/]+\.zip$/, "");
+
+    const cmd = `unzip -o "${zipPath}" -d "${targetDir}"`;
+
+    exec(cmd, (error, stdout, stderr) => {
+      if (error) return reject(error);
+      if (stderr) console.error(stderr);
+      resolve(stdout?.trim());
+    });
+  });
+};
 const GetTextContent = (path) => {
 
     return fs.readFileSync(path, 'utf8');
@@ -130,7 +147,18 @@ const Delete = async (path) => {
 const SaveTextContent = (path, content) => {
     fs.writeFileSync(path, content);
 }
+export const Move = async (filePath, newDirectoryPath) => {
+  return new Promise((resolve, reject) => {
+    // wrap file paths in quotes for safety
+    const cmd = `mv "${filePath}" "${newDirectoryPath}"`;
 
+    exec(cmd, (error, stdout, stderr) => {
+      if (error) return reject(error);
+      if (stderr) console.error(stderr);
+      resolve(stdout?.trim());
+    });
+  });
+};
 
-const FileService = { SaveTextContent, GetTextContent, IsTextFile, Delete, List, NewFolder, NewFile, Zip };
+const FileService = { SaveTextContent, GetTextContent, IsTextFile, Delete, List, NewFolder, NewFile, Zip,Unzip,Move };
 export default FileService

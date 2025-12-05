@@ -10,6 +10,7 @@ import { exec, execSync } from "child_process";
 import path from "path";
 import axios from "axios";
 import fs from "fs";
+import FileService from "../services/fileService.js";
 const GetAll = async (req, res) => {
     const data = await GameService.GetAll();
     res.json({ data });
@@ -247,9 +248,9 @@ const ReceiveGameServer = async (req, res) => {
     await TerminalService.CreateUser(username);
     await sysUserService.StoreSysUser(username);
     // // the file is zip and needs to be unziped
-    await TerminalService.move(filePath,dirName);
-    await TerminalService.unzip(path.join(filePath,filename));
-    await TerminalService.OwnFile(filePath);
+    await FileService.move(filePath,dirName);
+    await FileService.unzip(path.join(filePath,filename));
+    await TerminalService.OwnFile(filePath,username);
     await GameService.ChangeHostId(gameServer.id,process.env.SERVER_ID);
     await GameService.SetServerTransferingStatus(gameServer.id,false);
 
