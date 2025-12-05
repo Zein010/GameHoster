@@ -23,7 +23,7 @@ const GetServer = async (serverId) => {
     return await prisma.runningServers.findUnique({ where: { id: parseInt(serverId), deleted: false }, include: { sysUser: true, gameVersion: { include: { game: true, getFilesSetup: true, changeFileAfterSetup: true } } } });
 }
 const ChangeHostId =async(serverId,hostId)=>{
-    return await prisma.runningServers.update({where:{id:parseInt(serverId)},data:{serverId:parseInt(hostId)}});
+    return await prisma.runningServers.update({where:{id:parseInt(serverId)},data:{server:{connect:{id:parseInt(hostId)}}}});
 }
 const SetRunningServerPID = async (id, pid) => {
     return await prisma.runningServers.update({ where: { id }, data: { pid } });
