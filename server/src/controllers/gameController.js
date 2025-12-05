@@ -257,7 +257,7 @@ const ReceiveGameServer = async (req, res) => {
         await TerminalService.OwnFile(path.resolve(dirName),username);
         await GameService.ChangeHostId(gameServer.id,process.env.SERVER_ID);
         await GameService.SetServerTransferingStatus(gameServer.id,false);
-
+        res.status(200).json({msg:"Server transfered successfully"})
     })
 }
 const GameController = {ReceiveGameServer,MoveToHost, GetLog, BanPlayer, UnBanPlayer, KickPlayer, OPPlayer, DEOPPlayer, GetBannedPlayers, GetPlayers, OneCommand, DisplayLog, StopServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning };
