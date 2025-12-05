@@ -227,16 +227,24 @@ const ReceiveGameServer = async (req, res) => {
         console.log("Invalid copy token");
         return res.status(403).json({error:"Invalid copy token"});
     }
-  const filePath = path.resolve(`TempForReceive/${filename}`);
+  
+ 
+    const filePath = path.resolve(`TempForReceive/${filename}`);
+    
+    if (!fs.existsSync(filePath)) {
+    fs.mkdirSync(filePath, { recursive: true });
+    }
   const writeStream = fs.createWriteStream(filePath);
   req.pipe(writeStream);
 
+ 
   writeStream.on("finish", () => {
     res.send({ success: true, filePath });
   });
 
   writeStream.on("error", (err) => {
     console.error(err);
+    print(err.message);
     res.status(500).send({ success: false, error: err.message });
   });
     // const dirName = `GameServer/${gameServer.sysUser.username}`;
