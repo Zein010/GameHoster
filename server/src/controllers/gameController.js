@@ -79,7 +79,7 @@ const CreateServer = async (req, res) => {
     if (gameVersion.cacheFile&&JSON.parse(gameVersion.cacheFile)[process.env.SERVER_ID]) {
         
         console.log("Copying file");
-        await TerminalService.CopyFile(gameVersion.JSON.parse(gameVersion.cacheFile)[process.env.SERVER_ID], dirName).catch((err)=>console.log(err));
+        await TerminalService.CopyFile(JSON.parse(gameVersion.cacheFile)[process.env.SERVER_ID], dirName).catch((err)=>console.log(err));
         console.log("Done copying files");
         scriptFile = gameVersion.scriptFile
     } else {
