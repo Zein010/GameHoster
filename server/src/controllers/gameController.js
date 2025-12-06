@@ -32,7 +32,7 @@ const GetVersions = async (req, res) => {
     res.json({ data });
 }
 const GetServers = async (req, res) => {
-    const data = await GameService.GetServers(req.user.role==Role.ADMIN?null:{ userId: req.user.id });
+    const data = await GameService.GetServers(req.user.role == Role.ADMIN ? null : { userId: req.user.id });
     res.json({ data });
 }
 const GetServer = async (req, res) => {
@@ -45,19 +45,26 @@ const StartServer = async (req, res) => {
     const server = await GameService.GetServer(parseInt(id))
     if (!server)
         return res.status(400).json({ msg: "Invalid server id" });
-    const config = GetServerStartOptions(server.gameVersion, "restart")
-    const SetupCorrectly = TerminalService.SetupServerConfigForRestart(server.path, server.gameVersion.changeFileAfterSetup, config);
-    if (!SetupCorrectly)
-        return res.status(401).json({ msg: "Something went wrong" });
-    GameService.AppendToServerConfig(server.id, config);
-    if (server.gameVersion.service) {
-        TerminalService.StartService(`${username}.service`);
-    } else {
 
-        const PID = TerminalService.StartCreatedServer(server)
+    // New Queue Logic
+    try {
+        const queueItem = await import("../services/queueService.js").then(m => m.default.Enqueue(server.id, "START"));
+        res.json({ msg: "Server start request queued", queueId: queueItem.id });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ msg: "Failed to queue start request" });
     }
-    res.json({ "msg": "Server started successfully, please wait for initialization to finish", config });
+}
 
+const GetQueueStatus = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const item = await import("../services/queueService.js").then(m => m.default.GetQueueItem(id));
+        if (!item) return res.status(404).json({ msg: "Queue item not found" });
+        res.json({ status: item.status, logs: item.logs });
+    } catch (err) {
+        res.status(500).json({ msg: "Error fetching queue status" });
+    }
 }
 const DisplayLog = async (req, res) => {
     const { serverId } = req.params;
@@ -69,52 +76,37 @@ const DisplayLog = async (req, res) => {
 const CreateServer = async (req, res) => {
     const { versionId } = req.params
     const gameVersion = await GameService.GetVersion(parseInt(versionId))
+
+    // Select Best Host
+    const host = await import("../services/resourceService.js").then(m => m.default.GetBestHost(gameVersion.id));
+    if (!host) {
+        return res.status(503).json({ msg: "No available host found for this server type" });
+    }
+
     const rand = parseInt((Math.random() * 10000) % 10000);
     const dirName = `GameServer/${gameVersion.game.dirName}-${rand}`;
     const username = `${gameVersion.game.dirName}-${rand}`;
-    TerminalService.CreateNewDirectory({ name: dirName })
-    await TerminalService.CreateUser(username);
+
+    // Create DB Records (Deferred execution)
+    // Note: We create SysUser entry here in DB? 
+    // In original code: await TerminalService.CreateUser(username) -> creates system user.
+    // await sysUserService.StoreSysUser(username) -> stores in DB.
+    // We can store in DB now, assuming the worker will create the system user later.
     await sysUserService.StoreSysUser(username);
-    var scriptFile = "";
-    if (gameVersion.cacheFile&&JSON.parse(gameVersion.cacheFile)[process.env.SERVER_ID]) {
-        
-        console.log("Copying file");
-        await TerminalService.CopyFile(JSON.parse(gameVersion.cacheFile)[process.env.SERVER_ID], dirName).catch((err)=>console.log(err));
-        console.log("Done copying files");
-        scriptFile = gameVersion.scriptFile
-    } else {
-        if (gameVersion.downloadLink) {
-            scriptFile = TerminalService.DownloadServerData(gameVersion.downloadLink, dirName);
-        }
-        if (gameVersion.installScript) {
-            await TerminalService.DownloadServerDataByScript(gameVersion.installScript, dirName);
-            scriptFile = gameVersion.scriptFile
-        }
-        await TerminalService.CacheFile(dirName, `${gameVersion.game.name}/${gameVersion.id}`);
-        GameService.SetGameVersionCache(gameVersion.id, `DownloadCache/${gameVersion.game.name}/${gameVersion.id}`)
+
+    // Add RunningServer linked to the selected Host
+    console.log(`Assigning new server to host ${host.id}`);
+    const serverDetails = await GameService.AddRunningServer(dirName, username, gameVersion.id, null, host.id);
+
+    // Enqueue CREATE task
+    try {
+        const queueItem = await import("../services/queueService.js").then(m => m.default.Enqueue(serverDetails.id, "CREATE"));
+        res.json({ msg: "Server creation queued", queueId: queueItem.id, config: {} });
+    } catch (err) {
+        console.error(err);
+        // Rollback? ideally yes, but for now just fail.
+        res.status(500).json({ msg: "Failed to queue creation request" });
     }
-    console.log("adding server");
-    const serverDetails = await GameService.AddRunningServer(dirName, username, gameVersion.id, scriptFile)
-    console.log("added server");
-    const config = GetServerStartOptions(gameVersion, "start")
-    console.log("Appending to server config");
-    GameService.AppendToServerConfig(serverDetails.id, config);
-    console.log("Setting up required files");
-    TerminalService.SetupRequiredFiles(dirName, gameVersion.getFilesSetup)
-    await TerminalService.OwnFile(dirName, username)
-
-    await TerminalService.SetupServerAfterStart(dirName, gameVersion.changeFileAfterSetup, config);
-    console.log("Owning new Files");
-    await TerminalService.OwnFile(dirName, username)
-    if (gameVersion.service) {
-        TerminalService.StartService(`${username}.service`);
-    } else {
-
-    console.log("Starting created server");
-        TerminalService.StartCreatedServer(serverDetails)
-    }
-
-    res.json({ msg: "Game server created successfully", config });
 }
 const CheckServerRunning = async (req, res) => {
     const { serverId } = req.params
@@ -128,17 +120,34 @@ const CheckServerRunning = async (req, res) => {
 }
 const StopServer = async (req, res) => {
     const { serverId } = req.params
-
     const server = await GameService.GetServer(Number(serverId));
     if (!server) {
         return res.status(404).json({ "msg": "Server not found" })
     }
 
-    const status = await TerminalService.CheckUserHasProcess(server.sysUser.username, server.gameVersion.searchScript);
-    if (status) {
-        TerminalService.StopUserProcesses(server.sysUser.username, server.gameVersion.searchScript);
+    try {
+        const queueItem = await import("../services/queueService.js").then(m => m.default.Enqueue(server.id, "STOP"));
+        res.json({ msg: "Server stop request queued", queueId: queueItem.id });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ msg: "Failed to queue stop request" });
     }
-    res.json({ status });
+}
+
+const RestartServer = async (req, res) => {
+    const { serverId } = req.params
+    const server = await GameService.GetServer(Number(serverId));
+    if (!server) {
+        return res.status(404).json({ "msg": "Server not found" })
+    }
+
+    try {
+        const queueItem = await import("../services/queueService.js").then(m => m.default.Enqueue(server.id, "RESTART"));
+        res.json({ msg: "Server restart request queued", queueId: queueItem.id });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ msg: "Failed to queue restart request" });
+    }
 }
 const OneCommand = async (req, res) => {
     const { command } = req.body
@@ -193,13 +202,13 @@ const GetLog = async (req, res) => {
 
     res.json({ output });
 }
-const MoveToHost=async (req,res)=>{
-    const {serverId,hostId}=req.params;
-    
-    const host=await HostService.GetHost(hostId);
-    const gameServer=await GameService.GetServer(serverId);
-    if(!gameServer.serverid==process.env.SERVER_ID){
-        return res.status(403).json({msg:"Server is already moved to a different host"});
+const MoveToHost = async (req, res) => {
+    const { serverId, hostId } = req.params;
+
+    const host = await HostService.GetHost(hostId);
+    const gameServer = await GameService.GetServer(serverId);
+    if (!gameServer.serverid == process.env.SERVER_ID) {
+        return res.status(403).json({ msg: "Server is already moved to a different host" });
     }
     // stop the server before copying
     const status = await TerminalService.CheckUserHasProcess(gameServer.sysUser.username, gameServer.gameVersion.searchScript);
@@ -207,32 +216,32 @@ const MoveToHost=async (req,res)=>{
         TerminalService.StopUserProcesses(gameServer.sysUser.username, gameServer.gameVersion.searchScript);
     }
     // set server status to transfering
-    GameService.SetServerTransferingStatus(serverId,true);
-    const copyToken=  crypto.randomBytes(30).toString("base64").replace(/[^a-zA-Z0-9]/g, "").slice(0, 30);
-    await GameService.SetCopyToken(serverId,copyToken);
-    const outputFile= await TerminalService.ZipForTransfer(gameServer)
+    GameService.SetServerTransferingStatus(serverId, true);
+    const copyToken = crypto.randomBytes(30).toString("base64").replace(/[^a-zA-Z0-9]/g, "").slice(0, 30);
+    await GameService.SetCopyToken(serverId, copyToken);
+    const outputFile = await TerminalService.ZipForTransfer(gameServer)
     try {
-       
-        await axios.post(`http://${host.url}/Game/ReceiveServer/${serverId}/${copyToken}`, outputFile.stream, {headers: { "Content-Type": "application/octet-stream","X-filename":outputFile.name,"API-Key":host.apiKey,"UserID":req.user.id },maxBodyLength: Infinity, });
-        res.status(200).json({msg:"Server moved successfully"});
+
+        await axios.post(`http://${host.url}/Game/ReceiveServer/${serverId}/${copyToken}`, outputFile.stream, { headers: { "Content-Type": "application/octet-stream", "X-filename": outputFile.name, "API-Key": host.apiKey, "UserID": req.user.id }, maxBodyLength: Infinity, });
+        res.status(200).json({ msg: "Server moved successfully" });
     } catch (err) {
-        res.status(500).json({msg:"Something went wrong, server not moved"+err});
+        res.status(500).json({ msg: "Something went wrong, server not moved" + err });
     }
 }
 const ReceiveGameServer = async (req, res) => {
     const filename = req.headers["x-filename"];
-    const { serverId,copyToken } = req.params
-    const gameServer=await GameService.GetServer(serverId);
-    if(gameServer.copyToken!=copyToken){
+    const { serverId, copyToken } = req.params
+    const gameServer = await GameService.GetServer(serverId);
+    if (gameServer.copyToken != copyToken) {
         console.log("Invalid copy token");
-        return res.status(403).json({error:"Invalid copy token"});
+        return res.status(403).json({ error: "Invalid copy token" });
     }
-  
- 
+
+
     const filePath = path.resolve(`TempForReceive/${filename}`);
-    
+
     if (!fs.existsSync(path.resolve("TempForReceive"))) {
-    fs.mkdirSync(path.resolve("TempForReceive"), { recursive: true });
+        fs.mkdirSync(path.resolve("TempForReceive"), { recursive: true });
     }
     const writeStream = fs.createWriteStream(filePath);
     req.pipe(writeStream);
@@ -241,7 +250,7 @@ const ReceiveGameServer = async (req, res) => {
         console.log(err.message);
         res.status(500).send({ success: false, error: err.message });
     });
-    writeStream.on("finish",async ()=>{
+    writeStream.on("finish", async () => {
 
         const dirName = `GameServer/${gameServer.sysUser.username}`;
         const username = `${gameServer.sysUser.username}`;
@@ -249,13 +258,11 @@ const ReceiveGameServer = async (req, res) => {
         await TerminalService.CreateUser(username);
         await sysUserService.StoreSysUser(username);
         // // the file is zip and needs to be unziped
-        await FileService.Move(filePath,dirName);
-        await FileService.Unzip(path.resolve(path.join(dirName,filename)));
-        await TerminalService.OwnFile(path.resolve(dirName),username);
-        await GameService.ChangeHostId(gameServer.id,process.env.SERVER_ID);
-        await GameService.SetServerTransferingStatus(gameServer.id,false);
-        res.status(200).json({msg:"Server transfered successfully"})
-    })
+        await FileService.Move(filePath, dirName);
+        await FileService.Unzip(path.resolve(path.join(dirName, filename)));
+        await TerminalService.OwnFile(path.resolve(dirName), username);
+    });
 }
-const GameController = {ReceiveGameServer,MoveToHost, GetLog, BanPlayer, UnBanPlayer, KickPlayer, OPPlayer, DEOPPlayer, GetBannedPlayers, GetPlayers, OneCommand, DisplayLog, StopServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning };
+
+const GameController = { ReceiveGameServer, MoveToHost, GetLog, BanPlayer, UnBanPlayer, KickPlayer, OPPlayer, DEOPPlayer, GetBannedPlayers, GetPlayers, OneCommand, DisplayLog, StopServer, RestartServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning, GetQueueStatus };
 export default GameController

@@ -1,45 +1,77 @@
-import GlobalStyles from '@mui/joy/GlobalStyles';
-import Box from '@mui/joy/Box';
-import Divider from '@mui/joy/Divider';
-import IconButton from '@mui/joy/IconButton';
-import Link from '@mui/joy/Link';
-import Typography from '@mui/joy/Typography';
-import Sheet from '@mui/joy/Sheet';
-import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
-import TerminalIcon from '@mui/icons-material/Terminal';
-import ColorSchemeToggle from './ColorSchemeToggle.tsx';
-import { closeSidebar, notification } from '../Utils.ts';
-import PersonIcon from '@mui/icons-material/Person';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Archive, PlayArrow, Stop } from '@mui/icons-material';
 import ArchiveIcon from '@mui/icons-material/Archive';
-import { useEffect, useState } from 'react';
-import { Button } from '@mui/joy';
+import ArrowBackIos from '@mui/icons-material/ArrowBackIos';
 import FolderIcon from '@mui/icons-material/Folder';
-import { ArrowBack, ArrowBackIos, PlayArrow, SignalWifiStatusbar4Bar, Stop } from '@mui/icons-material'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
+import PersonIcon from '@mui/icons-material/Person';
+import SignalWifiStatusbar4Bar from '@mui/icons-material/SignalWifiStatusbar4Bar';
+import TerminalIcon from '@mui/icons-material/Terminal';
+import { Box, Button, Divider, GlobalStyles, IconButton, Input, Link, Sheet, Typography } from '@mui/joy';
+import { ColorSchemeToggle } from './ColorSchemeToggle';
+import { closeSidebar } from '../utils';
+import { useEffect, useState } from 'react';
+import useApiRequests from './API';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
 import useSignOut from 'react-auth-kit/hooks/useSignOut';
-import useApiRequests from './API.tsx';
+import useHostUrl from '../hooks/useHostUrl';
+import { notification } from "../Utils";
 
 export default function Sidebar() {
-  const requests=useApiRequests();
-  const [port, setPort] = useState(0)
-  const [gameVersion, setGameVersion] = useState<null | { version: string, id: number, game: { name: string, id: number } }>(null)
-  const [actionsDisabled, setActionsDisabled] = useState<{ start: boolean, stop: boolean }>({ start: false, stop: false });
-  const [globalDisabled, setGlobalDisabled] = useState<boolean>(false)
-  const [refreshed, setRefreshed] = useState<boolean>(false)
-  const location = useLocation();
-  const auth = useAuthUser<{ username: string, email: string }>()
-  const signOut = useSignOut()
-
-  const isActive = (path: string) => location.pathname === path;
-  const navigate = useNavigate();
   const { id } = useParams();
-  const handleSignOut = async () => {
-    signOut();
-    navigate('/');
+  const requests = useApiRequests();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const auth = useAuthUser();
+  const signOut = useSignOut();
+
+  const [refreshed, setRefreshed] = useState(false);
+  const [globalDisabled, setGlobalDisabled] = useState(false);
+  const [actionsDisabled, setActionsDisabled] = useState({ start: true, stop: true });
+  const [port, setPort] = useState(0);
+  const [gameVersion, setGameVersion] = useState<any>(null);
+
+  const { hostUrl } = useHostUrl(Number(id));
+
+  useEffect(() => {
+    checkStatus();
+    const interval = setInterval(() => {
+      setRefreshed((prev) => !prev);
+      checkStatus();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [hostUrl]);
+
+
+  const checkStatus = async () => {
+    var serverOn = false;
+    if (id == null || !hostUrl) {
+      return false;
+    }
+    try {
+      const response = await requests.checkGameServerStatus(hostUrl, parseInt(id));
+      if (response.status == 200) {
+        const resdata = await response.data
+        if (resdata.status) {
+          setActionsDisabled({ start: true, stop: false });
+          serverOn = true;
+        } else {
+          setActionsDisabled({ start: false, stop: true });
+          serverOn = false;
+        }
+        if (resdata.config.port) setPort(resdata.config.port)
+        if (resdata.gameVersion) setGameVersion(resdata.gameVersion)
+      }
+    } catch (e) {
+      // console.error("Failed to check status", e);
+    }
+
+    return serverOn
   }
+
   const startSever = async () => {
+    if (!hostUrl) return;
     setGlobalDisabled(true)
     const serverOn = await checkStatus();
     if (serverOn) {
@@ -48,18 +80,45 @@ export default function Sidebar() {
       setGlobalDisabled(false)
       return;
     }
-    const response=await requests.startGameServer(parseInt(id!));
-    if (response.status==200) {
-      notification('Server is running', "success")
-      await checkStatus();
+    try {
+      const response = await requests.startGameServer(hostUrl, parseInt(id!));
+      if (response.status == 200) {
+        const queueId = response.data.queueId;
+        notification('Server start queued...', "success");
 
-    } else {
-      notification(response.data.msg, "error")
+        const pollInterval = setInterval(async () => {
+          try {
+            const statusRes = await requests.getQueueStatus(hostUrl, queueId);
+            if (statusRes.data.status === "COMPLETED") {
+              clearInterval(pollInterval);
+              notification('Server started successfully', "success");
+              await checkStatus();
+              setGlobalDisabled(false);
+            } else if (statusRes.data.status === "FAILED") {
+              clearInterval(pollInterval);
+              notification("Server start failed: " + statusRes.data.logs, "error");
+              setGlobalDisabled(false);
+            }
+          } catch (err) {
+            clearInterval(pollInterval);
+            notification("Error polling status", "error");
+            setGlobalDisabled(false);
+          }
+        }, 2000);
+
+      } else {
+        notification(response.data.msg, "error")
+        setGlobalDisabled(false)
+      }
+    } catch (e) {
+      notification("Failed to start server", "error");
+      setGlobalDisabled(false);
     }
-    setGlobalDisabled(false)
 
   }
+
   const stopServer = async () => {
+    if (!hostUrl) return;
     setGlobalDisabled(true)
     const serverOn = await checkStatus();
     if (!serverOn) {
@@ -68,46 +127,47 @@ export default function Sidebar() {
       setGlobalDisabled(false)
       return;
     }
-    const response=await requests.stopGameServer(parseInt(id!));
-    if (response.status==200) {
-      notification('Server is stopped', "success")
-      await checkStatus();
+    try {
+      const response = await requests.stopGameServer(hostUrl, parseInt(id!));
+      if (response.status == 200) {
+        const queueId = response.data.queueId;
+        notification('Server stop queued...', "success");
 
-    } else {
-      notification( response.data.msg, "error")
-    }
-    setGlobalDisabled(false)
-  }
-  const checkStatus = async () => {
-    var serverOn = false;
-    if(id==null){
-      return
-    }
-    const response = await requests.checkGameServerStatus(parseInt(id));
-    if (response.status==200) {
-      const resdata = await response.data
-      if (resdata.status) {
-        setActionsDisabled({ start: true, stop: false });
-        serverOn = true;
+        const pollInterval = setInterval(async () => {
+          try {
+            const statusRes = await requests.getQueueStatus(hostUrl, queueId);
+            if (statusRes.data.status === "COMPLETED") {
+              clearInterval(pollInterval);
+              notification('Server stopped successfully', "success");
+              await checkStatus();
+              setGlobalDisabled(false);
+            } else if (statusRes.data.status === "FAILED") {
+              clearInterval(pollInterval);
+              notification("Server stop failed: " + statusRes.data.logs, "error");
+              setGlobalDisabled(false);
+            }
+          } catch (err) {
+            clearInterval(pollInterval);
+            notification("Error polling status", "error");
+            setGlobalDisabled(false);
+          }
+        }, 2000);
       } else {
-        setActionsDisabled({ start: false, stop: true });
-        serverOn = false;
+        notification(response.data.msg, "error")
+        setGlobalDisabled(false);
       }
-      if (resdata.config.port) setPort(resdata.config.port)
-      if (resdata.gameVersion) setGameVersion(resdata.gameVersion)
-
+    } catch (e) {
+      notification("Failed to stop server", "error");
+      setGlobalDisabled(false);
     }
-    return serverOn
   }
 
-  useEffect(() => {
-    setTimeout(() => {
-      setRefreshed((refreshed) => !refreshed)
-      checkStatus()
-    }, 5000)
-    checkStatus()
-  }, [refreshed])
+  const handleSignOut = () => {
+    signOut();
+    navigate('/Login');
+  }
 
+  const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + "/");
 
   return (
     <Sheet
@@ -162,7 +222,7 @@ export default function Sidebar() {
         onClick={() => closeSidebar()}
       />
       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-        
+
         <Link href={`/Servers`}><ArrowBackIos /></Link>
         <Typography level="title-lg">Zyxnware</Typography>
         <ColorSchemeToggle sx={{ ml: 'auto' }} />

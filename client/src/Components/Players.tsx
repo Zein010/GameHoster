@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import {  Grid, Card, CardContent, Typography, Button, Box, Divider } from '@mui/joy';
+import { Grid, Card, CardContent, Typography, Button, Box, Divider } from '@mui/joy';
 import { Refresh } from '@mui/icons-material';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
@@ -7,20 +7,24 @@ import { useParams } from 'react-router-dom';
 import RemoveModeratorIcon from '@mui/icons-material/RemoveModerator';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import useApiRequests from './API';
+import useHostUrl from '../hooks/useHostUrl';
+
 export default function Players() {
 
     const [players, setPlayers] = useState<{ name: string, uuid: string }[]>([]);
     const [bannedPlayers, setBannedPlayers] = useState<{ playerName: string, reason: string }[]>([]);
     const [refresh, setRefresh] = useState(false);
-    const requests=useApiRequests();
+    const requests = useApiRequests();
     const { id } = useParams();
+    const { hostUrl } = useHostUrl(Number(id));
+
     useEffect(() => {
 
         const fetchData = async () => {
-
-            const resPlayers =await requests.commandManager.getGamePlayers(parseInt(id!))
-            if (resPlayers.status==200) {
-                const log =  resPlayers.data;
+            if (!hostUrl) return;
+            const resPlayers = await requests.commandManager.getGamePlayers(hostUrl, parseInt(id!))
+            if (resPlayers.status == 200) {
+                const log = resPlayers.data;
                 const regex = /(\w+)\s\(([\da-fA-F-]+)\)/g;
                 let match;
                 const newPlayers = []
@@ -29,49 +33,54 @@ export default function Players() {
                 }
                 setPlayers(newPlayers)
             }
-            const resBanned = await requests.commandManager.getGameBannedPlayers(parseInt(id!))
-            if (resBanned.status==200) {
-                const newBannedPlayers =  resBanned.data.output;
+            const resBanned = await requests.commandManager.getGameBannedPlayers(hostUrl, parseInt(id!))
+            if (resBanned.status == 200) {
+                const newBannedPlayers = resBanned.data.output;
 
                 setBannedPlayers(newBannedPlayers)
             }
         }
         fetchData();
 
-    }, [refresh, id])
+    }, [refresh, id, hostUrl])
     const kickPlayer = async (playerName: string) => {
-        const response =await requests.commandManager.sendCommand(parseInt(id!),"kick",{playerName}); 
-        if (response.status=200) {
+        if (!hostUrl) return;
+        const response = await requests.commandManager.sendCommand(hostUrl, parseInt(id!), "kick", { playerName });
+        if (response.status = 200) {
             setRefresh(!refresh)
         }
 
     }
     const banPlayer = async (playerName: string) => {
-        const response =await requests.commandManager.sendCommand(parseInt(id!),"Ban",{playerName}); 
-        if (response.status=200) {
+        if (!hostUrl) return;
+        const response = await requests.commandManager.sendCommand(hostUrl, parseInt(id!), "Ban", { playerName });
+        if (response.status = 200) {
             setRefresh(!refresh)
         }
 
     }
     const opPlayer = async (playerName: string) => {
-        const response =await requests.commandManager.sendCommand(parseInt(id!),"OP",{playerName}); 
-        if (response.status=200) {
+        if (!hostUrl) return;
+        const response = await requests.commandManager.sendCommand(hostUrl, parseInt(id!), "OP", { playerName });
+        if (response.status = 200) {
             setRefresh(!refresh)
         }
-       
+
 
     }
     const deopPlayer = async (playerName: string) => {
-        const response =await requests.commandManager.sendCommand(parseInt(id!),"DEOP",{playerName}); 
-        if (response.status=200) {
+        if (!hostUrl) return;
+        const response = await requests.commandManager.sendCommand(hostUrl, parseInt(id!), "DEOP", { playerName });
+        if (response.status = 200) {
             setRefresh(!refresh)
         }
 
     }
     const unban = async (playerName: string) => {
-        const response =await requests.commandManager.sendCommand(parseInt(id!),"Unban",{playerName}); 
-       
-        if (response.status=200) {
+        if (!hostUrl) return;
+        const response = await requests.commandManager.sendCommand(hostUrl, parseInt(id!), "Unban", { playerName });
+
+        if (response.status = 200) {
             setRefresh(!refresh)
         }
 
@@ -127,7 +136,7 @@ export default function Players() {
             <Card variant="outlined" sx={{ bgcolor: '#2d2d2d', color: '#d1d5db', p: 2 }}>
 
                 <Grid container spacing={2} sx={{ flexGrow: 1 }}>
-                    {bannedPlayers.length > 0 ? bannedPlayers.map((player,i) => {
+                    {bannedPlayers.length > 0 ? bannedPlayers.map((player, i) => {
                         return (
                             <Box key={i} >
                                 <Card variant="soft" sx={{ boxShadow: "lg" }} >

@@ -8,6 +8,7 @@ router.get("/", GameController.GetAll);
 router.get("/StartServer/:id", GameController.StartServer);
 router.get("/CheckLogs/:serverId", GameController.DisplayLog);
 router.get("/StopServer/:serverId", GameController.StopServer);
+router.get("/RestartServer/:serverId", GameController.RestartServer);
 router.get("/MoveToHost/:serverId/:hostId", GameController.MoveToHost);
 router.post("/ReceiveServer/:serverId/:copyToken", GameController.ReceiveGameServer);
 router.get("/CheckServer/:serverId", GameController.CheckServerRunning);
@@ -26,4 +27,5 @@ router.get("/Server/:id", GameController.GetServer);
 router.get("/:gameId/Versions", GameController.GetVersions);
 router.get("/:id", GameController.Get);
 
+router.get("/queue/:id", GameController.GetQueueStatus);
 export default router;

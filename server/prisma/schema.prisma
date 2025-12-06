@@ -60,6 +60,9 @@ model GameVersion {
   runScript            String?                @db.Text
   searchScript         String?
   service              String?                @db.Text
+  requiredRam          Int                    @default(0) // MB
+  requiredCpu          Int                    @default(0) // Cores/Score
+  requiredStorage      Int                    @default(0) // GB
   runningServers       RunningServers[]
   runOnce              Json?
   getFilesSetup        GetFilesSetup[]
@@ -83,6 +86,10 @@ model Server {
   frontendUrl String 
   deleted   Boolean   @default(false)
   apiKey String? 
+  ram       Int       @default(0) // MB
+  cpu       Int       @default(0) // Cores/Score
+  storage   Int       @default(0) // GB
+  priority  Int       @default(0) // Higher is better
   runningServers RunningServers[]
 }
 
@@ -134,9 +141,23 @@ model GetFilesSetup {
   content       String      @db.Text
 }
 
+
 model ChangeFileAfterSetup {
   id            Int         @id @default(autoincrement())
   gameVersionId Int
   gameVersion   GameVersion @relation(fields: [gameVersionId], references: [id])
   actions       Json
 }
+
+model ServerQueue {
+  id        Int      @id @default(autoincrement())
+  serverId  Int
+  server    RunningServers @relation(fields: [serverId], references: [id])
+  type      String   // START, STOP, RESTART, CREATE
+  status    String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED
+  payload   Json?
+  logs      String?  @db.LongText
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+

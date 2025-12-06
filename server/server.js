@@ -11,6 +11,11 @@ import UserRoutes from "./src/routes/userRoutes.js";
 import setupSocketRoutes from "./src/routes/socketRoutes.js";
 import fileUpload from "express-fileupload"
 import authMiddleware from "./src/middleware/authMiddleware.js";
+import WorkerLoop from "./src/worker.js";
+
+// Start the queue worker
+WorkerLoop();
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -26,16 +31,16 @@ app.use(fileUpload({
 app.use(cors());
 app.use(express.json());
 
-app.use("/Game",authMiddleware.authenticateToken,  GameRoutes);
-app.use("/Hosts",authMiddleware.authenticateAdmin,  HostRoutes);
+app.use("/Game", authMiddleware.authenticateToken, GameRoutes);
+app.use("/Hosts", authMiddleware.authenticateAdmin, HostRoutes);
 app.use("/Discord", DiscordRoutes);
 app.use("/Files", FileRoutes);
 app.use("/SysUser", SysUserRoutes);
-app.use("/User",UserRoutes);
+app.use("/User", UserRoutes);
 
 // Setup socket routes
 setupSocketRoutes(io);
 
 server.listen(process.env.SERVER_PORT, () => {
-  console.log("Server started on port "+process.env.SERVER_PORT);
+  console.log("Server started on port " + process.env.SERVER_PORT);
 });

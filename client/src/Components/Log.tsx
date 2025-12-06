@@ -3,23 +3,26 @@ import "../index.css"
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useApiRequests from './API';
-// Connect to the server with a purpose query parameter
+import useHostUrl from '../hooks/useHostUrl';
+
 export default function Logs() {
-    const requests= useApiRequests();
+    const requests = useApiRequests();
     const { id } = useParams();
+    const { hostUrl } = useHostUrl(Number(id));
     const [content, setContent] = useState<string>("")
 
     const contentRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
         const fetchData = async () => {
-            const res = await requests.getGameLogs(parseInt(id!));
-            if (res.status=200) {
+            if (!hostUrl) return;
+            const res = await requests.getGameLogs(hostUrl, parseInt(id!));
+            if (res.status = 200) {
                 setContent(res.data.output)
             }
         }
         fetchData();
 
-    }, [id])
+    }, [id, hostUrl])
     useEffect(() => {
         if (contentRef.current) {
             contentRef.current.scrollTop = contentRef.current.scrollHeight;

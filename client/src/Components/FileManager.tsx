@@ -14,7 +14,8 @@ import axios from 'axios';
 import { ArrowUpward, Download, UploadFile } from '@mui/icons-material';
 import { notification } from '../Utils';
 import useApiRequests from './API';
-import { API_BASE_URL } from '../Config/app.config';
+import useHostUrl from '../hooks/useHostUrl';
+
 const Item = styled(Sheet)(({ theme }) => ({
     // Use prop if provided, fallback to #fff
     ...theme.typography['body-sm'],
@@ -32,6 +33,7 @@ export default function FileManager() {
     const [uploadOpen, setUploadOpen] = useState(false)
     const [uploadFiles, setUploadFiles] = useState<File[]>([])
     const { id, "*": remainingPath } = useParams();
+    const { hostUrl } = useHostUrl(Number(id));
     const [fileRowsRef, setFileRowsRef] = useState([]);
     const [selectedFiles, setSelectFiles] = useState<string[]>([])
     const [refresh, setRefresh] = useState(false)
@@ -43,7 +45,7 @@ export default function FileManager() {
     const [confirmOpen, setConfirmOpen] = useState(false)
 
     const navigate = useNavigate();
-    const [confirmContent, setConfirmContent] = useState<{ button: string, text: string, action: () => void, buttonColor: "primary" | "danger" }>({ button: "", text: "", action: () => { }, buttonColor: "primary" })
+    const [confirmContent, setConfirmContent] = useState<{ button: string, text: string, action: () => void, buttonColor: "primary" | "danger" | "neutral" | "success" | "warning" }>({ button: "", text: "", action: () => { }, buttonColor: "primary" })
     const currentPath = remainingPath || ""
     const fileCheckBoxClicked = (file: string, add: boolean) => {
 
@@ -64,7 +66,8 @@ export default function FileManager() {
     }, [fileRowsRef])
     useEffect(() => {
         const fetchFiles = async () => {
-            const response = await requests.fileManager.getFiles(id!, currentPath)
+            if (!hostUrl) return;
+            const response = await requests.fileManager.getFiles(hostUrl, id!, currentPath)
 
             if (response.status = 200) {
 
@@ -86,7 +89,7 @@ export default function FileManager() {
         setClickedRowIndex(-1)
 
         fetchFiles();
-    }, [refresh, currentPath])
+    }, [refresh, currentPath, hostUrl])
     const ChangePath = (path: string) => {
 
         navigate(`/server/${id}/Files/${path}`);
@@ -97,13 +100,16 @@ export default function FileManager() {
     }
     const handleUploadFile = (event: any) => {
         event.preventDefault()
+        if (!hostUrl) return;
         const formData = new FormData();
         uploadFiles.forEach(file => {
             formData.append('files[]', file);
 
         })
         formData.append('path', currentPath);
-        axios.post(API_BASE_URL + `/Files/${id}/Upload`, formData, {
+        const baseUrl = hostUrl.startsWith("http") ? hostUrl : `http://${hostUrl}`;
+
+        axios.post(baseUrl + `/Files/${id}/Upload`, formData, {
             headers: {
                 'content-type': 'multipart/form-data',
             },
@@ -126,9 +132,10 @@ export default function FileManager() {
 
         return `${size.toFixed(2)} ${units[index]}`;
     };
-    const sendCreate = async () => {
 
-        const response = await requests.fileManager.createFile(id!, currentPath, createType, createName)
+    const sendCreate = async () => {
+        if (!hostUrl) return;
+        const response = await requests.fileManager.createFile(hostUrl, id!, currentPath, createType, createName)
         if (response.status == 200 && response.data.success) {
             setRefresh(!refresh)
             setCreateOpen(false)
@@ -137,24 +144,24 @@ export default function FileManager() {
         } else {
             notification(response.data.msg, "error")
         }
-
-
     }
 
-    const ConfirmDeleteFiles = async () => {
-        setConfirmContent({ text: "Confirm to delete", button: "Delete", buttonColor: "danger", action: DeleteFiles });
-        setConfirmOpen(true)
-    }
     const DeleteFiles = async () => {
-    const response=await requests.fileManager.deleteFiles(Number(id),selectedFiles,currentPath);
-        
-        if (response.status==200) {
+        if (!hostUrl) return;
+        const response = await requests.fileManager.deleteFiles(hostUrl, Number(id), selectedFiles, currentPath);
+
+        if (response.status == 200) {
             setRefresh(!refresh)
             setSelectFiles([])
 
             notification(response.data.msg, response.data.success ? "success" : "error")
         }
 
+    }
+
+    const ConfirmDeleteFiles = async () => {
+        setConfirmContent({ text: "Confirm to delete", button: "Delete", buttonColor: "danger", action: DeleteFiles });
+        setConfirmOpen(true)
     }
     const openCreate = (type: "folder" | "file") => {
         setCreateType(type);
@@ -166,7 +173,7 @@ export default function FileManager() {
         setClickedRowIndex(clickedRowIndex == rowID ? -1 : rowID)
     }
     const DownloadFiles = async () => {
-        notification("Download feature is not ready yet","error");
+        notification("Download feature is not ready yet", "error");
         setSelectFiles([]);
     };
     return (

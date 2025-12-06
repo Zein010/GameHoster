@@ -4,19 +4,21 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import { API_BASE_URL } from '../Config/app.config';
-// Connect to the server with a purpose query parameter
+import useHostUrl from '../hooks/useHostUrl';
+
 export default function Terminal() {
     const { id } = useParams();
+    const { hostUrl, loading } = useHostUrl(Number(id));
     const [terminalSocket, setTerminalSocket] = useState<Socket | null>(null);
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
     const [currentCommandIndex, setCurrentCommandIndex] = useState(0);
     const commandsDiv = useRef<HTMLDivElement>(null);
     useEffect(() => {
-        setTerminalSocket(io(API_BASE_URL, { query: { purpose: "terminal", serverId: id } }));
+        if (hostUrl)
+            setTerminalSocket(io(hostUrl.startsWith("http") ? hostUrl : `http://${hostUrl}`, { query: { purpose: "terminal", serverId: id } }));
 
 
-    }, [id])
+    }, [id, hostUrl])
     useEffect(() => {
 
         if (terminalSocket)
