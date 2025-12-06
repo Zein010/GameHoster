@@ -8,22 +8,21 @@ import PersonIcon from '@mui/icons-material/Person';
 import SignalWifiStatusbar4Bar from '@mui/icons-material/SignalWifiStatusbar4Bar';
 import TerminalIcon from '@mui/icons-material/Terminal';
 import { Box, Button, Divider, GlobalStyles, IconButton, Input, Link, Sheet, Typography } from '@mui/joy';
-import { ColorSchemeToggle } from './ColorSchemeToggle';
-import { closeSidebar } from '../utils';
 import { useEffect, useState } from 'react';
 import useApiRequests from './API';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
 import useSignOut from 'react-auth-kit/hooks/useSignOut';
 import useHostUrl from '../hooks/useHostUrl';
-import { notification } from "../Utils";
+import { closeSidebar, notification } from "../Utils";
+import ColorSchemeToggle from './ColorSchemeToggle';
 
 export default function Sidebar() {
   const { id } = useParams();
   const requests = useApiRequests();
   const navigate = useNavigate();
   const location = useLocation();
-  const auth = useAuthUser();
+  const auth = useAuthUser<{ username: string, email: string }>();
   const signOut = useSignOut();
 
   const [refreshed, setRefreshed] = useState(false);

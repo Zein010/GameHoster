@@ -32,7 +32,7 @@ export default function Logs() {
 
 
     return (
-        <Box >
+        <Box>
             <Typography level="h3" sx={{ mb: 2, }}>Logs</Typography>
             <Card variant="outlined" sx={{ bgcolor: '#2d2d2d', color: '#d1d5db', p: 2 }}>
                 <div
