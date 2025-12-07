@@ -5,7 +5,7 @@ import { GetServerStartOptions } from "./utils.js";
 import sysUserService from "./services/sysUserService.js";
 import FileService from "./services/fileService.js";
 import ResourceService from "./services/resourceService.js";
-import { prisma } from "./prisma.js";
+import { prisma } from "../prisma.js";
 import axios from "axios";
 import path from "path";
 import fs from "fs";
