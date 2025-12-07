@@ -25,13 +25,14 @@ model User {
   createdAt        DateTime           @default(now())
   RunningServers   RunningServers[]
   UserLoginHistory UserLoginHistory[]
-  role    Role     @default(ADMIN) 
+  role             Role               @default(ADMIN)
 }
 
 enum Role {
   USER
   ADMIN
 }
+
 model UserLoginHistory {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
@@ -76,21 +77,23 @@ model SysUser {
   deletedAt DateTime?
   deleted   Boolean   @default(false)
 
-  userAccess     UserAccess[]
-  runningServers RunningServers[]
+  userAccess       UserAccess[]
+  runningServers   RunningServers[]
+  proxyConnections ProxyConnection[]
 }
 
 model Server {
-  id        Int       @id @default(autoincrement())
-  url String //will contain domain:port  
-  frontendUrl String 
-  deleted   Boolean   @default(false)
-  apiKey String? 
-  ram       Int       @default(0) // MB
-  cpu       Int       @default(0) // Cores/Score
-  storage   Int       @default(0) // GB
-  priority  Int       @default(0) // Higher is better
-  runningServers RunningServers[]
+  id               Int               @id @default(autoincrement())
+  url              String //will contain domain:port  
+  frontendUrl      String
+  deleted          Boolean           @default(false)
+  apiKey           String?
+  ram              Int               @default(0) // MB
+  cpu              Int               @default(0) // Cores/Score
+  storage          Int               @default(0) // GB
+  priority         Int               @default(0) // Higher is better
+  runningServers   RunningServers[]
+  proxyConnections ProxyConnection[]
 }
 
 model TerminalError {
@@ -127,10 +130,27 @@ model RunningServers {
   sysUser       SysUser     @relation(fields: [sysUserId], references: [id])
   userId        Int?
   user          User?       @relation(fields: [userId], references: [id])
-  serverid Int
-  copyToken String?
-  transfering Boolean @default(false)
-  server Server @relation(fields: [serverid], references: [id])
+  serverid      Int
+  copyToken     String?
+  transfering   Boolean     @default(false)
+  server        Server      @relation(fields: [serverid], references: [id])
+
+  serverQueues     ServerQueue[]
+  proxyConnections ProxyConnection[]
+}
+
+model ProxyConnection {
+  id              Int            @id @default(autoincrement())
+  runningServerId Int
+  runningServer   RunningServers @relation(fields: [runningServerId], references: [id])
+  proxyHostId     Int
+  proxyHost       Server         @relation(fields: [proxyHostId], references: [id])
+  port            Int
+  createdAt       DateTime       @default(now())
+  sysUser         SysUser?       @relation(fields: [sysUserId], references: [id])
+  sysUserId       Int?
+
+  @@unique([runningServerId, proxyHostId])
 }
 
 model GetFilesSetup {
@@ -141,7 +161,6 @@ model GetFilesSetup {
   content       String      @db.Text
 }
 
-
 model ChangeFileAfterSetup {
   id            Int         @id @default(autoincrement())
   gameVersionId Int
@@ -150,14 +169,13 @@ model ChangeFileAfterSetup {
 }
 
 model ServerQueue {
-  id        Int      @id @default(autoincrement())
+  id        Int            @id @default(autoincrement())
   serverId  Int
   server    RunningServers @relation(fields: [serverId], references: [id])
-  type      String   // START, STOP, RESTART, CREATE
-  status    String   @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED
+  type      String // START, STOP, RESTART, CREATE
+  status    String         @default("PENDING") // PENDING, PROCESSING, COMPLETED, FAILED
   payload   Json?
-  logs      String?  @db.LongText
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  logs      String?        @db.LongText
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 }
-

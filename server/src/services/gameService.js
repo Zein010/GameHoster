@@ -33,6 +33,23 @@ const SetServerTransferingStatus = async (serverId, transfering) => {
 const SetCopyToken = async (serverId, copyToken) => {
     return await prisma.runningServers.update({ where: { id: parseInt(serverId) }, data: { copyToken } })
 }
-
-const GameService = { SetServerTransferingStatus, SetCopyToken, GetAll, ChangeHostId, Get, GetVersion, GetServers, GetServer, GetVersions, SetRunningServerPID, AddRunningServer, DeleteServer, SetGameVersionCache, AppendToServerConfig };
+const SetScriptFile = async (id, scriptFile) => {
+    return await prisma.runningServers.update({ where: { id }, data: { scriptFile } })
+}
+const GetVersion = async (id) => {
+    return await prisma.gameVersion.findUnique({ where: { id } ,include:{game:true}})
+}
+const GetVersions = async () => {
+    return await prisma.gameVersion.findMany({include:{game:true}})
+}
+const GetServers = async () => {
+    return await prisma.runningServers.findMany({ include: { gameVersion: { include: { game: true } }, sysUser: true ,server:{select:{url:true  }} } })
+}
+const GetServer = async (id) => {
+    return await prisma.runningServers.findUnique({ where: { id },include:{gameVersion:{include:{game:true}},sysUser:true,server:{select:{url:true  }} } })
+}
+const SetRunningServerPID = async (serverId, pid) => {
+    return await prisma.runningServers.update({ where: { id: parseInt(serverId) }, data: { pid } })
+}
+const GameService = { SetScriptFile, SetCopyToken, SetServerTransferingStatus, SetGameVersionCache, GetVersion, GetVersions, GetServer, GetServers, GetAll, Get, AddRunningServer,  AppendToServerConfig }
 export default GameService

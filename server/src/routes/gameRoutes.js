@@ -11,6 +11,7 @@ router.get("/StopServer/:serverId", GameController.StopServer);
 router.get("/RestartServer/:serverId", GameController.RestartServer);
 router.get("/MoveToHost/:serverId/:hostId", GameController.MoveToHost);
 router.post("/ReceiveServer/:serverId/:copyToken", GameController.ReceiveGameServer);
+router.post("/ReceiveBackup/:serverId/:copyToken", GameController.ReceiveBackup);
 router.get("/CheckServer/:serverId", GameController.CheckServerRunning);
 router.get("/CreateServer/:versionId", GameController.CreateServer);
 router.get("/Version/:id", GameController.GetVersion);

@@ -1,9 +1,8 @@
 
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../prisma.js";
 import GameService from "./gameService.js";
 import axios from 'axios';
 
-const prisma = new PrismaClient();
 
 const ResourceService = {
     GetBestHost: async (gameVersionId) => {

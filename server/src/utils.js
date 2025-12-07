@@ -23,7 +23,7 @@ function getRandomNumber(min, max) {
 export const getFreePorts = () => {
     var port = 0;
     for (var i = 0; i < 10; i++) {
-        port = getRandomNumber(49152, 65535);
+        port = getRandomNumber(49152, 60000);
         if (TerminalService.CheckPortOpen(port)) {
             break;
         } if (TerminalService.CheckPortOpen(Number(port) + 1)) {

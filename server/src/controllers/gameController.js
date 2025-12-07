@@ -116,7 +116,7 @@ const CheckServerRunning = async (req, res) => {
         return res.status(404).json({ "msg": "Server not found" })
     }
     const status = await TerminalService.CheckUserHasProcess(server.sysUser.username, server.gameVersion.searchScript);
-    res.json({ status, gameVersion: server.gameVersion, config: server.config.startData.length > 0 ? server.config.startData[server.config.startData.length - 1] : {} });
+    res.json({ status, gameVersion: server.gameVersion, config: server.config&&server.config.startData.length > 0 ? server.config.startData[server.config.startData.length - 1] : {} });
 }
 const StopServer = async (req, res) => {
     const { serverId } = req.params
@@ -264,5 +264,37 @@ const ReceiveGameServer = async (req, res) => {
     });
 }
 
-const GameController = { ReceiveGameServer, MoveToHost, GetLog, BanPlayer, UnBanPlayer, KickPlayer, OPPlayer, DEOPPlayer, GetBannedPlayers, GetPlayers, OneCommand, DisplayLog, StopServer, RestartServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning, GetQueueStatus };
+    const ReceiveBackup = async (req, res) => {
+    const filename = req.headers["x-filename"];
+    const { serverId, copyToken } = req.params;
+
+    // Verify token (reusing logic or simplified for backup?)
+    // For now assuming same token logic: server.copyToken matches
+    const gameServer = await GameService.GetServer(serverId);
+    if (!gameServer || gameServer.copyToken != copyToken) {
+        console.log("Invalid copy token for backup");
+        return res.status(403).json({ error: "Invalid or expired backup token" });
+    }
+
+    const backupDir = path.resolve("Backups");
+    if (!fs.existsSync(backupDir)) {
+        fs.mkdirSync(backupDir, { recursive: true });
+    }
+
+    const filePath = path.join(backupDir, filename);
+    const writeStream = fs.createWriteStream(filePath);
+    req.pipe(writeStream);
+
+    writeStream.on("error", (err) => {
+        console.error("Backup receive error:", err);
+        res.status(500).send({ success: false, error: err.message });
+    });
+
+    writeStream.on("finish", async () => {
+        console.log(`Backup received: ${filename}`);
+        res.status(200).json({ success: true, msg: "Backup received successfully" });
+    });
+}
+
+const GameController = { ReceiveBackup, ReceiveGameServer, MoveToHost, GetLog, BanPlayer, UnBanPlayer, KickPlayer, OPPlayer, DEOPPlayer, GetBannedPlayers, GetPlayers, OneCommand, DisplayLog, StopServer, RestartServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning, GetQueueStatus };
 export default GameController

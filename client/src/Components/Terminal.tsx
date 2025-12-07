@@ -1,5 +1,6 @@
 import { Box, Button, Card, CardContent, Input, Typography, Stack } from '@mui/joy';
 import "../index.css"
+import useApiRequests from './API';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
@@ -8,17 +9,53 @@ import useHostUrl from '../hooks/useHostUrl';
 
 export default function Terminal() {
     const { id } = useParams();
-    const { hostUrl, loading } = useHostUrl(Number(id));
+    const { hostUrl } = useHostUrl(Number(id));
     const [terminalSocket, setTerminalSocket] = useState<Socket | null>(null);
     const [commandHistory, setCommandHistory] = useState<string[]>([]);
+    const requests = useApiRequests();
     const [currentCommandIndex, setCurrentCommandIndex] = useState(0);
+    const [connectionStatus, setConnectionStatus] = useState<"connected" | "offline" | "unavailable" | "connecting">("connecting");
     const commandsDiv = useRef<HTMLDivElement>(null);
+
+    const checkStatus = async () => {
+        if (!hostUrl) return;
+        try {
+            const response = await requests.checkGameServerStatus(hostUrl, Number(id));
+            if (response.data.status === false) {
+                console.log("Connection offline")
+                setConnectionStatus("offline");
+            } else {
+                setConnectionStatus("unavailable");
+            }
+        } catch (e) {
+            setConnectionStatus("unavailable");
+        }
+    }
+
     useEffect(() => {
-        if (hostUrl)
-            setTerminalSocket(io(hostUrl.startsWith("http") ? hostUrl : `http://${hostUrl}`, { query: { purpose: "terminal", serverId: id } }));
+        if (hostUrl) {
+            const socket = io(hostUrl.startsWith("http") ? hostUrl : `http://${hostUrl}`, { query: { purpose: "terminal", serverId: id } });
+            setTerminalSocket(socket);
+
+            socket.on('connect', () => {
+                setConnectionStatus("connected");
+            });
+
+            socket.on('connect_error', () => {
+                checkStatus();
+            })
+            socket.on('disconnect', () => {
+                checkStatus();
+            })
+
+            return () => {
+                socket.disconnect();
+            }
+        }
 
 
     }, [id, hostUrl])
+
     useEffect(() => {
 
         if (terminalSocket)
@@ -82,7 +119,7 @@ export default function Terminal() {
     return (
         <Box >
             <Typography level="h3" sx={{ mb: 2, }}>Terminal</Typography>
-            <Card variant="outlined" sx={{ bgcolor: '#2d2d2d', color: '#d1d5db', p: 2 }}>
+            {connectionStatus === "connected" && <Card variant="outlined" sx={{ bgcolor: '#2d2d2d', color: '#d1d5db', p: 2 }}>
                 <CardContent>
                     {/* Display messages */}
                     <Stack spacing={1} ref={commandsDiv} sx={{ mb: 2, maxHeight: 400, overflowY: 'auto' }}>
@@ -121,7 +158,22 @@ export default function Terminal() {
                         </Button>
                     </Box>
                 </CardContent>
-            </Card>
+            </Card>}
+            {connectionStatus === "offline" && <Card variant="outlined" sx={{ bgcolor: '#2d2d2d', color: '#d1d5db', p: 2 }}>
+                <CardContent>
+                    <Typography level="h4" sx={{ color: '#ef4444' }}>Please start the server to connect to the terminal</Typography>
+                </CardContent>
+            </Card>}
+            {connectionStatus === "unavailable" && <Card variant="outlined" sx={{ bgcolor: '#2d2d2d', color: '#d1d5db', p: 2 }}>
+                <CardContent>
+                    <Typography level="h4" sx={{ color: '#eab308' }}>Terminal is unavailable, please restart the server to connect to terminal</Typography>
+                </CardContent>
+            </Card>}
+             {connectionStatus === "connecting" && <Card variant="outlined" sx={{ bgcolor: '#2d2d2d', color: '#d1d5db', p: 2 }}>
+                <CardContent>
+                    <Typography level="h4" sx={{ color: '#3b82f6' }}>Connecting to terminal...</Typography>
+                </CardContent>
+            </Card>}
         </Box>
     );
 

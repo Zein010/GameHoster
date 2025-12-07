@@ -6,15 +6,8 @@ import pathLib from "path";
 import { promiseHooks } from "v8";
 const RunningServers = {};
 const CreateNewDirectory = (config) => {
-    const PathArr = config.name.split("/");
-    var currPath = "";
-    if (PathArr.length > 0) {
-        for (var i = 0; i < PathArr.length; i++) {
-            currPath += (currPath == "" ? "" : "/") + PathArr[i];
-            if (!fs.existsSync(currPath))
-                fs.mkdirSync(currPath)
-        }
-    }
+    if (!fs.existsSync(config.name))
+        fs.mkdirSync(config.name, { recursive: true })
 }
 const CreateUser = async (username) => {
     var res = null;
@@ -193,10 +186,10 @@ const StartCreatedServer = (serverDetails) => {
     const scriptFile = serverDetails.scriptFile;
     const username = serverDetails.sysUser.username;
     const gameVersion = serverDetails.gameVersion;
-    const absolutePath = pathLib.resolve(process.cwd(), path);
-
+    const absolutePath = pathLib.resolve(path);
+    console.log(absolutePath);
     const script = gameVersion.runScript.replaceAll("[{fileName}]", scriptFile);
-
+console.log(script);
     const outFile = fs.openSync(path + '/outlog', 'a'); // Open in append mode ('a')
     const scriptToRun = `cd "${absolutePath}" && ${script}`;
     try {

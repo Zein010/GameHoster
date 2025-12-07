@@ -17,7 +17,17 @@ function Servers() {
         server: { url: string }
     }[]>([])
     const [actionsDisabled, setActionsDisabled] = useState<{ [key: string]: { [key: number]: boolean } }>({ start: {}, stop: {} });
-    const [globalDisabled, setGlobalDisabled] = useState<boolean>(false)
+    const [disabledHosts, setDisabledHosts] = useState<string[]>([]);
+
+    const addDisabledHost = (hostUrl: string) => {
+        setDisabledHosts((prev) => [...prev, hostUrl]);
+    }
+    const removeDisabledHost = (hostUrl: string) => {
+        setDisabledHosts((prev) => prev.filter(h => h !== hostUrl));
+    }
+    const isHostDisabled = (hostUrl: string) => {
+        return disabledHosts.includes(hostUrl);
+    }
     const [games, setGames] = useState<{ id: number, name: string, gameVersion: { id: number, version: string }[] }[]>([])
     const [newOpen, setNewOpen] = useState(false)
     const [newDetails, setNewDetails] = useState<{ gameID: number, versionID: number }>({ gameID: 0, versionID: 0 });
@@ -68,13 +78,13 @@ function Servers() {
     }
 
     const startSever = async (serverId: number) => {
-        setGlobalDisabled(true)
         const hostUrl = getHostUrl(serverId);
+        addDisabledHost(hostUrl);
         const serverOn = await checkStatus(serverId, false, false);
         if (serverOn) {
             notification('Server already running', "success")
 
-            setGlobalDisabled(false)
+            removeDisabledHost(hostUrl);
             return;
         }
         const response = await requests.startGameServer(hostUrl, serverId);
@@ -89,36 +99,35 @@ function Servers() {
                         clearInterval(pollInterval);
                         notification('Server started successfully', "success");
                         await checkStatus(serverId, false, false);
-                        setGlobalDisabled(false);
+                        removeDisabledHost(hostUrl);
                     } else if (statusRes.data.status === "FAILED") {
                         clearInterval(pollInterval);
                         notification("Server start failed: " + statusRes.data.logs, "error");
-                        setGlobalDisabled(false);
+                        removeDisabledHost(hostUrl);
                     }
                     // If PENDING or PROCESSING, continue polling
                 } catch (err) {
                     clearInterval(pollInterval);
                     notification("Error polling status", "error");
-                    setGlobalDisabled(false);
+                    removeDisabledHost(hostUrl);
                 }
             }, 2000);
 
         } else {
             notification(response.data.msg, "error")
-            setGlobalDisabled(false)
+            removeDisabledHost(hostUrl);
         }
-
     }
     const stopServer = async (serverId: number) => {
-        setGlobalDisabled(true)
+        const hostUrl = getHostUrl(serverId);
+        addDisabledHost(hostUrl);
         const serverOn = await checkStatus(serverId, false, false);
         if (!serverOn) {
             notification('Server already off', "success")
 
-            setGlobalDisabled(false)
+            removeDisabledHost(hostUrl);
             return;
         }
-        const hostUrl = getHostUrl(serverId);
         const response = await requests.stopGameServer(hostUrl, serverId);
 
         if (response.status == 200) {
@@ -128,7 +137,7 @@ function Servers() {
         } else {
             notification(response.data.msg, "error")
         }
-        setGlobalDisabled(false)
+        removeDisabledHost(hostUrl);
     }
 
     const moveToHost = async () => {
@@ -149,10 +158,10 @@ function Servers() {
     }
 
     const checkStatus = async (serverId: number, HideButtons: boolean = true, showAlert: boolean = true) => {
-        if (HideButtons)
-            setGlobalDisabled(true)
-        var serverOn = false;
         const hostUrl = getHostUrl(serverId);
+        if (HideButtons)
+            addDisabledHost(hostUrl);
+        var serverOn = false;
         const response = await requests.checkGameServerStatus(hostUrl, serverId);
         if (response.status == 200) {
             if (response.data.status) {
@@ -168,7 +177,7 @@ function Servers() {
                 serverOn = false;
             }
             if (HideButtons)
-                setGlobalDisabled(false)
+                removeDisabledHost(hostUrl);
 
         }
         return serverOn
@@ -197,7 +206,6 @@ function Servers() {
                     <tr>
                         <th>ID</th>
                         <th>Created At</th>
-                        <th>Username</th>
                         <th>Game</th>
                         <th>Version</th>
                         <th>Config</th>
@@ -210,14 +218,13 @@ function Servers() {
                     (<tr key={server.id}>
                         <td>{server.id}</td>
                         <td>{server.createdAt}</td>
-                        <td>{server.sysUser.username}</td>
                         <td>{server.gameVersion.game.name}</td>
                         <td>{server.gameVersion.version}</td>
                         <td>{server.config?.startData && server.config?.startData.length > 0 && server.config.startData[server.config.startData.length - 1].port}</td>
                         <td>
-                            <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={globalDisabled || serverTransferInProgress == server.id} onClick={() => { checkStatus(server.id) }} color="success"><SignalWifiStatusbar4Bar /></Button>
-                            <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={globalDisabled || actionsDisabled.start[server.id] || serverTransferInProgress == server.id} onClick={() => { startSever(server.id) }} color="success"><PlayArrow /></Button>
-                            <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={globalDisabled || actionsDisabled.stop[server.id] || serverTransferInProgress == server.id} onClick={() => { stopServer(server.id) }} color="danger"><Stop /></Button>
+                            <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={isHostDisabled(getHostUrl(server.id)) || serverTransferInProgress == server.id} onClick={() => { checkStatus(server.id) }} color="success"><SignalWifiStatusbar4Bar /></Button>
+                            <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={isHostDisabled(getHostUrl(server.id)) || actionsDisabled.start[server.id] || serverTransferInProgress == server.id} onClick={() => { startSever(server.id) }} color="success"><PlayArrow /></Button>
+                            <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={isHostDisabled(getHostUrl(server.id)) || actionsDisabled.stop[server.id] || serverTransferInProgress == server.id} onClick={() => { stopServer(server.id) }} color="danger"><Stop /></Button>
 
                             {(hosts != null && hosts.length > 1) ? <Button sx={{ mr: 1, mb: 1, py: 0, px: 1 }} size='sm' disabled={serverTransferInProgress == server.id} onClick={() => { setMoveToHostDetails({ id: server.id, open: true, newHostId: 0 }) }} color="primary"><StorageOutlined /></Button> : null}
                             <Link to={`/server/${server.id}`} >

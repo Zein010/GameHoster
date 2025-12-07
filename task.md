@@ -8,10 +8,13 @@ This file tracks the to-do list for the project.
 - [/] Frontend Refactor: Dynamic backend routing based on host URL <!-- id: 12 -->
 - [ ] Frontend Update: Components to use dynamic routing <!-- id: 13 -->
 
-
-
 ## In Progress
+
+- [x] Server: Add TCP proxy script for Minecraft servers <!-- id: 14 -->
+- [x] Server: Implement Automated Backup System <!-- id: 15 -->
+- [x] Server: Implement Host Failover & Resource Balancing <!-- id: 16 -->
 - [ ] [Add task here]
 
 ## Completed
+
 - [ ] [Add task here]

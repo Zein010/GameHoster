@@ -17,6 +17,7 @@ import RequireAuth from '@auth-kit/react-router/RequireAuth'
 import TextEditor from './Components/TextEditor.tsx';
 import Hosts from './Components/Hosts.tsx';
 import Home from './Home.tsx';
+import AxiosInterceptor from './Components/AxiosInterceptor.tsx';
 
 const store = createStore({
   authName: '_auth',
@@ -25,8 +26,9 @@ const store = createStore({
   cookieSecure: window.location.protocol === 'https:',
 });
 createRoot(document.getElementById('root')!).render(
-  <BrowserRouter basename="">
-    <AuthProvider store={store}>
+  <AuthProvider store={store}>
+    <BrowserRouter basename="">
+      <AxiosInterceptor />
       <Routes>
         <Route path="/" key={"Login"} element={<Login />} />
 
@@ -48,7 +50,7 @@ createRoot(document.getElementById('root')!).render(
         </Route>
       </Routes>
       <ToastContainer />
-    </AuthProvider>
-  </BrowserRouter>
+    </BrowserRouter>
+  </AuthProvider>
 
 )
