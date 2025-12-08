@@ -182,34 +182,7 @@ async function CheckAndProxy() {
                     );
                     targetHost = '127.0.0.1';
 
-                    // Periodic Backup Scheduler (Every 3 minutes)
-                    if (isRunning) {
-                        const lastBackup = await prisma.serverBackup.findFirst({
-                            where: { runningServerId: parseInt(server.id) },
-                            orderBy: { createdAt: 'desc' }
-                        });
 
-                        const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000);
-                        
-                        // Check if backup is needed (no backup or older than 3 mins)
-                        // Also check if a BACKUP task is already pending to avoid spamming
-                        if (!lastBackup || lastBackup.createdAt < threeMinutesAgo) {
-                            
-                            // Check for existing pending BACKUP tasks
-                            const pendingBackup = await prisma.serverQueue.findFirst({
-                                where: {
-                                    serverId: parseInt(server.id),
-                                    type: "BACKUP",
-                                    status: { in: ["PENDING", "PROCESSING"] }
-                                }
-                            });
-
-                            if (!pendingBackup) {
-                                console.log(`[Scheduler] Enqueuing periodic backup for Server ${server.id}`);
-                                await QueueService.Enqueue(parseInt(server.id), "BACKUP");
-                            }
-                        }
-                    }
 
                 } else {
                     // Remote Check & Host Monitoring
@@ -253,6 +226,34 @@ async function CheckAndProxy() {
                 }
             } catch (err) {
                 console.error(`Check error for server ${server.id}:`, err);
+            }
+
+            // Periodic Backup Scheduler (Every 3 minutes) - For ALL running servers (Local & Remote)
+            if (isRunning) {
+                const lastBackup = await prisma.serverBackup.findFirst({
+                    where: { runningServerId: parseInt(server.id) },
+                    orderBy: { createdAt: 'desc' }
+                });
+
+                const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000);
+                
+                // Check if backup is needed (no backup or older than 3 mins)
+                if (!lastBackup || lastBackup.createdAt < threeMinutesAgo) {
+                    
+                    // Check for existing pending BACKUP tasks
+                    const pendingBackup = await prisma.serverQueue.findFirst({
+                        where: {
+                            serverId: parseInt(server.id),
+                            type: "BACKUP",
+                            status: { in: ["PENDING", "PROCESSING"] }
+                        }
+                    });
+
+                    if (!pendingBackup) {
+                        console.log(`[Scheduler] Enqueuing periodic backup for Server ${server.id}`);
+                        await QueueService.Enqueue(parseInt(server.id), "BACKUP");
+                    }
+                }
             }
 
             // Check for Presumed Status Mismatch
