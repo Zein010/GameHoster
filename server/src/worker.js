@@ -200,7 +200,14 @@ const ProcessQueueItem = async (item) => {
             const zipResult = await TerminalService.ZipForTransfer(server);
             const zipPath = path.resolve(`TempForTransfer/${zipResult.name}`);
             
-            // 3. Send
+            // 3. Generate Copy Token for Authentication
+            const copyToken = (await import("crypto")).randomBytes(30).toString("base64").replace(/[^a-zA-Z0-9]/g, "").slice(0, 30);
+            await prisma.runningServers.update({
+                where: { id: parseInt(server.id) },
+                data: { copyToken: copyToken }
+            });
+
+            // 4. Send
             for (const host of uniqueNeighbors) {
                 console.log(`Sending backup to Host ${host.id} (${host.url})`);
                 const protocol = host.url.startsWith("http") ? "" : "http://";
@@ -222,7 +229,7 @@ const ProcessQueueItem = async (item) => {
                 try {
                     // Create fresh stream for each request
                     const stream = fs.createReadStream(zipPath);
-                    await axios.post(`${protocol}${host.url}/Game/ReceiveBackup/${server.id}/${server.copyToken || 'backup'}`, stream, {
+                    await axios.post(`${protocol}${host.url}/Game/ReceiveBackup/${server.id}/${copyToken}`, stream, {
                         headers: { 
                             "Content-Type": "application/octet-stream", 
                             "X-filename": `${server.sysUser.username}.zip`, 
