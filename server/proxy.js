@@ -19,7 +19,7 @@ async function GetOrAssignPort(runningServerId) {
     // Check if assignment exists for this proxy host + running server
     let connection = await prisma.proxyConnection.findFirst({
         where: {
-            runningServerId: runningServerId,
+            runningServerId: parseInt(runningServerId),
             proxyHostId: SERVER_ID
         }
     });
@@ -44,7 +44,7 @@ async function GetOrAssignPort(runningServerId) {
             try {
                 connection = await prisma.proxyConnection.create({
                     data: {
-                        runningServerId: runningServerId,
+                        runningServerId: parseInt(runningServerId),
                         proxyHostId: SERVER_ID,
                         port: port
                     }
@@ -68,7 +68,7 @@ async function HandleFailover(server, remoteHostId) {
     // Smart Failover with Backup Tracking
     // 1. Find all backups for this server
     const backups = await prisma.serverBackup.findMany({
-        where: { runningServerId: server.id },
+        where: { runningServerId: parseInt(server.id) },
         orderBy: { createdAt: 'desc' },
         include: { host: true }
     });
@@ -117,8 +117,8 @@ async function HandleFailover(server, remoteHostId) {
         // Update DB: serverid = MY_ID
         // Also update 'transfering' to false if it was stuck?
         await prisma.runningServers.update({
-            where: { id: server.id },
-            data: { 
+            where: { id: parseInt(server.id) },
+            data: {  
                 serverid: SERVER_ID,
                 presumedStatus: "online" // We presume it will be online soon
             }
@@ -130,7 +130,7 @@ async function HandleFailover(server, remoteHostId) {
         // We assume the backup stream arrived successfully via the backup mechanism previously.
         await prisma.serverQueue.create({
             data: {
-                serverId: server.id,
+                serverId: parseInt(server.id),
                 type: "START",
                 status: "PENDING"
             }
@@ -185,7 +185,7 @@ async function CheckAndProxy() {
                     // Periodic Backup Scheduler (Every 3 minutes)
                     if (isRunning) {
                         const lastBackup = await prisma.serverBackup.findFirst({
-                            where: { runningServerId: server.id },
+                            where: { runningServerId: parseInt(server.id) },
                             orderBy: { createdAt: 'desc' }
                         });
 
@@ -198,7 +198,7 @@ async function CheckAndProxy() {
                             // Check for existing pending BACKUP tasks
                             const pendingBackup = await prisma.serverQueue.findFirst({
                                 where: {
-                                    serverId: server.id,
+                                    serverId: parseInt(server.id),
                                     type: "BACKUP",
                                     status: { in: ["PENDING", "PROCESSING"] }
                                 }
@@ -206,7 +206,7 @@ async function CheckAndProxy() {
 
                             if (!pendingBackup) {
                                 console.log(`[Scheduler] Enqueuing periodic backup for Server ${server.id}`);
-                                await QueueService.Enqueue(server.id, "BACKUP");
+                                await QueueService.Enqueue(parseInt(server.id), "BACKUP");
                             }
                         }
                     }

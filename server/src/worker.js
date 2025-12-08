@@ -124,7 +124,7 @@ const ProcessQueueItem = async (item) => {
                         // We must update the DB to point to the new Host.
                         
                         await prisma.runningServers.update({
-                            where: { id: server.id },
+                            where: { id: parseInt(server.id) },
                             data: { serverid: bestHost.id, transfering: false }
                         });
                         
@@ -143,8 +143,8 @@ const ProcessQueueItem = async (item) => {
                         // Yes: `where: { server: { serverid: parseInt(process.env.SERVER_ID) } }`
                         // So if we update `RunningServers.serverid`, the NEW host will pick up the task!
                         
-                        await QueueService.Enqueue(server.id, "START"); // This will be picked up by the new host
-                        await QueueService.UpdateStatus(item.id, "COMPLETED", `Transferred to Host ${bestHost.id}`);
+                        await QueueService.Enqueue(parseInt(server.id), "START"); // This will be picked up by the new host
+                        await QueueService.UpdateStatus(parseInt(item.id), "COMPLETED", `Transferred to Host ${bestHost.id}`);
                         return; // Done with this task on this host.
 
                     } catch (transferErr) {
@@ -171,8 +171,8 @@ const ProcessQueueItem = async (item) => {
             }
 
 
-            await prisma.runningServers.update({ where: { id: server.id }, data: { presumedStatus: "online" } });
-            await QueueService.UpdateStatus(item.id, "COMPLETED", "Server started successfully");
+            await prisma.runningServers.update({ where: { id: parseInt(server.id) }, data: { presumedStatus: "online" } });
+            await QueueService.UpdateStatus(parseInt(item.id), "COMPLETED", "Server started successfully");
             
         } else if (item.type === "BACKUP") {
             const server = item.server;
@@ -235,8 +235,8 @@ const ProcessQueueItem = async (item) => {
                     // Record Backup Success
                     await prisma.serverBackup.create({
                         data: {
-                            runningServerId: server.id,
-                            hostId: host.id
+                            runningServerId: parseInt(server.id),
+                            hostId: parseInt(host.id)
                         }
                     });
 
@@ -311,8 +311,8 @@ const ProcessQueueItem = async (item) => {
                 TerminalService.StopUserProcesses(server.sysUser.username, server.gameVersion.searchScript);
                 await new Promise(resolve => setTimeout(resolve, 1000)); // Give it a moment to die
             }
-            await prisma.runningServers.update({ where: { id: server.id }, data: { presumedStatus: "stopped" } });
-            await QueueService.UpdateStatus(item.id, "COMPLETED", "Server stopped successfully");
+            await prisma.runningServers.update({ where: { id: parseInt(server.id) }, data: { presumedStatus: "stopped" } });
+            await QueueService.UpdateStatus(parseInt(item.id), "COMPLETED", "Server stopped successfully");
         } else if (item.type === "RESTART") {
             const server = item.server;
             console.log(`Restarting server ${server.id}`);
@@ -349,8 +349,8 @@ const ProcessQueueItem = async (item) => {
                 await TerminalService.StartCreatedServer(server);
             }
 
-            await prisma.runningServers.update({ where: { id: server.id }, data: { presumedStatus: "online" } });
-            await QueueService.UpdateStatus(item.id, "COMPLETED", "Server restarted successfully");
+            await prisma.runningServers.update({ where: { id: parseInt(server.id) }, data: { presumedStatus: "online" } });
+            await QueueService.UpdateStatus(parseInt(item.id), "COMPLETED", "Server restarted successfully");
         }
 
     } catch (err) {
