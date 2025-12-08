@@ -7,7 +7,7 @@ const Get = async (id) => {
 }
 const AddRunningServer = async (path, username, gameVersionId, scriptFile, hostId) => {
     const temp = await prisma.runningServers.create({ data: { path, scriptFile, gameVersion: { connect: { id: gameVersionId } }, sysUser: { connect: { username } }, server: { connect: { id: parseInt(hostId) } } } })
-    return await prisma.runningServers.findUnique({ where: { id: temp.id }, include: { gameVersion: true, sysUser: true } });
+    return await prisma.runningServers.findUnique({ where: { id:parseInt( temp.id )}, include: { gameVersion: true, sysUser: true } });
 }
 const SetGameVersionCache = async (id, cacheFile) => {
     const oldVersion = await prisma.gameVersion.findUnique({ where: { id } });
@@ -16,7 +16,7 @@ const SetGameVersionCache = async (id, cacheFile) => {
     await prisma.gameVersion.update({ where: { id }, data: { cacheFile: JSON.stringify(oldCacheData) } });
 }
 const AppendToServerConfig = async (id, config) => {
-    const server = await prisma.runningServers.findUnique({ where: { id } })
+    const server = await prisma.runningServers.findUnique({ where: {id: parseInt(id)} })
 
     if (!server.config) {
         server.config = {}
@@ -46,7 +46,7 @@ const GetServers = async () => {
     return await prisma.runningServers.findMany({ include: { gameVersion: { include: { game: true } }, sysUser: true ,server:{select:{url:true  }} } })
 }
 const GetServer = async (id) => {
-    return await prisma.runningServers.findUnique({ where: { id },include:{gameVersion:{include:{game:true}},sysUser:true,server:{select:{url:true  }} } })
+    return await prisma.runningServers.findUnique({ where: {id:parseInt( id) },include:{gameVersion:{include:{game:true}},sysUser:true,server:{select:{url:true  }} } })
 }
 const SetRunningServerPID = async (serverId, pid) => {
     return await prisma.runningServers.update({ where: { id: parseInt(serverId) }, data: { pid } })
