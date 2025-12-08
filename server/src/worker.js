@@ -170,6 +170,8 @@ const ProcessQueueItem = async (item) => {
                 await TerminalService.StartCreatedServer(server);
             }
 
+
+            await prisma.runningServers.update({ where: { id: server.id }, data: { presumedStatus: "online" } });
             await QueueService.UpdateStatus(item.id, "COMPLETED", "Server started successfully");
             
         } else if (item.type === "BACKUP") {
@@ -213,6 +215,15 @@ const ProcessQueueItem = async (item) => {
                         },
                         maxBodyLength: Infinity
                     });
+
+                    // Record Backup Success
+                    await prisma.serverBackup.create({
+                        data: {
+                            runningServerId: server.id,
+                            hostId: host.id
+                        }
+                    });
+
                 } catch (err) {
                     console.error(`Failed to send backup to Host ${host.id}:`, err.message);
                 }
@@ -274,6 +285,7 @@ const ProcessQueueItem = async (item) => {
                 console.log("Starting created server");
                 TerminalService.StartCreatedServer(server);
             }
+            await prisma.runningServers.update({ where: { id: server.id }, data: { presumedStatus: "online" } });
             await QueueService.UpdateStatus(item.id, "COMPLETED", "Server created and started successfully");
         } else if (item.type === "STOP") {
             const server = item.server;
@@ -283,6 +295,7 @@ const ProcessQueueItem = async (item) => {
                 TerminalService.StopUserProcesses(server.sysUser.username, server.gameVersion.searchScript);
                 await new Promise(resolve => setTimeout(resolve, 1000)); // Give it a moment to die
             }
+            await prisma.runningServers.update({ where: { id: server.id }, data: { presumedStatus: "stopped" } });
             await QueueService.UpdateStatus(item.id, "COMPLETED", "Server stopped successfully");
         } else if (item.type === "RESTART") {
             const server = item.server;
@@ -320,6 +333,7 @@ const ProcessQueueItem = async (item) => {
                 await TerminalService.StartCreatedServer(server);
             }
 
+            await prisma.runningServers.update({ where: { id: server.id }, data: { presumedStatus: "online" } });
             await QueueService.UpdateStatus(item.id, "COMPLETED", "Server restarted successfully");
         }
 

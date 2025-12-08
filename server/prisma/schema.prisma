@@ -94,6 +94,7 @@ model Server {
   priority         Int               @default(0) // Higher is better
   runningServers   RunningServers[]
   proxyConnections ProxyConnection[]
+  serverBackups    ServerBackup[]
 }
 
 model TerminalError {
@@ -116,27 +117,29 @@ model DownloadedFile {
 }
 
 model RunningServers {
-  id            Int         @id @default(autoincrement())
-  gameVersionId Int
-  createdAt     DateTime    @default(now())
-  deletedAt     DateTime?
-  deleted       Boolean     @default(false)
-  gameVersion   GameVersion @relation(fields: [gameVersionId], references: [id])
-  path          String
-  scriptFile    String?
-  sysUserId     Int
-  pid           Int         @default(0)
-  config        Json?
-  sysUser       SysUser     @relation(fields: [sysUserId], references: [id])
-  userId        Int?
-  user          User?       @relation(fields: [userId], references: [id])
-  serverid      Int
-  copyToken     String?
-  transfering   Boolean     @default(false)
-  server        Server      @relation(fields: [serverid], references: [id])
+  id             Int         @id @default(autoincrement())
+  gameVersionId  Int
+  createdAt      DateTime    @default(now())
+  deletedAt      DateTime?
+  deleted        Boolean     @default(false)
+  gameVersion    GameVersion @relation(fields: [gameVersionId], references: [id])
+  path           String
+  scriptFile     String?
+  sysUserId      Int
+  pid            Int         @default(0)
+  config         Json?
+  sysUser        SysUser     @relation(fields: [sysUserId], references: [id])
+  userId         Int?
+  user           User?       @relation(fields: [userId], references: [id])
+  serverid       Int
+  copyToken      String?
+  transfering    Boolean     @default(false)
+  presumedStatus String?
+  server         Server      @relation(fields: [serverid], references: [id])
 
   serverQueues     ServerQueue[]
   proxyConnections ProxyConnection[]
+  serverBackups    ServerBackup[]
 }
 
 model ProxyConnection {
@@ -178,4 +181,13 @@ model ServerQueue {
   logs      String?        @db.LongText
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
+}
+
+model ServerBackup {
+  id              Int            @id @default(autoincrement())
+  runningServerId Int
+  runningServer   RunningServers @relation(fields: [runningServerId], references: [id])
+  hostId          Int
+  host            Server         @relation(fields: [hostId], references: [id])
+  createdAt       DateTime       @default(now())
 }

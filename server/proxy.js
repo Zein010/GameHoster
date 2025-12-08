@@ -59,6 +59,91 @@ async function GetOrAssignPort(runningServerId) {
     return null; // No free ports
 }
 
+const HOST_STATUS = {}; // hostId -> { failures: number, lastCheck: number }
+const SERVER_FAILURES = {}; // serverId -> failures
+const MAX_FAILURES = 3;
+
+async function HandleFailover(server, remoteHostId) {
+    // Smart Failover with Backup Tracking
+    // 1. Find all backups for this server
+    const backups = await prisma.serverBackup.findMany({
+        where: { runningServerId: server.id },
+        orderBy: { createdAt: 'desc' },
+        include: { host: true }
+    });
+
+    // 2. Filter backups:
+    // - Must not be on the failed host (remoteHostId)
+    // - Host must not be deleted
+    // - Host must be reachable? (Optional, but good practice. For now just DB availability)
+    
+    // We can also get all active hosts to cross-reference
+    const activeHosts = await prisma.server.findMany({ where: { deleted: false } });
+    const activeHostIds = new Set(activeHosts.map(h => h.id));
+
+    let bestBackup = null;
+    for (const backup of backups) {
+        if (backup.hostId !== remoteHostId && activeHostIds.has(backup.hostId)) {
+            bestBackup = backup;
+            break; // Since we ordered by desc, the first valid one is the best
+        }
+    }
+
+    let targetHostId = null;
+
+    if (bestBackup) {
+        console.log(`Found recent backup on Host ${bestBackup.hostId} (created ${bestBackup.createdAt}). Failover Target: Host ${bestBackup.hostId}`);
+        targetHostId = bestBackup.hostId;
+    } else {
+        // Fallback to "Next Host" strategy if no backup found
+        console.warn(`No valid backup found for Server ${server.id}. Falling back to neighbor strategy.`);
+        
+        const hosts = activeHosts.sort((a, b) => a.id - b.id);
+        const failedHostIndex = hosts.findIndex(h => h.id === remoteHostId);
+        
+        if (failedHostIndex !== -1) {
+            const nextHost = hosts[(failedHostIndex + 1) % hosts.length];
+             if (nextHost.id !== remoteHostId) {
+                 targetHostId = nextHost.id;
+             }
+        }
+    }
+
+    // 3. Execute Failover if I AM the target host
+    if (targetHostId && targetHostId === SERVER_ID) {
+        console.log(`I am the Failover Target (Host ${SERVER_ID}) for Server ${server.id}. Initiating takeover.`);
+
+        // Update DB: serverid = MY_ID
+        // Also update 'transfering' to false if it was stuck?
+        await prisma.runningServers.update({
+            where: { id: server.id },
+            data: { 
+                serverid: SERVER_ID,
+                presumedStatus: "online" // We presume it will be online soon
+            }
+        });
+        
+        // Enqueue START
+        // Note: The START handler in worker.js now has logic to "Restore from Backup" if directory missing.
+        // It checks `Backups/{username}.zip`. 
+        // We assume the backup stream arrived successfully via the backup mechanism previously.
+        await prisma.serverQueue.create({
+            data: {
+                serverId: server.id,
+                type: "START",
+                status: "PENDING"
+            }
+        });
+        
+        // Reset local failures tracking
+        if(HOST_STATUS[remoteHostId]) HOST_STATUS[remoteHostId].failures = 0;
+        SERVER_FAILURES[server.id] = 0;
+        return true;
+    }
+
+    return false;
+}
+
 async function CheckAndProxy() {
     try {
         console.log("Checking active servers...");
@@ -71,13 +156,8 @@ async function CheckAndProxy() {
             }
         });
 
-
         const activeServerIds = new Set();
         
-        // Host Health Tracking
-        const HOST_STATUS = {}; // hostId -> { failures: number, lastCheck: number }
-        const MAX_FAILURES = 3;
-
         for (const server of servers) {
             let isRunning = false;
             let targetHost = '127.0.0.1';
@@ -110,10 +190,10 @@ async function CheckAndProxy() {
                            const response = await axios.get(checkUrl, { timeout: 3000 });
                            if (response.data && response.data.status) {
                                isRunning = true;
-                               HOST_STATUS[remoteHostId] = { failures: 0, lastCheck: Date.now() }; // Host is alive
+                               // Host is alive
+                               HOST_STATUS[remoteHostId] = { failures: 0, lastCheck: Date.now() }; 
                            } else {
-                               // Server seems down, but is host down?
-                               // If API returned 200 OK but status false, host is UP, server is STOPPED.
+                               // API OK, but Status False -> Server Stopped
                                HOST_STATUS[remoteHostId] = { failures: 0, lastCheck: Date.now() }; 
                            }
 
@@ -122,73 +202,34 @@ async function CheckAndProxy() {
 
                         } catch (err) {
                             // API Call Failed. Host might be down.
-                            // console.log(`Remote check failed for ${server.id}: ${err.message}`);
-                            
                             HOST_STATUS[remoteHostId] = HOST_STATUS[remoteHostId] || { failures: 0 };
                             HOST_STATUS[remoteHostId].failures += 1;
-                            HOST_STATUS[remoteHostId].lastCheck = Date.now();
-
                             console.log(`Host ${remoteHostId} failure count: ${HOST_STATUS[remoteHostId].failures}`);
 
                             if (HOST_STATUS[remoteHostId].failures >= MAX_FAILURES) {
                                 console.error(`Host ${remoteHostId} DOWN. Initiating Failover for Server ${server.id}...`);
-                                
-                                // AUTO FAILOVER LOGIC
-                                // 1. Determine Backup Host (Neighbor)
-                                // Only this proxy (running on a specific host) should perform failover if it is the intended backup?
-                                // OR this monitoring is centralized?
-                                // "The proxy generally calls the check server... I want it to check if the server is down... create a new queue..."
-                                // User implies THIS proxy script monitors others. 
-                                
-                                // If I am the neighbor/backup, I should pick it up.
-                                // Logic: Am I the backup for this host?
-                                // Hosts: A, B, C. 
-                                // B fails. Backup is C (Next) or A (Prev).
-                                // Let's check if *I* am the backup host for the failed host.
-                                // If I am (my ID is next/prev for remoteHostId), then I take over.
-                                
-                                const hosts = await prisma.server.findMany({ where: { deleted: false }, orderBy: { id: 'asc' } });
-                                const failedHostIndex = hosts.findIndex(h => h.id === remoteHostId);
-                                const myIndex = hosts.findIndex(h => h.id === SERVER_ID);
-                                
-                                if (failedHostIndex !== -1 && myIndex !== -1) {
-                                    const nextIndex = (failedHostIndex + 1) % hosts.length;
-                                    const prevIndex = (failedHostIndex - 1 + hosts.length) % hosts.length;
-                                    
-                                    // Let's assume Next host is the primary backup for simplicity, or we can check load.
-                                    // Or "two machines... one before it and one after it".
-                                    // Both can populate it? 
-                                    // Let's have the "Next" host take responsibility to avoid race conditions.
-                                    if (hosts[nextIndex].id === SERVER_ID) {
-                                        console.log(`I am the Backup Host for ${remoteHostId}. Taking over server ${server.id}.`);
-                                        
-                                        // 2. Update DB: serverid = MY_ID
-                                        await prisma.runningServers.update({
-                                            where: { id: server.id },
-                                            data: { serverid: SERVER_ID }
-                                        });
-                                        
-                                        // 3. Enqueue START
-                                        await prisma.serverQueue.create({
-                                            data: {
-                                                serverId: server.id,
-                                                type: "START",
-                                                status: "PENDING"
-                                            }
-                                        });
-                                        
-                                        // Reset failure count so we don't spam
-                                        HOST_STATUS[remoteHostId].failures = 0;
-                                        
-                                        continue; // Server will be started by my worker soon.
-                                    }
-                                }
+                                if (await HandleFailover(server, remoteHostId)) continue; 
                             }
                         }
                     }
                 }
             } catch (err) {
                 console.error(`Check error for server ${server.id}:`, err);
+            }
+
+            // Check for Presumed Status Mismatch
+            // If presumed online, but not running -> Failure
+            if (server.presumedStatus === 'online' && !isRunning) {
+                SERVER_FAILURES[server.id] = (SERVER_FAILURES[server.id] || 0) + 1;
+                console.log(`Server ${server.id} presumed online but not running. Failures: ${SERVER_FAILURES[server.id]}`);
+                
+                if (SERVER_FAILURES[server.id] >= MAX_FAILURES) {
+                     console.error(`Server ${server.id} FAILED. Initiating Failover...`);
+                     if (await HandleFailover(server, remoteHostId)) continue;
+                }
+            } else {
+                // Reset failure count if running or if presumed stopped
+                SERVER_FAILURES[server.id] = 0;
             }
 
             if (isRunning) {
