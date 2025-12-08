@@ -106,7 +106,7 @@ const ProcessQueueItem = async (item) => {
                                 "Content-Type": "application/octet-stream", 
                                 "X-filename": outputFile.name, 
                                 "API-Key": bestHost.apiKey, 
-                                "UserID": server.userId 
+                                "UserID": 1 
                             }, 
                             maxBodyLength: Infinity 
                         });
@@ -204,6 +204,21 @@ const ProcessQueueItem = async (item) => {
             for (const host of uniqueNeighbors) {
                 console.log(`Sending backup to Host ${host.id} (${host.url})`);
                 const protocol = host.url.startsWith("http") ? "" : "http://";
+                
+                // Pre-flight Check: Ensure host is reachable
+                try {
+                    await axios.get(`${protocol}${host.url}/Game`, { 
+                        timeout: 2000,
+                        headers: { 
+                           "API-Key": host.apiKey,
+                           "UserID": 1
+                        }
+                    });
+                } catch (checkErr) {
+                    console.warn(`Host ${host.id} appears to be down (Unreachable). Skipping backup send.`);
+                    continue; 
+                }
+
                 try {
                     // Create fresh stream for each request
                     const stream = fs.createReadStream(zipPath);
@@ -211,7 +226,8 @@ const ProcessQueueItem = async (item) => {
                         headers: { 
                             "Content-Type": "application/octet-stream", 
                             "X-filename": `${server.sysUser.username}.zip`, 
-                            "API-Key": host.apiKey
+                            "API-Key": host.apiKey,
+                            "UserID": 1
                         },
                         maxBodyLength: Infinity
                     });
