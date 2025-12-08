@@ -4,6 +4,7 @@ import fs from 'fs';
 import axios from 'axios';
 import TerminalService from './src/services/TerminalService.js';
 import HostService from './src/services/hostService.js';
+import QueueService from './src/services/queueService.js';
 import dotenv from 'dotenv';
 import { prisma } from './prisma.js';
 
@@ -180,6 +181,36 @@ async function CheckAndProxy() {
                         server.gameVersion.searchScript 
                     );
                     targetHost = '127.0.0.1';
+
+                    // Periodic Backup Scheduler (Every 3 minutes)
+                    if (isRunning) {
+                        const lastBackup = await prisma.serverBackup.findFirst({
+                            where: { runningServerId: server.id },
+                            orderBy: { createdAt: 'desc' }
+                        });
+
+                        const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000);
+                        
+                        // Check if backup is needed (no backup or older than 3 mins)
+                        // Also check if a BACKUP task is already pending to avoid spamming
+                        if (!lastBackup || lastBackup.createdAt < threeMinutesAgo) {
+                            
+                            // Check for existing pending BACKUP tasks
+                            const pendingBackup = await prisma.serverQueue.findFirst({
+                                where: {
+                                    serverId: server.id,
+                                    type: "BACKUP",
+                                    status: { in: ["PENDING", "PROCESSING"] }
+                                }
+                            });
+
+                            if (!pendingBackup) {
+                                console.log(`[Scheduler] Enqueuing periodic backup for Server ${server.id}`);
+                                await QueueService.Enqueue(server.id, "BACKUP");
+                            }
+                        }
+                    }
+
                 } else {
                     // Remote Check & Host Monitoring
                     if (server.server && server.server.url) {
@@ -187,7 +218,14 @@ async function CheckAndProxy() {
                            const protocol = server.server.url.startsWith("http") ? "" : "http://";
                            const checkUrl = `${protocol}${server.server.url}/Game/CheckServer/${server.id}`;
                            
-                           const response = await axios.get(checkUrl, { timeout: 3000 });
+                           const response = await axios.get(checkUrl, { 
+                               timeout: 3000,
+                               headers: { 
+                                   "API-Key": server.server.apiKey,
+                                   "UserID": 1
+                               } 
+                               // always use root account
+                           });
                            if (response.data && response.data.status) {
                                isRunning = true;
                                // Host is alive
