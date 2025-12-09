@@ -5,6 +5,7 @@ const router = express.Router();
 
 
 router.get("/", GameController.GetAll);
+router.get("/Status", GameController.CheckStatus);
 router.get("/StartServer/:id", GameController.StartServer);
 router.get("/CheckLogs/:serverId", GameController.DisplayLog);
 router.get("/StopServer/:serverId", GameController.StopServer);

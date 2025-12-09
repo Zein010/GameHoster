@@ -95,6 +95,7 @@ model Server {
   runningServers   RunningServers[]
   proxyConnections ProxyConnection[]
   serverBackups    ServerBackup[]
+  status           String            @default("online")
 }
 
 model TerminalError {

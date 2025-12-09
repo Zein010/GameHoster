@@ -296,5 +296,9 @@ const ReceiveGameServer = async (req, res) => {
     });
 }
 
-const GameController = { ReceiveBackup, ReceiveGameServer, MoveToHost, GetLog, BanPlayer, UnBanPlayer, KickPlayer, OPPlayer, DEOPPlayer, GetBannedPlayers, GetPlayers, OneCommand, DisplayLog, StopServer, RestartServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning, GetQueueStatus };
+const CheckStatus = async (req, res) => {
+    res.json({ status: "online", time: Date.now() });
+}
+
+const GameController = { CheckStatus, ReceiveBackup, ReceiveGameServer, MoveToHost, GetLog, BanPlayer, UnBanPlayer, KickPlayer, OPPlayer, DEOPPlayer, GetBannedPlayers, GetPlayers, OneCommand, DisplayLog, StopServer, RestartServer, GetAll, Get, GetVersion, GetServer, GetServers, GetVersions, StartServer, CreateServer, CheckServerRunning, GetQueueStatus };
 export default GameController

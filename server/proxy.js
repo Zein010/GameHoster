@@ -250,8 +250,17 @@ async function CheckAndProxy() {
                     });
 
                     if (!pendingBackup) {
-                        console.log(`[Scheduler] Enqueuing periodic backup for Server ${server.id}`);
-                        await QueueService.Enqueue(parseInt(server.id), "BACKUP");
+                        // Check if ANY host is available for backup
+                        const onlineHosts = await prisma.server.findMany({
+                            where: { deleted: false, status: "online", id: { not: SERVER_ID } }
+                        });
+
+                        if (onlineHosts.length > 0) {
+                            console.log(`[Scheduler] Enqueuing periodic backup for Server ${server.id}`);
+                            await QueueService.Enqueue(parseInt(server.id), "BACKUP");
+                        } else {
+                            console.log(`[Scheduler] No online hosts available. Skipping backup enqueue for Server ${server.id}`);
+                        }
                     }
                 }
             }
@@ -364,8 +373,44 @@ function StopProxy(id) {
     }
 }
 
-// Start Loop
+// Status Check Loop
+async function CheckStatusLoop() {
+    console.log("Starting Status Check Loop...");
+    while (true) {
+        try {
+            const servers = await prisma.server.findMany({
+                where: { deleted: false, id: { not: SERVER_ID } }
+            });
+
+            for (const server of servers) {
+                const protocol = server.url.startsWith("http") ? "" : "http://";
+                try {
+                    await axios.get(`${protocol}${server.url}/Game/Status`, {
+                        timeout: 5000,
+                        headers: { "API-Key": server.apiKey, "UserID": 1 }
+                    });
+                    await prisma.server.update({
+                        where: { id: server.id },
+                        data: { status: "online" }
+                    });
+                } catch (err) {
+                    console.error(`Status check failed for Host ${server.id}: ${err.message}`);
+                    await prisma.server.update({
+                        where: { id: server.id },
+                        data: { status: "offline" }
+                    });
+                }
+            }
+        } catch (e) {
+            console.error("Error in status loop:", e);
+        }
+        await new Promise(resolve => setTimeout(resolve, 60000)); // Every 1 minute
+    }
+}
+
+// Start Loops
 console.log("Starting Proxy Manager...");
 setInterval(CheckAndProxy, 10000);
 CheckAndProxy();
+CheckStatusLoop();
 

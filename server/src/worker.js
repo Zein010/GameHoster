@@ -180,7 +180,7 @@ const ProcessQueueItem = async (item) => {
             
             // 1. Identify Neighbors
             const hosts = await prisma.server.findMany({ 
-                where: { deleted: false },
+                where: { deleted: false, status: "online" },
                 orderBy: { id: 'asc' }
             });
             
