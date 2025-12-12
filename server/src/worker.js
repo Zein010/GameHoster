@@ -170,8 +170,12 @@ const ProcessQueueItem = async (item) => {
                 await TerminalService.StartCreatedServer(server);
             }
 
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            let pid = 0;
+            await TerminalService.CheckUserHasProcess(server.sysUser.username, server.gameVersion.searchScript, async (p) => { pid = p; });
 
-            await prisma.runningServers.update({ where: { id: parseInt(server.id) }, data: { presumedStatus: "online" } });
+
+            await prisma.runningServers.update({ where: { id: parseInt(server.id) }, data: { presumedStatus: "online", pid: pid } });
             await QueueService.UpdateStatus(parseInt(item.id), "COMPLETED", "Server started successfully");
             
         } else if (item.type === "BACKUP") {
@@ -308,7 +312,11 @@ const ProcessQueueItem = async (item) => {
                 console.log("Starting created server");
                 TerminalService.StartCreatedServer(server);
             }
-            await prisma.runningServers.update({ where: { id: server.id }, data: { presumedStatus: "online" } });
+
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            let pid = 0;
+            await TerminalService.CheckUserHasProcess(username, gameVersion.searchScript, async (p) => { pid = p; });
+            await prisma.runningServers.update({ where: { id: server.id }, data: { presumedStatus: "online", pid: pid, preferredHostId: SERVER_ID } });
             await QueueService.UpdateStatus(item.id, "COMPLETED", "Server created and started successfully");
         } else if (item.type === "STOP") {
             const server = item.server;
@@ -356,7 +364,11 @@ const ProcessQueueItem = async (item) => {
                 await TerminalService.StartCreatedServer(server);
             }
 
-            await prisma.runningServers.update({ where: { id: parseInt(server.id) }, data: { presumedStatus: "online" } });
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            let pid = 0;
+            await TerminalService.CheckUserHasProcess(server.sysUser.username, server.gameVersion.searchScript, async (p) => { pid = p; });
+
+            await prisma.runningServers.update({ where: { id: parseInt(server.id) }, data: { presumedStatus: "online", pid: pid } });
             await QueueService.UpdateStatus(parseInt(item.id), "COMPLETED", "Server restarted successfully");
         }
 

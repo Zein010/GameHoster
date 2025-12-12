@@ -268,15 +268,20 @@ async function CheckAndProxy() {
             // Check for Presumed Status Mismatch
             // If presumed online, but not running -> Failure
             if (server.presumedStatus === 'online' && !isRunning) {
-                SERVER_FAILURES[server.id] = (SERVER_FAILURES[server.id] || 0) + 1;
-                console.log(`Server ${server.id} presumed online but not running. Failures: ${SERVER_FAILURES[server.id]}`);
                 
-                if (SERVER_FAILURES[server.id] >= MAX_FAILURES) {
-                     console.error(`Server ${server.id} FAILED. Initiating Failover...`);
-                     if (await HandleFailover(server, remoteHostId)) continue;
+                const isHostOffline = HOST_STATUS[remoteHostId] && HOST_STATUS[remoteHostId].failures >= MAX_FAILURES;
+                
+                if (!isHostOffline) {
+                     // Host is Online. Check if Host gave up.
+                     if (server.startRetryCount > 3) {
+                         console.error(`Server ${server.id} FAILED (Retry Count ${server.startRetryCount}). Initiating Failover...`);
+                         if (await HandleFailover(server, remoteHostId)) continue;
+                     } else {
+                         console.log(`Server ${server.id} presumed online but not running. Retry Count: ${server.startRetryCount}/3. Waiting for Host recovery.`);
+                     }
                 }
             } else {
-                // Reset failure count if running or if presumed stopped
+                // Reset failure count (just in case we use it elsewhere, though we rely on DB now)
                 SERVER_FAILURES[server.id] = 0;
             }
 
@@ -413,4 +418,3 @@ console.log("Starting Proxy Manager...");
 setInterval(CheckAndProxy, 10000);
 CheckAndProxy();
 CheckStatusLoop();
-

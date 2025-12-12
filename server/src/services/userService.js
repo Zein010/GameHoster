@@ -27,9 +27,24 @@ const GetUserByID = async (id) => {
     const { password, ...result } = user
     return result
 }
+const CreateUser = async (data) => {
+    data.password = bcrypt.hashSync(data.password, 10);
+    const user = await prisma.user.create({ data });
+    const { password, ...result } = user;
+    return result;
+}
+
+const GetAllUsers = async () => {
+    const users = await prisma.user.findMany();
+    return users.map(user => {
+        const { password, ...result } = user;
+        return result;
+    });
+}
+
 const AddLoginAttempt = async (user, ip) => {
     await prisma.userLoginHistory.create({ data: { user: { connect: { id: user.id } }, ip } })
 
 }
-const UserService = { GetUser, AddLoginAttempt, GetUserByID };
+const UserService = { GetUser, AddLoginAttempt, GetUserByID, CreateUser, GetAllUsers };
 export default UserService

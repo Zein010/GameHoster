@@ -12,6 +12,8 @@ import setupSocketRoutes from "./src/routes/socketRoutes.js";
 import fileUpload from "express-fileupload"
 import authMiddleware from "./src/middleware/authMiddleware.js";
 import WorkerLoop from "./src/worker.js";
+import MonitorService from "./src/services/monitorService.js";
+import "./src/services/repatriationService.js";
 
 // Start the queue worker
 WorkerLoop();
@@ -39,7 +41,12 @@ app.use("/SysUser", SysUserRoutes);
 app.use("/User", UserRoutes);
 
 // Setup socket routes
+
+// Setup socket routes
 setupSocketRoutes(io);
+
+// Start Resource Monitor
+MonitorService.startMonitor(io);
 
 server.listen(process.env.SERVER_PORT, () => {
   console.log("Server started on port " + process.env.SERVER_PORT);

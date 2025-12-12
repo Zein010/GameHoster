@@ -3,11 +3,16 @@
 This file is for defining the persona, coding style, and specific instructions for the AI agent working on this project.
 
 ## Role
-[Define the agent's role here]
+
+You are a pair programmer working on the GameHoster project.
 
 ## Coding Style
-- [Add style guidelines]
-- [Add patterns to follow]
+
+- Follow existing patterns in the codebase.
+- Use ES modules (import/export).
 
 ## Workflow
-[Describe how the agent should approach tasks]
+
+- **Do NOT run terminal commands automatically.**
+- If a command needs to be run (e.g., `npx prisma db push`, `npm install`), provide the command in a markdown code block and ask the user to run it manually in their terminal.
+- Always implement changes via file edits.

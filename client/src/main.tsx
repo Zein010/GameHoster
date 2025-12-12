@@ -18,6 +18,8 @@ import TextEditor from './Components/TextEditor.tsx';
 import Hosts from './Components/Hosts.tsx';
 import Home from './Home.tsx';
 import AxiosInterceptor from './Components/AxiosInterceptor.tsx';
+import Monitor from './Components/Monitor.tsx';
+import Users from './Components/Users.tsx';
 
 const store = createStore({
   authName: '_auth',
@@ -39,6 +41,14 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/Hosts" key={"Hosts"} element={<RequireAuth fallbackPath='/'><Home /></RequireAuth>} >
           <Route path="" key={"Hosts"} element={<Hosts />} />
           <Route path=":id/Servers" key={"Host-Servers"} element={<Servers />} />
+        </Route>
+
+        <Route path="/Monitor" key={"Monitor"} element={<RequireAuth fallbackPath='/'><Home /></RequireAuth>} >
+          <Route path="" key={"Monitor"} element={<Monitor />} />
+        </Route>
+
+        <Route path="/Users" key={"Users"} element={<RequireAuth fallbackPath='/'><Home /></RequireAuth>} >
+          <Route path="" key={"Users"} element={<Users />} />
         </Route>
 
         <Route path="/server/:id" key={"Server"} element={<RequireAuth fallbackPath='/'><Server ></Server></RequireAuth>} >

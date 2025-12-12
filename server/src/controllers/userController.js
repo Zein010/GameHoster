@@ -18,5 +18,23 @@ const Login = async (req, res) => {
     res.json({ "msg": "Login Success", data: { user, token, refresh } });
 }
 
-const UserController = { Login };
+const CreateUser = async (req, res) => {
+    try {
+        const user = await UserService.CreateUser(req.body);
+        res.json({ msg: "User Created", data: user });
+    } catch (e) {
+        res.status(500).json({ msg: "Error creating user", error: e.message });
+    }
+}
+
+const GetUsers = async (req, res) => {
+    try {
+        const users = await UserService.GetAllUsers();
+        res.json({ msg: "Users Retrieved", data: users });
+    } catch (e) {
+        res.status(500).json({ msg: "Error retrieving users", error: e.message });
+    }
+}
+
+const UserController = { Login, CreateUser, GetUsers };
 export default UserController

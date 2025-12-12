@@ -10,14 +10,14 @@ import TerminalIcon from '@mui/icons-material/Terminal';
 import ColorSchemeToggle from './ColorSchemeToggle.tsx';
 import { closeSidebar } from '../Utils.ts';
 import PersonIcon from '@mui/icons-material/Person';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import useAuthUser from 'react-auth-kit/hooks/useAuthUser';
 import useSignOut from 'react-auth-kit/hooks/useSignOut';
 
 export default function HomeSideBar() {
   const location = useLocation();
-  const auth = useAuthUser<{ username: string, email: string }>()
+  const auth = useAuthUser<{ username: string, email: string, role: string }>()
   const signOut = useSignOut()
 
   const isActive = (path: string) => location.pathname.endsWith(path) ;
@@ -108,6 +108,18 @@ export default function HomeSideBar() {
           <ArchiveIcon />
           <Typography level="title-sm">Users</Typography>
         </Link>
+
+        <Link href={`/Monitor`} underline="none" sx={{ gap: 1, backgroundColor: isActive(`/Monitor`) ? 'background.level2' : "", py: .5, px: 1, borderRadius: 10 }}>
+            <TerminalIcon />
+            <Typography level="title-sm">Monitor</Typography>
+        </Link>
+        
+        {auth?.role === 'ADMIN' && (
+             <Link href={`/Users`} underline="none" sx={{ gap: 1, backgroundColor: isActive(`/Users`) ? 'background.level2' : "", py: .5, px: 1, borderRadius: 10 }}>
+                <PersonIcon />
+                <Typography level="title-sm">Users</Typography>
+            </Link>
+        )}
 
       </Box>
       <Divider />
