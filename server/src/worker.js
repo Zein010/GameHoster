@@ -16,7 +16,7 @@ const CheckResources = async (gameVersion) => {
     // Simplified resource check for current host
     const host = await prisma.server.findUnique({ where: { id: SERVER_ID } });
     const runningServers = await prisma.runningServers.findMany({
-        where: { serverid: SERVER_ID, deleted: false },
+        where: { serverid: SERVER_ID, deleted: false, presumedStatus: "online" },
         include: { gameVersion: true }
     });
 
