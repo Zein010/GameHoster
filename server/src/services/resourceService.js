@@ -41,7 +41,8 @@ const ResourceService = {
             const runningServers = await prisma.runningServers.findMany({
                 where: {
                     serverid: host.id,
-                    deleted: false
+                    deleted: false,
+                    presumedStatus: "online"
                 },
                 include: {
                     gameVersion: true
