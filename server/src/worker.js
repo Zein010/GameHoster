@@ -339,6 +339,17 @@ const ProcessQueueItem = async (item) => {
         } else if (item.type === "STOP") {
             const server = item.server;
             console.log(`Stopping server ${server.id}`);
+            
+            if (server.gameVersion && server.gameVersion.saveCommand) {
+                 console.log(`[STOP] Executing save command: ${server.gameVersion.saveCommand}`);
+                 try {
+                     await TerminalService.SendCommandAndWait(server.id, server.gameVersion.saveCommand, /Saved the game/, 15000);
+                     console.log("[STOP] Save confirmed.");
+                 } catch (saveErr) {
+                     console.warn(`[STOP] Warning: Save command failed or timed out: ${saveErr.message}. Proceeding with stop anyway.`);
+                 }
+            }
+
             const status = await TerminalService.CheckUserHasProcess(server.sysUser.username, server.gameVersion.searchScript);
             if (status) {
                 TerminalService.StopUserProcesses(server.sysUser.username, server.gameVersion.searchScript);
@@ -403,6 +414,17 @@ const ProcessQueueItem = async (item) => {
 
             // 1. Stop Server
             console.log(`[TRANSFER] Stopping server ${server.id}...`);
+
+            if (server.gameVersion && server.gameVersion.saveCommand) {
+                 console.log(`[TRANSFER] Executing save command: ${server.gameVersion.saveCommand}`);
+                 try {
+                     await TerminalService.SendCommandAndWait(server.id, server.gameVersion.saveCommand, /Saved the game/, 15000);
+                     console.log("[TRANSFER] Save confirmed.");
+                 } catch (saveErr) {
+                     console.warn(`[TRANSFER] Warning: Save command failed or timed out: ${saveErr.message}. Proceeding with transfer anyway.`);
+                 }
+            }
+
             const status = await TerminalService.CheckUserHasProcess(server.sysUser.username, server.gameVersion.searchScript);
             if (status) {
                 TerminalService.StopUserProcesses(server.sysUser.username, server.gameVersion.searchScript);
