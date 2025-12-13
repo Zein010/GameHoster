@@ -61,7 +61,7 @@ class RepatriationService {
     async isHostOnline(host) {
         try {
             const protocol = host.url.startsWith("http") ? "" : "http://";
-            await axios.get(`${protocol}${host.url}/Game`, {
+            await axios.get(`${protocol}${host.url}/Game/Status`, {
                 timeout: 2000,
                 headers: {
                     "API-Key": host.apiKey,
@@ -70,6 +70,8 @@ class RepatriationService {
             });
             return true;
         } catch (error) {
+            console.error(`isHostOnline check failed for ${host.url}:`, error.message);
+            if (error.response) console.error("Response status:", error.response.status);
             return false;
         }
     }
