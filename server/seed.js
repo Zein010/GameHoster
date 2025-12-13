@@ -43,20 +43,20 @@ const seed = async () => {
     console.log("Created Astroneer Server")
     await prisma.gameVersion.upsert({
       where: { id: 1 },
-      create: { id: 1, searchShScript: "sh", searchScript: "java", gameId: 1, version: "Vanilla-1.21.1", cacheFile: null, downloadLink: "https://piston-data.mojang.com/v1/objects/59353fb40c36d304f2035d51e7d6e6baa98dc05c/server.jar", scriptFile: "server.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
-      update: { searchShScript: "sh", searchScript: "java", gameId: 1, version: "Vanilla-1.21.1", cacheFile: null, downloadLink: "https://piston-data.mojang.com/v1/objects/59353fb40c36d304f2035d51e7d6e6baa98dc05c/server.jar", scriptFile: "server.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
+      create: { id: 1, searchShScript: "sh", searchScript: "java", gameId: 1, version: "Vanilla-1.21.1", cacheFile: null, downloadLink: "https://piston-data.mojang.com/v1/objects/59353fb40c36d304f2035d51e7d6e6baa98dc05c/server.jar", scriptFile: "server.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui", saveCommand: "save-all" },
+      update: { searchShScript: "sh", searchScript: "java", gameId: 1, version: "Vanilla-1.21.1", cacheFile: null, downloadLink: "https://piston-data.mojang.com/v1/objects/59353fb40c36d304f2035d51e7d6e6baa98dc05c/server.jar", scriptFile: "server.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui", saveCommand: "save-all" },
     });
 
     await prisma.gameVersion.upsert({
       where: { id: 2 },
-      create: { id: 2, searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "https://maven.minecraftforge.net/net/minecraftforge/forge/1.21.3-53.1.0/forge-1.21.3-53.1.0-installer.jar", version: "Forge-1.21.3", cacheFile:null, scriptFile: "forge-1.21.3-53.0.9-shim.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
-      update: { searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "https://maven.minecraftforge.net/net/minecraftforge/forge/1.21.3-53.1.0/forge-1.21.3-53.1.0-installer.jar", version: "Forge-1.21.3", cacheFile: null, scriptFile: "forge-1.21.3-53.0.9-shim.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui" },
+      create: { id: 2, searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "https://maven.minecraftforge.net/net/minecraftforge/forge/1.21.3-53.1.0/forge-1.21.3-53.1.0-installer.jar", version: "Forge-1.21.3", cacheFile:null, scriptFile: "forge-1.21.3-53.0.9-shim.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui", saveCommand: "save-all" },
+      update: { searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "https://maven.minecraftforge.net/net/minecraftforge/forge/1.21.3-53.1.0/forge-1.21.3-53.1.0-installer.jar", version: "Forge-1.21.3", cacheFile: null, scriptFile: "forge-1.21.3-53.0.9-shim.jar", runScript: "java -Xmx1024M -Xms1024M -jar  [{fileName}] nogui", saveCommand: "save-all" },
     });
 
     await prisma.gameVersion.upsert({
       where: { id: 3 },
-      create: { id: 3, searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "https://maven.minecraftforge.net/net/minecraftforge/forge/1.21.1-52.1.6/forge-1.21.1-52.1.6-installer.jar", version: "Forge-1.21.1", cacheFile:null, scriptFile: "forge-1.21.1-52.0.26-shim.jar", runScript: "java -Xmx2024M -Xms2024M -jar  [{fileName}] nogui" },
-      update: { searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "https://maven.minecraftforge.net/net/minecraftforge/forge/1.21.1-52.1.6/forge-1.21.1-52.1.6-installer.jar", version: "Forge-1.21.1", cacheFile: null, scriptFile: "forge-1.21.1-52.0.26-shim.jar", runScript: "java -Xmx2024M -Xms2024M -jar  [{fileName}] nogui" },
+      create: { id: 3, searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "https://maven.minecraftforge.net/net/minecraftforge/forge/1.21.1-52.1.6/forge-1.21.1-52.1.6-installer.jar", version: "Forge-1.21.1", cacheFile:null, scriptFile: "forge-1.21.1-52.0.26-shim.jar", runScript: "java -Xmx2024M -Xms2024M -jar  [{fileName}] nogui", saveCommand: "save-all" },
+      update: { searchShScript: "sh", searchScript: "java", gameId: 1, downloadLink: "https://maven.minecraftforge.net/net/minecraftforge/forge/1.21.1-52.1.6/forge-1.21.1-52.1.6-installer.jar", version: "Forge-1.21.1", cacheFile: null, scriptFile: "forge-1.21.1-52.0.26-shim.jar", runScript: "java -Xmx2024M -Xms2024M -jar  [{fileName}] nogui", saveCommand: "save-all" },
     });
 
     await prisma.gameVersion.upsert({

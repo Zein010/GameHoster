@@ -199,6 +199,19 @@ const ProcessQueueItem = async (item) => {
                 return;
             }
 
+            // 0. Save Game Logic
+            if (server.gameVersion && server.gameVersion.saveCommand) {
+                 console.log(`[BACKUP] Executing save command: ${server.gameVersion.saveCommand}`);
+                 try {
+                     await TerminalService.SendCommandAndWait(server.id, server.gameVersion.saveCommand, /Saved the game/, 15000);
+                     console.log("[BACKUP] Save confirmed.");
+                 } catch (saveErr) {
+                     console.warn(`[BACKUP] Warning: Save command failed or timed out: ${saveErr.message}. Proceeding with backup anyway.`);
+                 }
+            } else {
+                console.log("[BACKUP] No save command configured for this game version.");
+            }
+
             const currentIndex = hosts.findIndex(h => h.id === SERVER_ID);
             const prevHost = hosts[(currentIndex - 1 + hosts.length) % hosts.length];
             const nextHost = hosts[(currentIndex + 1) % hosts.length];

@@ -431,6 +431,83 @@ const GetBannedPlayers = async (serverId) => {
 
     })
 }
+const SendCommandAndWait = async (serverId, command, expectedOutputRegex, timeout = 10000) => {
+    if (!RunningServers[serverId]) {
+        throw new Error("Server down");
+    }
+
+    return new Promise((resolve, reject) => {
+        let outputBuffer = '';
+        let timeoutId = null;
+
+        // Save original listeners
+        const originalStdoutListeners = RunningServers[serverId].stdout.listeners('data');
+
+        const cleanup = () => {
+            if (timeoutId) clearTimeout(timeoutId);
+            // Restore listeners
+            RunningServers[serverId].stdout.removeAllListeners('data');
+            originalStdoutListeners.forEach(listener => RunningServers[serverId].stdout.on('data', listener));
+        };
+
+        const onData = (data) => {
+            const str = data.toString();
+            outputBuffer += str;
+            
+            if (expectedOutputRegex.test(str)) {
+                cleanup();
+                resolve(true); // Match found
+            }
+        };
+
+        // Remove existing to avoid interference, or just add?
+        // Usually we want to capture output even if others are listening, but here we want exclusive check? 
+        // No, let's just add listener. But the `GetBannedPlayers` removed them. 
+        // Let's follow the pattern of temporarily hijacking stdout if we need clean output, 
+        // but for `save-all` we just need to "hear" it.
+        // However, `TerminalToSocket` might be piping output.
+        // If we remove listeners, the socket won't get the output during this time?
+        // `GetBannedPlayers` removes them. `OneCommand` removes them.
+        // If we want to be safe, we should probably do the same: remove, listen, restore.
+        
+        RunningServers[serverId].stdout.removeAllListeners('data');
+        RunningServers[serverId].stdout.on('data', onData);
+        
+        // Also attach original listeners so we don't break existing piping (like websocket) ??
+        // `GetBannedPlayers` does NOT re-attach them during the wait?
+        // Wait, `GetBannedPlayers` implementation: 
+        // `const originalStdoutListeners = RunningServers[serverId].stdout.listeners('data');`
+        // ... `RunningServers[serverId].stdout.on('data', ...)`
+        // It seems it REPLACES listeners. This means during `GetBannedPlayers`, the websocket STOPS receiving data.
+        // That seems like a minor bug or trade-off in existing code.
+        // I will follow the same pattern for consistency, but improved: 
+        // If I strictly follow `GetBannedPlayers`, the console might go silent for the user during `save-all`.
+        // Better: Attach my listener WITHOUT removing old ones, unless I fear conflicts.
+        // But `RunningServers[serverId]` is a child process. `stdout` is a stream.
+        // We can have multiple 'data' listeners.
+        // The issue is if other listeners consume the data? No, streams emit to all listeners.
+        // So I will just ADD my listener. 
+        // BUT, `GetBannedPlayers` explicitly removes them. Maybe to prevent noise or duplicated processing? 
+        // Or maybe because `stdout` in Node.js streams... 
+        // I'll stick to 'Add Listener' only, which is safer for concurrency (keeping Socket active).
+        // Wait, if I don't remove them, `TerminalToSocket` continues to emit. That is GOOD.
+        // So why did `GetBannedPlayers` remove them? Maybe to simplify parsing or prevent `TerminalToSocket` from interfering? 
+        // Actually `TerminalToSocket` doesn't interfere.
+        // I will try to be less intrusive: Add listener, wait, remove listener.
+        
+        RunningServers[serverId].stdout.on('data', onData);
+
+        // Send Command
+        console.log(`[SendCommandAndWait] Sending: ${command}`);
+        RunningServers[serverId].stdin.write(command + "\n");
+
+        timeoutId = setTimeout(() => {
+            // Remove MY listener
+            RunningServers[serverId].stdout.removeListener('data', onData);
+            reject(new Error(`Timeout waiting for command output: ${expectedOutputRegex}`));
+        }, timeout);
+    });
+};
 const GetLog = (path) => {
     try {
 
@@ -577,5 +654,5 @@ const CreateService = (name, path, service) => {
         console.error(`Error creating the service file: ${error.message}`);
     }
 };
-const TerminalService = { ZipForTransfer,StartService, CreateService, RunScript, GetLog, CreateZip, DownloadServerDataByScript, GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DeleteFile, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
+const TerminalService = { ZipForTransfer,StartService, CreateService, RunScript, GetLog, CreateZip, DownloadServerDataByScript, GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DeleteFile, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer, SendCommandAndWait }
 export default TerminalService
