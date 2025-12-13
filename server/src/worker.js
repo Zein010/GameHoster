@@ -187,6 +187,12 @@ const ProcessQueueItem = async (item) => {
             const server = item.server;
             console.log(`Backing up server ${server.id}`);
             
+            if (server.presumedStatus !== 'online') {
+                console.log(`Skipping backup for server ${server.id} because it is not online (Status: ${server.presumedStatus})`);
+                await QueueService.UpdateStatus(item.id, "COMPLETED", "Skipped: Server not online");
+                return;
+            }
+
             // 1. Identify Neighbors
             const hosts = await prisma.server.findMany({ 
                 where: { deleted: false, status: "online" },

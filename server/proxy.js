@@ -229,7 +229,7 @@ async function CheckAndProxy() {
             }
 
             // Periodic Backup Scheduler (Every 3 minutes) - For ALL running servers (Local & Remote)
-            if (isRunning) {
+            if (isRunning && server.presumedStatus === 'online') {
                 const lastBackup = await prisma.serverBackup.findFirst({
                     where: { runningServerId: parseInt(server.id) },
                     orderBy: { createdAt: 'desc' }
