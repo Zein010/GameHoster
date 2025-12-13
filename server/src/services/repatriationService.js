@@ -33,7 +33,8 @@ class RepatriationService {
                 },
                 include: {
                     preferredHost: true,
-                    sysUser: true
+                    sysUser: true,
+                    gameVersion: true
                 }
             });
 
@@ -81,30 +82,14 @@ class RepatriationService {
             console.log(`Repatriating Server ${server.id} to Host ${targetHost.id}...`);
 
             // 1. Stop Server
-             // We should stop it cleanly. Ideally use Queue "STOP"? 
-             // Or direct TerminalService call? 
-             // If we use Queue, it's async and we might race. 
-             // Let's do direct stop here since we are a background service.
-             
-             // Check if running first
-             // Actually, transfer logic (MoveToHost) in worker handles stop? 
-             // In worker.js: MoveToHost logic isn't fully centralized as a function we can call easily, 
-             // it was partly inside the 'START' logic for failover.
-             
-             // We need to implement Move Logic here.
-             
-             // A. Stop
-             const pid = await TerminalService.CheckUserHasProcess(server.sysUser.username, "java"); // simplistic check or use specific script
-             // Better: Use STOP logic from worker reuse?
-             // Let's manually invoke stop logic.
-             if (server.presumedStatus !== 'stopped') {
+            if (server.presumedStatus !== 'stopped') {
                  // Try stop
-                 const status = await TerminalService.CheckUserHasProcess(server.sysUser.username, "run.sh"); // Adjust regex if needed
+                 const status = await TerminalService.CheckUserHasProcess(server.sysUser.username, server.gameVersion.searchScript); 
                  if (status) {
-                     TerminalService.StopUserProcesses(server.sysUser.username, "run.sh");
+                     TerminalService.StopUserProcesses(server.sysUser.username, server.gameVersion.searchScript);
                      await new Promise(r => setTimeout(r, 2000));
                  }
-             }
+            }
 
              // B. Zip
              const zipResult = await TerminalService.ZipForTransfer(server);
