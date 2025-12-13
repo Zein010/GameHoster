@@ -370,6 +370,72 @@ const ProcessQueueItem = async (item) => {
 
             await prisma.runningServers.update({ where: { id: parseInt(server.id) }, data: { presumedStatus: "online", pid: pid } });
             await QueueService.UpdateStatus(parseInt(item.id), "COMPLETED", "Server restarted successfully");
+            await prisma.runningServers.update({ where: { id: parseInt(server.id) }, data: { presumedStatus: "online", pid: pid } });
+            await QueueService.UpdateStatus(parseInt(item.id), "COMPLETED", "Server restarted successfully");
+        } else if (item.type === "TRANSFER") {
+            const server = item.server;
+            const targetHostId = item.payload.targetHostId;
+            console.log(`Transferring server ${server.id} to Host ${targetHostId}`);
+
+            const targetHost = await prisma.server.findUnique({ where: { id: targetHostId } });
+            if (!targetHost) {
+                throw new Error(`Target host ${targetHostId} not found`);
+            }
+
+            // 1. Stop Server
+            const status = await TerminalService.CheckUserHasProcess(server.sysUser.username, server.gameVersion.searchScript);
+            if (status) {
+                TerminalService.StopUserProcesses(server.sysUser.username, server.gameVersion.searchScript);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+
+            // 2. Zip
+            const outputFile = await TerminalService.ZipForTransfer(server);
+
+            // 3. Generate Token
+            const copyToken = (await import("crypto")).randomBytes(30).toString("base64").replace(/[^a-zA-Z0-9]/g, "").slice(0, 30);
+            await GameService.SetCopyToken(server.id, copyToken);
+
+            // 4. Send
+            const protocol = targetHost.url.startsWith("http") ? "" : "http://";
+            try {
+                await axios.post(`${protocol}${targetHost.url}/Game/ReceiveServer/${server.id}/${copyToken}`, outputFile.stream, {
+                    headers: {
+                        "Content-Type": "application/octet-stream",
+                        "X-filename": outputFile.name,
+                        "API-Key": targetHost.apiKey,
+                        "UserID": 1
+                    },
+                    maxBodyLength: Infinity
+                });
+
+                // 5. Cleanup Zip
+                if (outputFile.path) TerminalService.DeleteFile(outputFile.path);
+
+                // 6. Update Database
+                await prisma.runningServers.update({
+                    where: { id: parseInt(server.id) },
+                    data: {
+                        serverid: targetHost.id,
+                        transfering: false,
+                        presumedStatus: 'stopped'
+                    }
+                });
+
+                // 7. Cleanup Local Directory
+                const dirName = path.resolve(server.path);
+                TerminalService.DeleteDir(dirName);
+
+                // 8. Enqueue START on new host
+                await QueueService.Enqueue(parseInt(server.id), "START");
+                
+                await QueueService.UpdateStatus(parseInt(item.id), "COMPLETED", `Transferred to Host ${targetHost.id}`);
+
+            } catch (err) {
+                // Cleanup Zip on failure
+                if (outputFile.path) TerminalService.DeleteFile(outputFile.path);
+                throw err;
+            }
         }
 
     } catch (err) {
