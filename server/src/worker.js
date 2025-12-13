@@ -55,6 +55,11 @@ const ProcessQueueItem = async (item) => {
                 const backupFile = path.resolve(`Backups/${server.sysUser.username}.zip`);
                 if (fs.existsSync(backupFile)) {
                     console.log(`Restoring from backup: ${backupFile}`);
+                    
+                    // Clean directory first
+                    console.log(`[RESTORE] Cleaning directory ${dirName} before restore...`);
+                    TerminalService.DeleteDir(dirName);
+
                     TerminalService.CreateNewDirectory({ name: dirName });
                     await TerminalService.CreateUser(server.sysUser.username);
                     await sysUserService.StoreSysUser(server.sysUser.username);
