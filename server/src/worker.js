@@ -376,6 +376,7 @@ const ProcessQueueItem = async (item) => {
             const server = item.server;
             const targetHostId = item.payload.targetHostId;
             console.log(`Transferring server ${server.id} to Host ${targetHostId}`);
+            console.log(`[TRANSFER] Server DB Path: ${server.path}, Username: ${server.sysUser ? server.sysUser.username : 'N/A'}`);
 
             const targetHost = await prisma.server.findUnique({ where: { id: targetHostId } });
             if (!targetHost) {

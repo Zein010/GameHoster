@@ -521,7 +521,19 @@ const ZipForTransfer=async(gameServer)=>{
         fs.unlinkSync(outputZip);
     }
 
-    execSync(`zip -r -q "${outputZip}" ./*`, { cwd: pathLib.resolve(`GameServer/${gameServer.sysUser.username}`) });
+    const serverDir = pathLib.resolve(`GameServer/${gameServer.sysUser.username}`);
+    console.log(`[ZIP] Resolving server directory. Username: ${gameServer.sysUser.username}, Path: ${serverDir}`);
+    
+    if (!fs.existsSync(serverDir)) {
+        console.error(`[ZIP] ERROR: Directory not found at ${serverDir}`);
+        const parentDir = pathLib.resolve("GameServer");
+        if (fs.existsSync(parentDir)) {
+             console.log(`[ZIP] Listing GameServer contents:`, fs.readdirSync(parentDir));
+        }
+        throw new Error(`Server directory does not exist: ${serverDir}`);
+    }
+
+    execSync(`zip -r -q "${outputZip}" ./*`, { cwd: serverDir });
 
     return {"stream":fs.createReadStream(outputZip),"name":`${gameServer.sysUser.username}.zip`, "path": outputZip};
 }
