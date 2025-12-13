@@ -48,8 +48,13 @@ class RepatriationService {
                 if (!targetHost) continue;
 
                 if (await this.isHostOnline(targetHost)) {
-                    console.log(`Preferred host ${targetHost.id} for server ${server.id} is ONLINE. Initiating repatriation...`);
-                    await this.repatriateServer(server, targetHost);
+                    // Check Resources
+                    if (await this.hasResources(targetHost, server.gameVersion)) {
+                        console.log(`Preferred host ${targetHost.id} for server ${server.id} is ONLINE and HAS RESOURCES. Initiating repatriation...`);
+                        await this.repatriateServer(server, targetHost);
+                    } else {
+                        console.log(`Preferred host ${targetHost.id} is ONLINE but LACKS RESOURCES for server ${server.id}.`);
+                    }
                 } else {
                     console.log(`Preferred host ${targetHost.id} for server ${server.id} is still OFFLINE.`);
                 }
@@ -57,6 +62,45 @@ class RepatriationService {
 
         } catch (error) {
             console.error("Repatriation Check Error:", error);
+        }
+    }
+
+    async hasResources(host, gameVersion) {
+        try {
+            // Find running servers on the target host to calculate current load
+            // We assume 'presumedStatus: online' generally implies resource consumption
+            const runningServers = await prisma.runningServers.findMany({
+                where: { 
+                    serverid: host.id, // target host
+                    deleted: false, 
+                    presumedStatus: "online" 
+                },
+                include: { gameVersion: true }
+            });
+
+            let usedRam = 0;
+            let usedCpu = 0;
+            let usedStorage = 0;
+
+            for (const s of runningServers) {
+                usedRam += s.gameVersion.requiredRam;
+                usedCpu += s.gameVersion.requiredCpu;
+                usedStorage += s.gameVersion.requiredStorage;
+            }
+
+            const availableRam = host.ram - usedRam;
+            const availableCpu = host.cpu - usedCpu;
+            const availableStorage = host.storage - usedStorage;
+            
+            // console.log(`[ResourceCheck] Host ${host.id} - RAM: ${availableRam}/${gameVersion.requiredRam}, CPU: ${availableCpu}/${gameVersion.requiredCpu}`);
+
+            return (availableRam >= gameVersion.requiredRam &&
+                    availableCpu >= gameVersion.requiredCpu &&
+                    availableStorage >= gameVersion.requiredStorage);
+
+        } catch (err) {
+            console.error(`Error checking resources for Host ${host.id}:`, err);
+            return false; // Fail safe
         }
     }
 
