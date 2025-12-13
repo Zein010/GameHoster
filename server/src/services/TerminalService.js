@@ -473,7 +473,7 @@ function CreateZip(files, path, subPath) {
 
     const pathsString = validPaths.join(' ');
 
-    const command = `cd "${pathLib.join(path, subPath)}" &&  sudo zip -r "${zipName}" ${pathsString}`;
+    const command = `cd "${pathLib.join(path, subPath)}" &&  sudo zip -r -q "${zipName}" ${pathsString}`;
 
     try {
 
@@ -515,9 +515,25 @@ const ZipForTransfer=async(gameServer)=>{
     const outputZip=pathLib.resolve(`TempForTransfer/${gameServer.sysUser.username}.zip`);
     
     if (!fs.existsSync(pathLib.resolve("TempForTransfer"))) fs.mkdirSync(pathLib.resolve("TempForTransfer"), { recursive: true });
-    execSync(`zip -r "${outputZip}" ./*`, { stdio: "inherit", cwd: pathLib.resolve(`GameServer/${gameServer.sysUser.username}`) });
+    
+    // Delete old zip if exists
+    if (fs.existsSync(outputZip)) {
+        fs.unlinkSync(outputZip);
+    }
 
-    return {"stream":fs.createReadStream(outputZip),"name":`${gameServer.sysUser.username}.zip`};
+    execSync(`zip -r -q "${outputZip}" ./*`, { cwd: pathLib.resolve(`GameServer/${gameServer.sysUser.username}`) });
+
+    return {"stream":fs.createReadStream(outputZip),"name":`${gameServer.sysUser.username}.zip`, "path": outputZip};
+}
+
+const DeleteFile = (path) => {
+    try {
+        if (fs.existsSync(path)) {
+            fs.unlinkSync(path);
+        }
+    } catch (error) {
+        console.log({ error });
+    }
 }
 const StartService = (service) => {
 
@@ -549,5 +565,5 @@ const CreateService = (name, path, service) => {
         console.error(`Error creating the service file: ${error.message}`);
     }
 };
-const TerminalService = { ZipForTransfer,StartService, CreateService, RunScript, GetLog, CreateZip, DownloadServerDataByScript, GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
+const TerminalService = { ZipForTransfer,StartService, CreateService, RunScript, GetLog, CreateZip, DownloadServerDataByScript, GetBannedPlayers, OneCommand, TerminalToSocket, DisplayUserLog, StopUserProcesses, CheckUserHasProcess, CreateNewDirectory, SetupServerConfigForRestart, CheckPortOpen, CacheFile, CopyFile, CreateUser, OwnFile, DeleteUser, DeleteDir, DeleteFile, DownloadServerData, RunGameServer, SetupRequiredFiles, SetupServerAfterStart, StartCreatedServer }
 export default TerminalService

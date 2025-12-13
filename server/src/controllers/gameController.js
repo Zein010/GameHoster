@@ -223,8 +223,12 @@ const MoveToHost = async (req, res) => {
     try {
 
         await axios.post(`http://${host.url}/Game/ReceiveServer/${serverId}/${copyToken}`, outputFile.stream, { headers: { "Content-Type": "application/octet-stream", "X-filename": outputFile.name, "API-Key": host.apiKey, "UserID": req.user.id }, maxBodyLength: Infinity, });
+        
+        if(outputFile.path) TerminalService.DeleteFile(outputFile.path);
+        
         res.status(200).json({ msg: "Server moved successfully" });
     } catch (err) {
+        if(outputFile.path) TerminalService.DeleteFile(outputFile.path);
         res.status(500).json({ msg: "Something went wrong, server not moved" + err });
     }
 }

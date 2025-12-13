@@ -125,6 +125,8 @@ class RepatriationService {
                 maxBodyLength: Infinity
              });
 
+             if (zipResult.path) TerminalService.DeleteFile(zipResult.path);
+
              // E. Update Database
              // Set `serverid` to targetHost.id
              // Keep `preferredHostId` as is (it's already targetHost.id)
