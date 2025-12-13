@@ -243,6 +243,7 @@ const ReceiveGameServer = async (req, res) => {
 
 
     const filePath = path.resolve(`TempForReceive/${filename}`);
+    console.log(`[RECEIVE] Receiving server file: ${filename} for Server ${serverId}`);
 
     if (!fs.existsSync(path.resolve("TempForReceive"))) {
         fs.mkdirSync(path.resolve("TempForReceive"), { recursive: true });
@@ -250,21 +251,43 @@ const ReceiveGameServer = async (req, res) => {
     const writeStream = fs.createWriteStream(filePath);
     req.pipe(writeStream);
     writeStream.on("error", (err) => {
-        console.error(err);
+        console.error(`[RECEIVE] Stream error for ${filename}:`, err);
         console.log(err.message);
         res.status(500).send({ success: false, error: err.message });
     });
     writeStream.on("finish", async () => {
+        console.log(`[RECEIVE] File received: ${filename}. Starting processing...`);
 
         const dirName = `GameServer/${gameServer.sysUser.username}`;
         const username = `${gameServer.sysUser.username}`;
-        TerminalService.CreateNewDirectory({ name: dirName })
-        await TerminalService.CreateUser(username);
-        await sysUserService.StoreSysUser(username);
-        // // the file is zip and needs to be unziped
-        await FileService.Move(filePath, dirName);
-        await FileService.Unzip(path.resolve(path.join(dirName, filename)));
-        await TerminalService.OwnFile(path.resolve(dirName), username);
+        try {
+            console.log(`[RECEIVE] Creating directory and user for ${username}...`);
+            TerminalService.CreateNewDirectory({ name: dirName })
+            await TerminalService.CreateUser(username);
+            await sysUserService.StoreSysUser(username);
+            
+            console.log(`[RECEIVE] Unzipping and setting up permissions...`);
+            await FileService.Move(filePath, dirName);
+            await FileService.Unzip(path.resolve(path.join(dirName, filename)));
+            await TerminalService.OwnFile(path.resolve(dirName), username);
+            
+            console.log(`[RECEIVE] Processing complete for Server ${serverId}`);
+            // Note: Response should ideally be sent here if we waited, but req.pipe is async.
+            // The original code didn't send a response on finish? 
+            // Checking original code: it didn't send response in finish callback.
+            // The axios post in worker waits for the request to complete.
+            // req.pipe(writeStream) handles the body. 
+            // Does express-fileupload or stream handling require explicit response?
+            // Usually res.end() or res.json() is needed.
+            // The original code has `res.status(500)` on error, but NOTHING on success?
+            // This might be why axios hangs if it expects a response!
+            // Adding a success response here.
+            res.status(200).json({ msg: "Server received and processed successfully" });
+        } catch (procErr) {
+            console.error(`[RECEIVE] Processing error:`, procErr);
+            // If we haven't sent response yet (rare if we are in finish callback)
+             if (!res.headersSent) res.status(500).json({ msg: "Processing failed" });
+        }
     });
 }
 

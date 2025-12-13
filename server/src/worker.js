@@ -383,6 +383,7 @@ const ProcessQueueItem = async (item) => {
             }
 
             // 1. Stop Server
+            console.log(`[TRANSFER] Stopping server ${server.id}...`);
             const status = await TerminalService.CheckUserHasProcess(server.sysUser.username, server.gameVersion.searchScript);
             if (status) {
                 TerminalService.StopUserProcesses(server.sysUser.username, server.gameVersion.searchScript);
@@ -390,7 +391,9 @@ const ProcessQueueItem = async (item) => {
             }
 
             // 2. Zip
+            console.log(`[TRANSFER] Zipping server ${server.id} data...`);
             const outputFile = await TerminalService.ZipForTransfer(server);
+            console.log(`[TRANSFER] Zip created: ${outputFile.name}`);
 
             // 3. Generate Token
             const copyToken = (await import("crypto")).randomBytes(30).toString("base64").replace(/[^a-zA-Z0-9]/g, "").slice(0, 30);
@@ -398,6 +401,7 @@ const ProcessQueueItem = async (item) => {
 
             // 4. Send
             const protocol = targetHost.url.startsWith("http") ? "" : "http://";
+            console.log(`[TRANSFER] Sending zip to ${targetHost.url}...`);
             try {
                 await axios.post(`${protocol}${targetHost.url}/Game/ReceiveServer/${server.id}/${copyToken}`, outputFile.stream, {
                     headers: {
@@ -408,11 +412,13 @@ const ProcessQueueItem = async (item) => {
                     },
                     maxBodyLength: Infinity
                 });
+                console.log(`[TRANSFER] File sent successfully to ${targetHost.id}`);
 
                 // 5. Cleanup Zip
                 if (outputFile.path) TerminalService.DeleteFile(outputFile.path);
 
                 // 6. Update Database
+                console.log(`[TRANSFER] Updating database records...`);
                 await prisma.runningServers.update({
                     where: { id: parseInt(server.id) },
                     data: {
@@ -423,17 +429,28 @@ const ProcessQueueItem = async (item) => {
                 });
 
                 // 7. Cleanup Local Directory
+                console.log(`[TRANSFER] Cleaning up local files...`);
                 const dirName = path.resolve(server.path);
                 TerminalService.DeleteDir(dirName);
 
                 // 8. Enqueue START on new host
+                console.log(`[TRANSFER] Enqueuing START task on target host...`);
                 await QueueService.Enqueue(parseInt(server.id), "START");
                 
                 await QueueService.UpdateStatus(parseInt(item.id), "COMPLETED", `Transferred to Host ${targetHost.id}`);
+                console.log(`[TRANSFER] Transfer complete for server ${server.id}`);
 
             } catch (err) {
+                console.error(`[TRANSFER] Error during transfer execution:`, err.message);
                 // Cleanup Zip on failure
                 if (outputFile.path) TerminalService.DeleteFile(outputFile.path);
+
+                // Reset transfering status
+                await prisma.runningServers.update({
+                    where: { id: parseInt(server.id) },
+                    data: { transfering: false }
+                });
+
                 throw err;
             }
         }

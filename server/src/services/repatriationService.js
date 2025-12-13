@@ -26,6 +26,7 @@ class RepatriationService {
                 where: {
                     serverid: serverId,
                     deleted: false,
+                    transfering: false,
                     preferredHostId: {
                         not: null,
                         not: serverId
@@ -80,9 +81,18 @@ class RepatriationService {
     async repatriateServer(server, targetHost) {
         try {
             console.log(`Enqueuing TRANSFER for Server ${server.id} to Host ${targetHost.id}...`);
+            await prisma.runningServers.update({
+                where: { id: server.id },
+                data: { transfering: true }
+            });
             await QueueService.Enqueue(server.id, "TRANSFER", { targetHostId: targetHost.id });
         } catch (error) {
             console.error(`Failed to enqueue repatriation for server ${server.id}:`, error);
+            // Revert transfer status if enqueue failed
+            await prisma.runningServers.update({
+                where: { id: server.id },
+                data: { transfering: false }
+            });
         }
     }
 }
